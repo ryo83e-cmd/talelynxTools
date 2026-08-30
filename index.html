@@ -3,299 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Side-by-Side Diff Tool</title>
+  <title>ツールポータル</title>
   <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --sub-text: #64748b;
+      --border: #e2e8f0;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      padding: 16px;
-      background: #f4f6f8;
-      color: #24292e;
-    }
-    h1 {
-      font-size: 1.2rem;
-      margin-bottom: 12px;
-    }
-    .editor-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-    .pane {
-      display: flex;
-      flex-direction: column;
-      background: #fff;
-      border: 1px solid #d0d7de;
-      border-radius: 6px;
-      padding: 10px;
-    }
-    .pane-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    .counter {
-      font-weight: normal;
-      color: #57606a;
-    }
-    textarea {
-      width: 100%;
-      height: 180px;
-      padding: 8px;
-      border: 1px solid #d0d7de;
-      border-radius: 4px;
-      resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-      font-size: 0.85rem;
-      line-height: 1.45;
-    }
-    .diff-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      background: #fff;
-      border: 1px solid #d0d7de;
-      border-radius: 6px;
-      overflow-x: auto;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-      font-size: 0.85rem;
-      line-height: 1.45;
-    }
-    .diff-side {
-      width: 100%;
-    }
-    .diff-side-left {
-      border-right: 1px solid #d0d7de;
-    }
-    .diff-line {
-      display: flex;
-      min-height: 1.45em;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-    .line-num {
-      width: 42px;
-      padding: 0 6px;
-      text-align: right;
-      color: #8c959f;
-      user-select: none;
-      background: #f6f8fa;
-      border-right: 1px solid #d0d7de;
-      flex-shrink: 0;
-    }
-    .line-text {
-      padding: 0 8px;
-      flex-grow: 1;
-    }
-    
-    /* 差分の配色 */
-    .line-del {
-      background-color: #ffebe9;
-    }
-    .line-del .line-num {
-      background-color: #ffdcd7;
-      color: #cf222e;
-    }
-    .line-add {
-      background-color: #e6ffec;
-    }
-    .line-add .line-num {
-      background-color: #ccffd8;
-      color: #1a7f37;
-    }
-    .line-empty {
-      background-color: #f6f8fa;
-    }
-    .line-empty .line-num {
-      background-color: #f6f8fa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 40px 20px;
     }
 
-    /* 文字単位の強調 */
-    .char-del {
-      background-color: #ff818266;
-      border-radius: 2px;
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
     }
-    .char-add {
-      background-color: #4ac26b66;
-      border-radius: 2px;
+
+    header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+
+    header p {
+      color: var(--sub-text);
+      font-size: 15px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+      border-color: var(--primary);
+    }
+
+    .card-content h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-content p {
+      font-size: 14px;
+      color: var(--sub-text);
+      margin-bottom: 16px;
+    }
+
+    .card-arrow {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card:hover .card-arrow {
+      color: var(--primary-hover);
     }
   </style>
 </head>
 <body>
 
-  <h1>左右比較 Diff ツール</h1>
+  <div class="container">
+    <header>
+      <h1>Web Tools Portal</h1>
+      <p>ブラウザ上で動作する各種ツール集</p>
+    </header>
 
-  <div class="editor-container">
-    <div class="pane">
-      <div class="pane-header">
-        <span>テキスト A (変更前)</span>
-        <span class="counter" id="count-a">文字数: 0 / 行数: 0</span>
-      </div>
-      <textarea id="text-a" placeholder="変更前のテキストを入力..."></textarea>
-    </div>
-    <div class="pane">
-      <div class="pane-header">
-        <span>テキスト B (変更後)</span>
-        <span class="counter" id="count-b">文字数: 0 / 行数: 0</span>
-      </div>
-      <textarea id="text-b" placeholder="変更後のテキストを入力..."></textarea>
-    </div>
+    <main class="grid">
+      <!-- アニメーションGIF作成ツールへのリンク -->
+      <a href="./gifBoobs.html" class="card">
+        <div class="card-content">
+          <h2>GIF Generator</h2>
+          <p>1枚の静止画の特定部位を変形・アニメーションさせてGIFを書き出すツールです。</p>
+        </div>
+        <div class="card-arrow">開く &rarr;</div>
+      </a>
+
+      <!-- 差分比較ツールへのリンク -->
+      <a href="./diff.html" class="card">
+        <div class="card-content">
+          <h2>Diff Viewer</h2>
+          <p>テキストやコードの差分を比較・確認するためのツールです。</p>
+        </div>
+        <div class="card-arrow">開く &rarr;</div>
+      </a>
+    </main>
   </div>
 
-  <div class="pane-header" style="margin-bottom: 4px;">
-    <strong>左右比較プレビュー</strong>
-  </div>
-  <div class="diff-container">
-    <div class="diff-side diff-side-left" id="diff-left"></div>
-    <div class="diff-side diff-side-right" id="diff-right"></div>
-  </div>
-
-  <script>
-    const textA = document.getElementById('text-a');
-    const textB = document.getElementById('text-b');
-    const countA = document.getElementById('count-a');
-    const countB = document.getElementById('count-b');
-    const diffLeft = document.getElementById('diff-left');
-    const diffRight = document.getElementById('diff-right');
-
-    function updateCounters() {
-      const valA = textA.value;
-      const linesA = valA ? valA.split('\n').length : 0;
-      countA.textContent = `文字数: ${valA.length} / 行数: ${linesA}`;
-
-      const valB = textB.value;
-      const linesB = valB ? valB.split('\n').length : 0;
-      countB.textContent = `文字数: ${valB.length} / 行数: ${linesB}`;
-    }
-
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    }
-
-    // 最小編集距離（LCS/Diff）
-    function computeDiff(arrA, arrB) {
-      const n = arrA.length;
-      const m = arrB.length;
-      const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
-
-      for (let i = 0; i <= n; i++) dp[i][0] = i;
-      for (let j = 0; j <= m; j++) dp[0][j] = j;
-
-      for (let i = 1; i <= n; i++) {
-        for (let j = 1; j <= m; j++) {
-          if (arrA[i - 1] === arrB[j - 1]) {
-            dp[i][j] = dp[i - 1][j - 1];
-          } else {
-            dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1);
-          }
-        }
-      }
-
-      const diff = [];
-      let i = n, j = m;
-      while (i > 0 || j > 0) {
-        if (i > 0 && j > 0 && arrA[i - 1] === arrB[j - 1]) {
-          diff.unshift({ type: 'same', valA: arrA[i - 1], valB: arrB[j - 1] });
-          i--; j--;
-        } else if (j > 0 && (i === 0 || dp[i][j - 1] <= dp[i - 1][j])) {
-          diff.unshift({ type: 'add', valB: arrB[j - 1] });
-          j--;
-        } else if (i > 0 && (j === 0 || dp[i][j - 1] > dp[i - 1][j])) {
-          diff.unshift({ type: 'del', valA: arrA[i - 1] });
-          i--;
-        }
-      }
-      return diff;
-    }
-
-    // 文字単位のインライン差分生成
-    function getInlineCharDiff(strA, strB) {
-      const charsA = Array.from(strA);
-      const charsB = Array.from(strB);
-      const diff = computeDiff(charsA, charsB);
-
-      let htmlA = '', htmlB = '';
-      diff.forEach(item => {
-        if (item.type === 'same') {
-          const esc = escapeHtml(item.valA);
-          htmlA += esc;
-          htmlB += esc;
-        } else if (item.type === 'del') {
-          htmlA += `<span class="char-del">${escapeHtml(item.valA)}</span>`;
-        } else if (item.type === 'add') {
-          htmlB += `<span class="char-add">${escapeHtml(item.valB)}</span>`;
-        }
-      });
-      return { htmlA, htmlB };
-    }
-
-    function renderSideBySideDiff() {
-      const valA = textA.value;
-      const valB = textB.value;
-
-      if (!valA && !valB) {
-        diffLeft.innerHTML = '';
-        diffRight.innerHTML = '';
-        return;
-      }
-
-      const linesA = valA.split('\n');
-      const linesB = valB.split('\n');
-      const lineDiff = computeDiff(linesA, linesB);
-
-      let leftHtml = '';
-      let rightHtml = '';
-      let lineNumA = 1;
-      let lineNumB = 1;
-
-      for (let i = 0; i < lineDiff.length; i++) {
-        const item = lineDiff[i];
-
-        // 変更行のペアリング（削除と追加が連続する場合、同一行として文字単位で比較）
-        if (item.type === 'del' && i + 1 < lineDiff.length && lineDiff[i + 1].type === 'add') {
-          const nextItem = lineDiff[i + 1];
-          const { htmlA, htmlB } = getInlineCharDiff(item.valA, nextItem.valB);
-
-          leftHtml += `<div class="diff-line line-del"><div class="line-num">${lineNumA++}</div><div class="line-text">${htmlA || '&nbsp;'}</div></div>`;
-          rightHtml += `<div class="diff-line line-add"><div class="line-num">${lineNumB++}</div><div class="line-text">${htmlB || '&nbsp;'}</div></div>`;
-          i++; // 次の add を消費
-        } else if (item.type === 'same') {
-          const esc = escapeHtml(item.valA);
-          leftHtml += `<div class="diff-line"><div class="line-num">${lineNumA++}</div><div class="line-text">${esc || '&nbsp;'}</div></div>`;
-          rightHtml += `<div class="diff-line"><div class="line-num">${lineNumB++}</div><div class="line-text">${esc || '&nbsp;'}</div></div>`;
-        } else if (item.type === 'del') {
-          const esc = escapeHtml(item.valA);
-          leftHtml += `<div class="diff-line line-del"><div class="line-num">${lineNumA++}</div><div class="line-text">${esc || '&nbsp;'}</div></div>`;
-          rightHtml += `<div class="diff-line line-empty"><div class="line-num"></div><div class="line-text">&nbsp;</div></div>`;
-        } else if (item.type === 'add') {
-          const esc = escapeHtml(item.valB);
-          leftHtml += `<div class="diff-line line-empty"><div class="line-num"></div><div class="line-text">&nbsp;</div></div>`;
-          rightHtml += `<div class="diff-line line-add"><div class="line-num">${lineNumB++}</div><div class="line-text">${esc || '&nbsp;'}</div></div>`;
-        }
-      }
-
-      diffLeft.innerHTML = leftHtml;
-      diffRight.innerHTML = rightHtml;
-    }
-
-    function handleInput() {
-      updateCounters();
-      renderSideBySideDiff();
-    }
-
-    textA.addEventListener('input', handleInput);
-    textB.addEventListener('input', handleInput);
-
-    updateCounters();
-  </script>
 </body>
 </html>
