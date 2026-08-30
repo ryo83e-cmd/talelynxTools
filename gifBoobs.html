@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>部位揺れアニメーションGIF作成</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 15px;
+      background: #f8f9fa;
+      color: #333;
+    }
+    .panel {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 14px;
+    }
+    .control-item span {
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    .canvas-wrap {
+      position: relative;
+      margin-top: 15px;
+      text-align: center;
+      background: #eee;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    canvas {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+      cursor: crosshair;
+    }
+    button {
+      grid-column: span 2;
+      background: #0070f3;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+    #result {
+      text-align: center;
+      margin-top: 20px;
+    }
+    #result img {
+      max-width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .dl-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: #28a745;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gifshot/0.3.2/gifshot.min.js"></script>
+</head>
+<body>
+
+<div class="panel">
+  <h2>部分揺れアニメーションGIF作成</h2>
+  <p>1. 画像を選択し、プレビュー上で揺らしたい位置（中心点）をクリックしてください。<br>
+  2. スライダーで揺らす範囲や強さを調整し、「GIF生成」を押します。</p>
+
+  <input type="file" id="imageInput" accept="image/*">
+
+  <div class="canvas-wrap">
+    <canvas id="previewCanvas"></canvas>
+  </div>
+
+  <div class="controls">
+    <div class="control-item">
+      <span>揺れ範囲の半径 (px): <span id="valRadius">80</span></span>
+      <input type="range" id="paramRadius" min="20" max="250" value="80">
+    </div>
+    <div class="control-item">
+      <span>揺れ幅 (px): <span id="valPower">15</span></span>
+      <input type="range" id="paramPower" min="2" max="50" value="15">
+    </div>
+    <div class="control-item">
+      <span>アニメーション速度: <span id="valSpeed">1.0</span></span>
+      <input type="range" id="paramSpeed" min="0.5" max="2.0" step="0.1" value="1.0">
+    </div>
+    <div class="control-item">
+      <span>生成フレーム数: <span id="valFrames">16</span></span>
+      <input type="range" id="paramFrames" min="8" max="32" step="2" value="16">
+    </div>
+    <button id="generateBtn" disabled>GIFを生成する</button>
+  </div>
+
+  <div id="status"></div>
+</div>
+
+<div id="result"></div>
+
+<script>
+  const imageInput = document.getElementById('imageInput');
+  const canvas = document.getElementById('previewCanvas');
+  const ctx = canvas.getContext('2d');
+  const generateBtn = document.getElementById('generateBtn');
+  const statusDiv = document.getElementById('status');
+  const resultDiv = document.getElementById('result');
+
+  const paramRadius = document.getElementById('paramRadius');
+  const paramPower = document.getElementById('paramPower');
+  const paramSpeed = document.getElementById('paramSpeed');
+  const paramFrames = document.getElementById('paramFrames');
+
+  const valRadius = document.getElementById('valRadius');
+  const valPower = document.getElementById('valPower');
+  const valSpeed = document.getElementById('valSpeed');
+  const valFrames = document.getElementById('valFrames');
+
+  let img = new Image();
+  let imgLoaded = false;
+  let point = { x: 0, y: 0 };
+  let animId = null;
+
+  // パラメータ表示更新
+  paramRadius.oninput = () => valRadius.textContent = paramRadius.value;
+  paramPower.oninput = () => valPower.textContent = paramPower.value;
+  paramSpeed.oninput = () => valSpeed.textContent = paramSpeed.value;
+  paramFrames.oninput = () => valFrames.textContent = paramFrames.value;
+
+  imageInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      img = new Image();
+      img.onload = () => {
+        // 画像サイズが大きすぎる場合は縮小
+        let w = img.width;
+        let h = img.height;
+        const maxDim = 600;
+        if (w > maxDim || h > maxDim) {
+          const ratio = Math.min(maxDim / w, maxDim / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+        point = { x: w / 2, y: h / 2 }; // 初期位置を中心に
+        imgLoaded = true;
+        generateBtn.disabled = false;
+        statusDiv.textContent = '揺らしたい位置をクリックして指定してください。';
+        startPreviewAnimation();
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // クリックで揺らす中心を設定
+  canvas.addEventListener('click', (e) => {
+    if (!imgLoaded) return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    point.x = (e.clientX - rect.left) * scaleX;
+    point.y = (e.clientY - rect.top) * scaleY;
+  });
+
+  // メッシュ変形描画関数
+  function drawWarped(targetCtx, timeOffset, showMarker = false) {
+    const w = canvas.width;
+    const h = canvas.height;
+    targetCtx.clearRect(0, 0, w, h);
+
+    const radius = parseFloat(paramRadius.value);
+    const power = parseFloat(paramPower.value);
+    const offsetY = Math.sin(timeOffset) * power;
+
+    // 分割グリッドサイズ
+    const gridSize = 12;
+    const cols = Math.ceil(w / gridSize);
+    const rows = Math.ceil(h / gridSize);
+
+    // 一時キャンバスに元画像を描画
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = w;
+    offCanvas.height = h;
+    const offCtx = offCanvas.getContext('2d');
+    offCtx.drawImage(img, 0, 0, w, h);
+
+    // スライスごとに変形適用して描画
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const sx = x * gridSize;
+        const sy = y * gridSize;
+        const sw = Math.min(gridSize, w - sx);
+        const sh = Math.min(gridSize, h - sy);
+
+        const cx = sx + sw / 2;
+        const cy = sy + sh / 2;
+
+        const dist = Math.hypot(cx - point.x, cy - point.y);
+        let dy = 0;
+
+        if (dist < radius) {
+          // 中心ほど強く、外側に向かって滑らかに減衰（コサイン減衰）
+          const factor = (Math.cos((dist / radius) * Math.PI) + 1) / 2;
+          dy = offsetY * factor;
+        }
+
+        targetCtx.drawImage(offCanvas, sx, sy, sw, sh, sx, sy + dy, sw, sh);
+      }
+    }
+
+    // プレビュー時のガイド表示
+    if (showMarker) {
+      targetCtx.strokeStyle = 'rgba(0, 112, 243, 0.6)';
+      targetCtx.lineWidth = 2;
+      targetCtx.beginPath();
+      targetCtx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+      targetCtx.stroke();
+
+      targetCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
+      targetCtx.beginPath();
+      targetCtx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+      targetCtx.fill();
+    }
+  }
+
+  // リアルタイムプレビュー用ループ
+  let t = 0;
+  function startPreviewAnimation() {
+    if (animId) cancelAnimationFrame(animId);
+
+    function loop() {
+      if (imgLoaded) {
+        const speed = parseFloat(paramSpeed.value);
+        t += 0.08 * speed;
+        drawWarped(ctx, t, true);
+      }
+      animId = requestAnimationFrame(loop);
+    }
+    loop();
+  }
+
+  // GIF生成
+  generateBtn.addEventListener('click', () => {
+    if (!imgLoaded) return;
+
+    generateBtn.disabled = true;
+    statusDiv.textContent = 'GIFフレーム生成中...';
+    resultDiv.innerHTML = '';
+
+    const frames = parseInt(paramFrames.value, 10);
+    const frameImages = [];
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = canvas.width;
+    offCanvas.height = canvas.height;
+    const offCtx = offCanvas.getContext('2d');
+
+    // 1周期分のフレームをキャプチャ
+    for (let i = 0; i < frames; i++) {
+      const phase = (i / frames) * Math.PI * 2;
+      drawWarped(offCtx, phase, false);
+      frameImages.push(offCanvas.toDataURL('image/png'));
+    }
+
+    statusDiv.textContent = 'GIFエンコード中... (数秒かかります)';
+
+    gifshot.createGIF({
+      images: frameImages,
+      interval: (1 / 15) / parseFloat(paramSpeed.value),
+      gifWidth: canvas.width,
+      gifHeight: canvas.height,
+      numWorkers: 2
+    }, (obj) => {
+      generateBtn.disabled = false;
+      if (!obj.error) {
+        statusDiv.textContent = '完成しました！';
+
+        const resultImg = document.createElement('img');
+        resultImg.src = obj.image;
+
+        const dl = document.createElement('a');
+        dl.href = obj.image;
+        dl.download = 'jiggle_animation.gif';
+        dl.textContent = 'GIFをダウンロード';
+        dl.className = 'dl-btn';
+
+        resultDiv.appendChild(resultImg);
+        resultDiv.appendChild(document.createElement('br'));
+        resultDiv.appendChild(dl);
+      } else {
+        statusDiv.textContent = '生成に失敗しました: ' + obj.errorMsg;
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
