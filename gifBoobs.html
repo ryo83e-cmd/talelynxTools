@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>楕円揺れアニメーションGIF作成 (ベクトル指定対応)</title>
+  <title>楕円揺れアニメーションGIF作成 (マスク機能対応)</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 900px;
+      max-width: 950px;
       margin: 20px auto;
       padding: 0 15px;
       background: #f8fafc;
@@ -35,14 +35,14 @@
     .settings-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: 15px;
       align-items: center;
       margin-bottom: 15px;
       padding: 12px 16px;
       background: #f1f5f9;
       border-radius: 8px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
     }
     .setting-group {
       display: flex;
@@ -54,22 +54,46 @@
       border-radius: 6px;
       border: 1px solid #cbd5e1;
       background: #fff;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
       color: #334155;
+    }
+    .tool-bar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      background: #e2e8f0;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .tool-btn {
+      padding: 6px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      background: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tool-btn.active {
+      background: #3b82f6;
+      color: #fff;
+      border-color: #2563eb;
     }
     .canvas-wrap {
       position: relative;
       margin: 15px 0;
       text-align: center;
-      background: #e2e8f0;
+      background: #cbd5e1;
       border-radius: 8px;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
     }
     canvas {
       max-width: 100%;
       display: block;
-      margin: 0 auto;
       cursor: crosshair;
     }
     .point-tabs {
@@ -194,7 +218,16 @@
     </div>
   </div>
 
-  <div class="point-tabs">
+  <!-- マスク・操作モード切替ツールバー -->
+  <div class="tool-bar">
+    <span>操作モード:</span>
+    <button type="button" id="toolSelectPoint" class="tool-btn active">位置・設定</button>
+    <button type="button" id="toolDrawMask" class="tool-btn">マスク描画（赤＝揺らさない）</button>
+    <button type="button" id="toolEraseMask" class="tool-btn">マスク消しゴム</button>
+    <button type="button" id="toolClearMask" class="tool-btn" style="margin-left:auto; background:#fee2e2; color:#b91c1c; border-color:#fca5a5;">マスク全消去</button>
+  </div>
+
+  <div class="point-tabs" id="pointTabsWrap">
     <div id="tabPoint1" class="point-tab active-left">ポイント 1（青）設定中</div>
     <div id="tabPoint2" class="point-tab">ポイント 2（ピンク）設定中</div>
   </div>
@@ -233,6 +266,10 @@
       <span>弾性・余韻: <span id="valElastic">0.5</span></span>
       <input type="range" id="paramElastic" min="0" max="1" step="0.1" value="0.5">
     </div>
+    <div class="control-item">
+      <span>マスクブラシサイズ: <span id="valBrushSize">30</span>px</span>
+      <input type="range" id="paramBrushSize" min="5" max="100" value="30">
+    </div>
   </div>
 
   <!-- 全体設定 -->
@@ -267,6 +304,11 @@
   const tabPoint2 = document.getElementById('tabPoint2');
   const phaseWrapper = document.getElementById('phaseWrapper');
 
+  const toolSelectPoint = document.getElementById('toolSelectPoint');
+  const toolDrawMask = document.getElementById('toolDrawMask');
+  const toolEraseMask = document.getElementById('toolEraseMask');
+  const toolClearMask = document.getElementById('toolClearMask');
+
   const paramRadiusX = document.getElementById('paramRadiusX');
   const paramRadiusY = document.getElementById('paramRadiusY');
   const paramAngle = document.getElementById('paramAngle');
@@ -274,6 +316,7 @@
   const paramPower = document.getElementById('paramPower');
   const paramPhase = document.getElementById('paramPhase');
   const paramElastic = document.getElementById('paramElastic');
+  const paramBrushSize = document.getElementById('paramBrushSize');
   const paramSpeed = document.getElementById('paramSpeed');
   const paramFrames = document.getElementById('paramFrames');
 
@@ -284,13 +327,19 @@
   const valPower = document.getElementById('valPower');
   const valPhase = document.getElementById('valPhase');
   const valElastic = document.getElementById('valElastic');
+  const valBrushSize = document.getElementById('valBrushSize');
   const valSpeed = document.getElementById('valSpeed');
   const valFrames = document.getElementById('valFrames');
 
   let activeIndex = 0;
   let activeCount = 2;
+  let currentMode = 'point'; // 'point' | 'drawMask' | 'eraseMask'
+  let isPainting = false;
 
-  // vectorAngle: 90°が真下、0°が真右、180°が真左、270°が真上
+  // マスク用キャンバス
+  const maskCanvas = document.createElement('canvas');
+  const maskCtx = maskCanvas.getContext('2d');
+
   const points = [
     { x: 0, y: 0, rx: 60, ry: 80, angle: 10, vectorAngle: 95, power: 15 },
     { x: 0, y: 0, rx: 60, ry: 80, angle: -10, vectorAngle: 85, power: 15 }
@@ -299,6 +348,21 @@
   let img = new Image();
   let imgLoaded = false;
   let animId = null;
+
+  // モードボタン切り替え
+  function setMode(mode) {
+    currentMode = mode;
+    toolSelectPoint.classList.toggle('active', mode === 'point');
+    toolDrawMask.classList.toggle('active', mode === 'drawMask');
+    toolEraseMask.classList.toggle('active', mode === 'eraseMask');
+  }
+
+  toolSelectPoint.onclick = () => setMode('point');
+  toolDrawMask.onclick = () => setMode('drawMask');
+  toolEraseMask.onclick = () => setMode('eraseMask');
+  toolClearMask.onclick = () => {
+    maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+  };
 
   pointCountRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
@@ -352,6 +416,7 @@
 
   paramPhase.oninput = () => valPhase.textContent = paramPhase.value;
   paramElastic.oninput = () => valElastic.textContent = paramElastic.value;
+  paramBrushSize.oninput = () => valBrushSize.textContent = paramBrushSize.value;
   paramSpeed.oninput = () => valSpeed.textContent = paramSpeed.value;
   paramFrames.oninput = () => valFrames.textContent = paramFrames.value;
 
@@ -375,6 +440,10 @@
         canvas.width = w;
         canvas.height = h;
 
+        maskCanvas.width = w;
+        maskCanvas.height = h;
+        maskCtx.clearRect(0, 0, w, h);
+
         points[0].x = w * 0.4;
         points[0].y = h * 0.5;
         points[1].x = w * 0.6;
@@ -382,7 +451,7 @@
 
         imgLoaded = true;
         generateBtn.disabled = false;
-        statusDiv.textContent = 'プレビューをクリックして位置を調整してください。';
+        statusDiv.textContent = '位置・角度調整またはマスク描画を行ってください。';
         updateUI();
         startPreviewAnimation();
       };
@@ -391,16 +460,59 @@
     reader.readAsDataURL(file);
   });
 
-  canvas.addEventListener('click', (e) => {
-    if (!imgLoaded) return;
+  // 座標取得
+  function getCanvasPos(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    points[activeIndex].x = (e.clientX - rect.left) * scaleX;
-    points[activeIndex].y = (e.clientY - rect.top) * scaleY;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  // マウス/タッチ操作
+  canvas.addEventListener('mousedown', (e) => {
+    if (!imgLoaded) return;
+    const pos = getCanvasPos(e);
+
+    if (currentMode === 'point') {
+      points[activeIndex].x = pos.x;
+      points[activeIndex].y = pos.y;
+    } else {
+      isPainting = true;
+      paintMask(pos.x, pos.y);
+    }
   });
 
-  // ベクトル方向に応じた変位計算
+  window.addEventListener('mousemove', (e) => {
+    if (!isPainting || !imgLoaded) return;
+    const pos = getCanvasPos(e);
+    paintMask(pos.x, pos.y);
+  });
+
+  window.addEventListener('mouseup', () => {
+    isPainting = false;
+  });
+
+  function paintMask(x, y) {
+    const size = parseFloat(paramBrushSize.value);
+    maskCtx.save();
+    if (currentMode === 'drawMask') {
+      maskCtx.globalCompositeOperation = 'source-over';
+      maskCtx.fillStyle = 'rgba(255, 0, 0, 1.0)';
+      maskCtx.beginPath();
+      maskCtx.arc(x, y, size / 2, 0, Math.PI * 2);
+      maskCtx.fill();
+    } else if (currentMode === 'eraseMask') {
+      maskCtx.globalCompositeOperation = 'destination-out';
+      maskCtx.beginPath();
+      maskCtx.arc(x, y, size / 2, 0, Math.PI * 2);
+      maskCtx.fill();
+    }
+    maskCtx.restore();
+  }
+
   function calcPatternDisplacement(pattern, ph, p, elastic) {
     let magMain = 0;
     let magCross = 0;
@@ -413,25 +525,21 @@
     const crossVy = Math.cos(vRad);
 
     switch (pattern) {
-      case 'bounce': // ベクトル方向への弾性跳ね返り
+      case 'bounce':
         magMain = (Math.sin(ph) + Math.sin(ph * 2) * 0.3 * elastic) * p.power;
         break;
-
-      case 'soft': // ベクトル方向へのなめらか正弦波
+      case 'soft':
         magMain = Math.sin(ph) * p.power;
         break;
-
-      case 'horizontal': // ベクトルと直角方向へのプルプル
+      case 'horizontal':
         magCross = Math.sin(ph) * p.power;
         magMain = Math.sin(ph * 2) * (p.power * 0.2 * elastic);
         break;
-
-      case 'circle': // ベクトルを基準軸とした円形・回転ロール
+      case 'circle':
         magMain = Math.sin(ph) * p.power;
         magCross = Math.cos(ph) * (p.power * 0.7);
         break;
-
-      case 'pulse': // 拡大縮小・脈動
+      case 'pulse':
         scale = (Math.sin(ph) * 0.5 + 0.5) * (p.power * 0.04);
         magMain = Math.sin(ph) * (p.power * 0.25);
         break;
@@ -448,7 +556,7 @@
     const h = canvas.height;
     targetCtx.clearRect(0, 0, w, h);
 
-    const gridSize = 10;
+    const gridSize = 8;
     const cols = Math.ceil(w / gridSize);
     const rows = Math.ceil(h / gridSize);
 
@@ -457,6 +565,9 @@
     offCanvas.height = h;
     const offCtx = offCanvas.getContext('2d');
     offCtx.drawImage(img, 0, 0, w, h);
+
+    // マスクピクセルデータを取得
+    const maskData = maskCtx.getImageData(0, 0, w, h).data;
 
     const phaseOffset = (activeCount === 2) ? parseFloat(paramPhase.value) * Math.PI * 2 : 0;
     const elastic = parseFloat(paramElastic.value);
@@ -471,6 +582,9 @@
       return { p, rad, disp };
     });
 
+    // スライス隙間（黒線）防止用オーバーラップマージン
+    const overlap = 0.75;
+
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const sx = x * gridSize;
@@ -478,45 +592,67 @@
         const sw = Math.min(gridSize, w - sx);
         const sh = Math.min(gridSize, h - sy);
 
-        const cx = sx + sw / 2;
-        const cy = sy + sh / 2;
+        const cx = Math.floor(sx + sw / 2);
+        const cy = Math.floor(sy + sh / 2);
+
+        // マスクチェック（赤色成分が強い部分は揺らさない）
+        let maskFactor = 1.0;
+        const pIndex = (cy * w + cx) * 4;
+        if (maskData[pIndex + 3] > 10) {
+          // マスクの不透明度に応じて揺れを減衰（完全マスクなら0）
+          maskFactor = 1.0 - (maskData[pIndex + 3] / 255);
+        }
 
         let totalDx = 0;
         let totalDy = 0;
 
-        pointStates.forEach(({ p, rad, disp }) => {
-          const dx = cx - p.x;
-          const dy = cy - p.y;
-          const cos = Math.cos(-rad);
-          const sin = Math.sin(-rad);
-          const localX = cos * dx - sin * dy;
-          const localY = sin * dx + cos * dy;
+        if (maskFactor > 0.001) {
+          pointStates.forEach(({ p, rad, disp }) => {
+            const dx = cx - p.x;
+            const dy = cy - p.y;
+            const cos = Math.cos(-rad);
+            const sin = Math.sin(-rad);
+            const localX = cos * dx - sin * dy;
+            const localY = sin * dx + cos * dy;
 
-          const normDist = Math.hypot(localX / p.rx, localY / p.ry);
+            const normDist = Math.hypot(localX / p.rx, localY / p.ry);
 
-          if (normDist < 1.0) {
-            const weight = Math.cos(normDist * Math.PI * 0.5) ** 2;
-            const pulseDx = localX * disp.scale;
-            const pulseDy = localY * disp.scale;
+            if (normDist < 1.0) {
+              const weight = (Math.cos(normDist * Math.PI * 0.5) ** 2) * maskFactor;
+              const pulseDx = localX * disp.scale;
+              const pulseDy = localY * disp.scale;
 
-            totalDx += (disp.dx + pulseDx) * weight;
-            totalDy += (disp.dy + pulseDy) * weight;
-          }
-        });
+              totalDx += (disp.dx + pulseDx) * weight;
+              totalDy += (disp.dy + pulseDy) * weight;
+            }
+          });
+        }
 
-        targetCtx.drawImage(offCanvas, sx, sy, sw, sh, sx + totalDx, sy + totalDy, sw, sh);
+        // オーバーラップを加味して隙間による黒線を防止
+        targetCtx.drawImage(
+          offCanvas,
+          sx, sy, sw, sh,
+          sx + totalDx, sy + totalDy, sw + overlap, sh + overlap
+        );
       }
     }
 
+    // プレビュー表示（マスク半透明重ね＋ガイド）
     if (showMarker) {
+      // マスクプレビュー
+      targetCtx.save();
+      targetCtx.globalAlpha = 0.35;
+      targetCtx.drawImage(maskCanvas, 0, 0);
+      targetCtx.restore();
+
+      // ガイド楕円・ベクトル
       activePoints.forEach((p, idx) => {
         targetCtx.save();
         targetCtx.translate(p.x, p.y);
 
-        // 楕円の描画（楕円角度基準）
         targetCtx.save();
         targetCtx.rotate((p.angle * Math.PI) / 180);
-        targetCtx.strokeStyle = idx === 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
+        targetCtx.strokeStyle = idx === 0 ? 'rgba(59, 130, 246, 0.85)' : 'rgba(236, 72, 153, 0.85)';
         targetCtx.lineWidth = (activeIndex === idx) ? 3 : 1.5;
         if (activeIndex !== idx) targetCtx.setLineDash([4, 4]);
 
@@ -525,7 +661,6 @@
         targetCtx.stroke();
         targetCtx.restore();
 
-        // 揺れベクトル方向矢印の描画
         const vRad = (p.vectorAngle * Math.PI) / 180;
         const arrowLen = 35;
         const ax = Math.cos(vRad) * arrowLen;
@@ -538,13 +673,11 @@
         targetCtx.lineTo(ax, ay);
         targetCtx.stroke();
 
-        // 矢印の先端
         targetCtx.fillStyle = idx === 0 ? '#1d4ed8' : '#be185d';
         targetCtx.beginPath();
         targetCtx.arc(ax, ay, 3, 0, Math.PI * 2);
         targetCtx.fill();
 
-        // 中心点
         targetCtx.fillStyle = idx === 0 ? '#2563eb' : '#db2777';
         targetCtx.beginPath();
         targetCtx.arc(0, 0, 4, 0, Math.PI * 2);
@@ -608,7 +741,7 @@
 
         const dl = document.createElement('a');
         dl.href = obj.image;
-        dl.download = 'jiggle_vector.gif';
+        dl.download = 'jiggle_masked.gif';
         dl.textContent = 'GIFをダウンロード';
         dl.className = 'dl-btn';
 
