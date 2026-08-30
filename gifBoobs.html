@@ -2,44 +2,68 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>部位揺れアニメーションGIF作成</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>楕円揺れアニメーションGIF作成 (ベクトル指定対応)</title>
   <style>
     body {
       font-family: sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       padding: 0 15px;
-      background: #f8f9fa;
-      color: #333;
+      background: #f8fafc;
+      color: #1e293b;
     }
     .panel {
       background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
+      padding: 24px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       margin-bottom: 20px;
     }
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-      margin-top: 15px;
+    .nav-back {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
     }
-    .control-item {
+    .nav-back:hover {
+      text-decoration: underline;
+    }
+    .settings-bar {
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 12px 16px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-weight: bold;
       font-size: 14px;
     }
-    .control-item span {
-      margin-bottom: 4px;
+    .setting-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      font-size: 14px;
       font-weight: bold;
+      color: #334155;
     }
     .canvas-wrap {
       position: relative;
-      margin-top: 15px;
+      margin: 15px 0;
       text-align: center;
-      background: #eee;
-      border-radius: 4px;
+      background: #e2e8f0;
+      border-radius: 8px;
       overflow: hidden;
     }
     canvas {
@@ -48,25 +72,76 @@
       margin: 0 auto;
       cursor: crosshair;
     }
-    button {
-      grid-column: span 2;
-      background: #0070f3;
+    .point-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .point-tab {
+      flex: 1;
+      padding: 10px;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      background: #f8fafc;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .point-tab.active-left {
+      background: #dbeafe;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+    }
+    .point-tab.active-right {
+      background: #fce7f3;
+      border-color: #ec4899;
+      color: #be185d;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 15px;
+      padding: 15px;
+      background: #f8fafc;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .control-item {
+      display: flex;
+      flex-direction: column;
+      font-size: 13px;
+    }
+    .control-item span {
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    button.action-btn {
+      width: 100%;
+      background: #3b82f6;
       color: #fff;
       border: none;
-      padding: 12px;
-      border-radius: 4px;
+      padding: 14px;
+      border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       font-weight: bold;
+      margin-top: 20px;
+      transition: background 0.2s;
+    }
+    button.action-btn:hover:not(:disabled) {
+      background: #2563eb;
     }
     button:disabled {
-      background: #ccc;
+      background: #cbd5e1;
       cursor: not-allowed;
     }
     #status {
-      margin-top: 10px;
+      margin-top: 12px;
       font-weight: bold;
       text-align: center;
+      color: #475569;
     }
     #result {
       text-align: center;
@@ -74,17 +149,17 @@
     }
     #result img {
       max-width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
     }
     .dl-btn {
       display: inline-block;
-      margin-top: 10px;
-      padding: 8px 16px;
-      background: #28a745;
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #10b981;
       color: #fff;
       text-decoration: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-weight: bold;
     }
   </style>
@@ -93,37 +168,87 @@
 <body>
 
 <div class="panel">
-  <h2>部分揺れアニメーションGIF作成</h2>
-  <p>1. 画像を選択し、プレビュー上で揺らしたい位置（中心点）をクリックしてください。<br>
-  2. スライダーで揺らす範囲や強さを調整し、「GIF生成」を押します。</p>
+  <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
+  <h2>楕円揺れアニメーションGIF作成</h2>
+  
+  <div style="margin: 15px 0;">
+    <input type="file" id="imageInput" accept="image/*">
+  </div>
 
-  <input type="file" id="imageInput" accept="image/*">
+  <div class="settings-bar">
+    <div class="setting-group">
+      <span>揺れパターン:</span>
+      <select id="motionPattern">
+        <option value="bounce">弾性バウンド（跳ね返り）</option>
+        <option value="soft">なめらか波（正弦波）</option>
+        <option value="horizontal">直交プルプル（ベクトルと直角）</option>
+        <option value="circle">円形ロール（回転揺れ）</option>
+        <option value="pulse">脈動・呼吸（拡大縮小）</option>
+      </select>
+    </div>
+
+    <div class="setting-group">
+      <span>箇所数:</span>
+      <label><input type="radio" name="pointCount" value="1"> 1箇所</label>
+      <label><input type="radio" name="pointCount" value="2" checked> 2箇所</label>
+    </div>
+  </div>
+
+  <div class="point-tabs">
+    <div id="tabPoint1" class="point-tab active-left">ポイント 1（青）設定中</div>
+    <div id="tabPoint2" class="point-tab">ポイント 2（ピンク）設定中</div>
+  </div>
 
   <div class="canvas-wrap">
     <canvas id="previewCanvas"></canvas>
   </div>
 
+  <!-- 選択中ポイントの設定 -->
   <div class="controls">
     <div class="control-item">
-      <span>揺れ範囲の半径 (px): <span id="valRadius">80</span></span>
-      <input type="range" id="paramRadius" min="20" max="250" value="80">
+      <span>楕円 横半径 (Rx): <span id="valRadiusX">60</span>px</span>
+      <input type="range" id="paramRadiusX" min="10" max="250" value="60">
     </div>
     <div class="control-item">
-      <span>揺れ幅 (px): <span id="valPower">15</span></span>
-      <input type="range" id="paramPower" min="2" max="50" value="15">
+      <span>楕円 縦半径 (Ry): <span id="valRadiusY">80</span>px</span>
+      <input type="range" id="paramRadiusY" min="10" max="250" value="80">
     </div>
+    <div class="control-item">
+      <span>楕円の傾き角度: <span id="valAngle">0</span>°</span>
+      <input type="range" id="paramAngle" min="-90" max="90" value="0">
+    </div>
+    <div class="control-item">
+      <span>揺れベクトル方向: <span id="valVectorAngle">90</span>°</span>
+      <input type="range" id="paramVectorAngle" min="0" max="360" value="90">
+    </div>
+    <div class="control-item">
+      <span>揺れ幅 (パワー): <span id="valPower">15</span>px</span>
+      <input type="range" id="paramPower" min="0" max="50" value="15">
+    </div>
+    <div class="control-item" id="phaseWrapper">
+      <span>左右の位相ズレ: <span id="valPhase">0.2</span></span>
+      <input type="range" id="paramPhase" min="0" max="1" step="0.05" value="0.2">
+    </div>
+    <div class="control-item">
+      <span>弾性・余韻: <span id="valElastic">0.5</span></span>
+      <input type="range" id="paramElastic" min="0" max="1" step="0.1" value="0.5">
+    </div>
+  </div>
+
+  <!-- 全体設定 -->
+  <div class="controls" style="margin-top: 10px;">
     <div class="control-item">
       <span>アニメーション速度: <span id="valSpeed">1.0</span></span>
       <input type="range" id="paramSpeed" min="0.5" max="2.0" step="0.1" value="1.0">
     </div>
     <div class="control-item">
-      <span>生成フレーム数: <span id="valFrames">16</span></span>
-      <input type="range" id="paramFrames" min="8" max="32" step="2" value="16">
+      <span>生成フレーム数: <span id="valFrames">20</span></span>
+      <input type="range" id="paramFrames" min="12" max="36" step="2" value="20">
     </div>
-    <button id="generateBtn" disabled>GIFを生成する</button>
   </div>
 
-  <div id="status"></div>
+  <button id="generateBtn" class="action-btn" disabled>GIFを生成する</button>
+  <div id="status">画像を選択してください</div>
 </div>
 
 <div id="result"></div>
@@ -136,24 +261,97 @@
   const statusDiv = document.getElementById('status');
   const resultDiv = document.getElementById('result');
 
-  const paramRadius = document.getElementById('paramRadius');
+  const motionPattern = document.getElementById('motionPattern');
+  const pointCountRadios = document.querySelectorAll('input[name="pointCount"]');
+  const tabPoint1 = document.getElementById('tabPoint1');
+  const tabPoint2 = document.getElementById('tabPoint2');
+  const phaseWrapper = document.getElementById('phaseWrapper');
+
+  const paramRadiusX = document.getElementById('paramRadiusX');
+  const paramRadiusY = document.getElementById('paramRadiusY');
+  const paramAngle = document.getElementById('paramAngle');
+  const paramVectorAngle = document.getElementById('paramVectorAngle');
   const paramPower = document.getElementById('paramPower');
+  const paramPhase = document.getElementById('paramPhase');
+  const paramElastic = document.getElementById('paramElastic');
   const paramSpeed = document.getElementById('paramSpeed');
   const paramFrames = document.getElementById('paramFrames');
 
-  const valRadius = document.getElementById('valRadius');
+  const valRadiusX = document.getElementById('valRadiusX');
+  const valRadiusY = document.getElementById('valRadiusY');
+  const valAngle = document.getElementById('valAngle');
+  const valVectorAngle = document.getElementById('valVectorAngle');
   const valPower = document.getElementById('valPower');
+  const valPhase = document.getElementById('valPhase');
+  const valElastic = document.getElementById('valElastic');
   const valSpeed = document.getElementById('valSpeed');
   const valFrames = document.getElementById('valFrames');
 
+  let activeIndex = 0;
+  let activeCount = 2;
+
+  // vectorAngle: 90°が真下、0°が真右、180°が真左、270°が真上
+  const points = [
+    { x: 0, y: 0, rx: 60, ry: 80, angle: 10, vectorAngle: 95, power: 15 },
+    { x: 0, y: 0, rx: 60, ry: 80, angle: -10, vectorAngle: 85, power: 15 }
+  ];
+
   let img = new Image();
   let imgLoaded = false;
-  let point = { x: 0, y: 0 };
   let animId = null;
 
-  // パラメータ表示更新
-  paramRadius.oninput = () => valRadius.textContent = paramRadius.value;
-  paramPower.oninput = () => valPower.textContent = paramPower.value;
+  pointCountRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      activeCount = parseInt(e.target.value, 10);
+      if (activeCount === 1) {
+        tabPoint2.style.display = 'none';
+        phaseWrapper.style.display = 'none';
+        selectTab(0);
+      } else {
+        tabPoint2.style.display = 'block';
+        phaseWrapper.style.display = 'flex';
+      }
+    });
+  });
+
+  function updateUI() {
+    const p = points[activeIndex];
+    paramRadiusX.value = p.rx;
+    paramRadiusY.value = p.ry;
+    paramAngle.value = p.angle;
+    paramVectorAngle.value = p.vectorAngle;
+    paramPower.value = p.power;
+
+    valRadiusX.textContent = p.rx;
+    valRadiusY.textContent = p.ry;
+    valAngle.textContent = p.angle;
+    valVectorAngle.textContent = p.vectorAngle;
+    valPower.textContent = p.power;
+  }
+
+  function selectTab(index) {
+    activeIndex = index;
+    if (index === 0) {
+      tabPoint1.className = 'point-tab active-left';
+      tabPoint2.className = 'point-tab';
+    } else {
+      tabPoint1.className = 'point-tab';
+      tabPoint2.className = 'point-tab active-right';
+    }
+    updateUI();
+  }
+
+  tabPoint1.onclick = () => selectTab(0);
+  tabPoint2.onclick = () => selectTab(1);
+
+  paramRadiusX.oninput = () => { points[activeIndex].rx = parseFloat(paramRadiusX.value); valRadiusX.textContent = paramRadiusX.value; };
+  paramRadiusY.oninput = () => { points[activeIndex].ry = parseFloat(paramRadiusY.value); valRadiusY.textContent = paramRadiusY.value; };
+  paramAngle.oninput = () => { points[activeIndex].angle = parseFloat(paramAngle.value); valAngle.textContent = paramAngle.value; };
+  paramVectorAngle.oninput = () => { points[activeIndex].vectorAngle = parseFloat(paramVectorAngle.value); valVectorAngle.textContent = paramVectorAngle.value; };
+  paramPower.oninput = () => { points[activeIndex].power = parseFloat(paramPower.value); valPower.textContent = paramPower.value; };
+
+  paramPhase.oninput = () => valPhase.textContent = paramPhase.value;
+  paramElastic.oninput = () => valElastic.textContent = paramElastic.value;
   paramSpeed.oninput = () => valSpeed.textContent = paramSpeed.value;
   paramFrames.oninput = () => valFrames.textContent = paramFrames.value;
 
@@ -165,10 +363,9 @@
     reader.onload = (event) => {
       img = new Image();
       img.onload = () => {
-        // 画像サイズが大きすぎる場合は縮小
         let w = img.width;
         let h = img.height;
-        const maxDim = 600;
+        const maxDim = 650;
         if (w > maxDim || h > maxDim) {
           const ratio = Math.min(maxDim / w, maxDim / h);
           w = Math.round(w * ratio);
@@ -177,10 +374,16 @@
 
         canvas.width = w;
         canvas.height = h;
-        point = { x: w / 2, y: h / 2 }; // 初期位置を中心に
+
+        points[0].x = w * 0.4;
+        points[0].y = h * 0.5;
+        points[1].x = w * 0.6;
+        points[1].y = h * 0.5;
+
         imgLoaded = true;
         generateBtn.disabled = false;
-        statusDiv.textContent = '揺らしたい位置をクリックして指定してください。';
+        statusDiv.textContent = 'プレビューをクリックして位置を調整してください。';
+        updateUI();
         startPreviewAnimation();
       };
       img.src = event.target.result;
@@ -188,39 +391,86 @@
     reader.readAsDataURL(file);
   });
 
-  // クリックで揺らす中心を設定
   canvas.addEventListener('click', (e) => {
     if (!imgLoaded) return;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    point.x = (e.clientX - rect.left) * scaleX;
-    point.y = (e.clientY - rect.top) * scaleY;
+    points[activeIndex].x = (e.clientX - rect.left) * scaleX;
+    points[activeIndex].y = (e.clientY - rect.top) * scaleY;
   });
 
-  // メッシュ変形描画関数
-  function drawWarped(targetCtx, timeOffset, showMarker = false) {
+  // ベクトル方向に応じた変位計算
+  function calcPatternDisplacement(pattern, ph, p, elastic) {
+    let magMain = 0;
+    let magCross = 0;
+    let scale = 0;
+
+    const vRad = (p.vectorAngle * Math.PI) / 180;
+    const mainVx = Math.cos(vRad);
+    const mainVy = Math.sin(vRad);
+    const crossVx = -Math.sin(vRad);
+    const crossVy = Math.cos(vRad);
+
+    switch (pattern) {
+      case 'bounce': // ベクトル方向への弾性跳ね返り
+        magMain = (Math.sin(ph) + Math.sin(ph * 2) * 0.3 * elastic) * p.power;
+        break;
+
+      case 'soft': // ベクトル方向へのなめらか正弦波
+        magMain = Math.sin(ph) * p.power;
+        break;
+
+      case 'horizontal': // ベクトルと直角方向へのプルプル
+        magCross = Math.sin(ph) * p.power;
+        magMain = Math.sin(ph * 2) * (p.power * 0.2 * elastic);
+        break;
+
+      case 'circle': // ベクトルを基準軸とした円形・回転ロール
+        magMain = Math.sin(ph) * p.power;
+        magCross = Math.cos(ph) * (p.power * 0.7);
+        break;
+
+      case 'pulse': // 拡大縮小・脈動
+        scale = (Math.sin(ph) * 0.5 + 0.5) * (p.power * 0.04);
+        magMain = Math.sin(ph) * (p.power * 0.25);
+        break;
+    }
+
+    const totalDx = mainVx * magMain + crossVx * magCross;
+    const totalDy = mainVy * magMain + crossVy * magCross;
+
+    return { dx: totalDx, dy: totalDy, scale };
+  }
+
+  function drawWarped(targetCtx, t, showMarker = false) {
     const w = canvas.width;
     const h = canvas.height;
     targetCtx.clearRect(0, 0, w, h);
 
-    const radius = parseFloat(paramRadius.value);
-    const power = parseFloat(paramPower.value);
-    const offsetY = Math.sin(timeOffset) * power;
-
-    // 分割グリッドサイズ
-    const gridSize = 12;
+    const gridSize = 10;
     const cols = Math.ceil(w / gridSize);
     const rows = Math.ceil(h / gridSize);
 
-    // 一時キャンバスに元画像を描画
     const offCanvas = document.createElement('canvas');
     offCanvas.width = w;
     offCanvas.height = h;
     const offCtx = offCanvas.getContext('2d');
     offCtx.drawImage(img, 0, 0, w, h);
 
-    // スライスごとに変形適用して描画
+    const phaseOffset = (activeCount === 2) ? parseFloat(paramPhase.value) * Math.PI * 2 : 0;
+    const elastic = parseFloat(paramElastic.value);
+    const pattern = motionPattern.value;
+
+    const activePoints = points.slice(0, activeCount);
+
+    const pointStates = activePoints.map((p, idx) => {
+      const ph = t + (idx === 1 ? phaseOffset : 0);
+      const rad = (p.angle * Math.PI) / 180;
+      const disp = calcPatternDisplacement(pattern, ph, p, elastic);
+      return { p, rad, disp };
+    });
+
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const sx = x * gridSize;
@@ -231,35 +481,80 @@
         const cx = sx + sw / 2;
         const cy = sy + sh / 2;
 
-        const dist = Math.hypot(cx - point.x, cy - point.y);
-        let dy = 0;
+        let totalDx = 0;
+        let totalDy = 0;
 
-        if (dist < radius) {
-          // 中心ほど強く、外側に向かって滑らかに減衰（コサイン減衰）
-          const factor = (Math.cos((dist / radius) * Math.PI) + 1) / 2;
-          dy = offsetY * factor;
-        }
+        pointStates.forEach(({ p, rad, disp }) => {
+          const dx = cx - p.x;
+          const dy = cy - p.y;
+          const cos = Math.cos(-rad);
+          const sin = Math.sin(-rad);
+          const localX = cos * dx - sin * dy;
+          const localY = sin * dx + cos * dy;
 
-        targetCtx.drawImage(offCanvas, sx, sy, sw, sh, sx, sy + dy, sw, sh);
+          const normDist = Math.hypot(localX / p.rx, localY / p.ry);
+
+          if (normDist < 1.0) {
+            const weight = Math.cos(normDist * Math.PI * 0.5) ** 2;
+            const pulseDx = localX * disp.scale;
+            const pulseDy = localY * disp.scale;
+
+            totalDx += (disp.dx + pulseDx) * weight;
+            totalDy += (disp.dy + pulseDy) * weight;
+          }
+        });
+
+        targetCtx.drawImage(offCanvas, sx, sy, sw, sh, sx + totalDx, sy + totalDy, sw, sh);
       }
     }
 
-    // プレビュー時のガイド表示
     if (showMarker) {
-      targetCtx.strokeStyle = 'rgba(0, 112, 243, 0.6)';
-      targetCtx.lineWidth = 2;
-      targetCtx.beginPath();
-      targetCtx.arc(point.x, point.y, radius, 0, Math.PI * 2);
-      targetCtx.stroke();
+      activePoints.forEach((p, idx) => {
+        targetCtx.save();
+        targetCtx.translate(p.x, p.y);
 
-      targetCtx.fillStyle = 'rgba(255, 0, 0, 0.8)';
-      targetCtx.beginPath();
-      targetCtx.arc(point.x, point.y, 4, 0, Math.PI * 2);
-      targetCtx.fill();
+        // 楕円の描画（楕円角度基準）
+        targetCtx.save();
+        targetCtx.rotate((p.angle * Math.PI) / 180);
+        targetCtx.strokeStyle = idx === 0 ? 'rgba(59, 130, 246, 0.8)' : 'rgba(236, 72, 153, 0.8)';
+        targetCtx.lineWidth = (activeIndex === idx) ? 3 : 1.5;
+        if (activeIndex !== idx) targetCtx.setLineDash([4, 4]);
+
+        targetCtx.beginPath();
+        targetCtx.ellipse(0, 0, p.rx, p.ry, 0, 0, Math.PI * 2);
+        targetCtx.stroke();
+        targetCtx.restore();
+
+        // 揺れベクトル方向矢印の描画
+        const vRad = (p.vectorAngle * Math.PI) / 180;
+        const arrowLen = 35;
+        const ax = Math.cos(vRad) * arrowLen;
+        const ay = Math.sin(vRad) * arrowLen;
+
+        targetCtx.strokeStyle = idx === 0 ? '#1d4ed8' : '#be185d';
+        targetCtx.lineWidth = 2;
+        targetCtx.beginPath();
+        targetCtx.moveTo(0, 0);
+        targetCtx.lineTo(ax, ay);
+        targetCtx.stroke();
+
+        // 矢印の先端
+        targetCtx.fillStyle = idx === 0 ? '#1d4ed8' : '#be185d';
+        targetCtx.beginPath();
+        targetCtx.arc(ax, ay, 3, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        // 中心点
+        targetCtx.fillStyle = idx === 0 ? '#2563eb' : '#db2777';
+        targetCtx.beginPath();
+        targetCtx.arc(0, 0, 4, 0, Math.PI * 2);
+        targetCtx.fill();
+
+        targetCtx.restore();
+      });
     }
   }
 
-  // リアルタイムプレビュー用ループ
   let t = 0;
   function startPreviewAnimation() {
     if (animId) cancelAnimationFrame(animId);
@@ -275,12 +570,11 @@
     loop();
   }
 
-  // GIF生成
   generateBtn.addEventListener('click', () => {
     if (!imgLoaded) return;
 
     generateBtn.disabled = true;
-    statusDiv.textContent = 'GIFフレーム生成中...';
+    statusDiv.textContent = '各フレームを生成中...';
     resultDiv.innerHTML = '';
 
     const frames = parseInt(paramFrames.value, 10);
@@ -290,18 +584,17 @@
     offCanvas.height = canvas.height;
     const offCtx = offCanvas.getContext('2d');
 
-    // 1周期分のフレームをキャプチャ
     for (let i = 0; i < frames; i++) {
       const phase = (i / frames) * Math.PI * 2;
       drawWarped(offCtx, phase, false);
       frameImages.push(offCanvas.toDataURL('image/png'));
     }
 
-    statusDiv.textContent = 'GIFエンコード中... (数秒かかります)';
+    statusDiv.textContent = 'GIFエンコード中...（数秒かかります）';
 
     gifshot.createGIF({
       images: frameImages,
-      interval: (1 / 15) / parseFloat(paramSpeed.value),
+      interval: (1 / 18) / parseFloat(paramSpeed.value),
       gifWidth: canvas.width,
       gifHeight: canvas.height,
       numWorkers: 2
@@ -315,7 +608,7 @@
 
         const dl = document.createElement('a');
         dl.href = obj.image;
-        dl.download = 'jiggle_animation.gif';
+        dl.download = 'jiggle_vector.gif';
         dl.textContent = 'GIFをダウンロード';
         dl.className = 'dl-btn';
 
@@ -323,7 +616,7 @@
         resultDiv.appendChild(document.createElement('br'));
         resultDiv.appendChild(dl);
       } else {
-        statusDiv.textContent = '生成に失敗しました: ' + obj.errorMsg;
+        statusDiv.textContent = '生成エラー: ' + obj.errorMsg;
       }
     });
   });
