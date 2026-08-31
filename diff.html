@@ -155,7 +155,27 @@
     <div class="diff-side diff-side-left" id="diff-left"></div>
     <div class="diff-side diff-side-right" id="diff-right"></div>
   </div>
+<!-- 共通フッター -->
+<footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid #e2e8f0; text-align: center; color: #64748b; font-size: 13px;">
+  <div style="max-width: 900px; margin: 0 auto; padding: 0 15px;">
+    <p style="margin-bottom: 8px;">
+      &copy; <span id="copyright-year"></span> Tools Portal. All rights reserved.
+    </p>
+    <p style="font-size: 12px; line-height: 1.5;">
+      当サイトで生成・処理されたデータはすべてブラウザ上で完結しており、外部サーバーに保存されることはありません。<br>
+      本ツールの利用によって生じたいかなる損害・トラブルについても、当方は一切の責任を負いかねます。
+    </p>
+    <div style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
+      <a href="./index.html" style="color: #3b82f6; text-decoration: none;">ホーム</a>
+      <a href="#" onclick="alert('オープンソースライセンス:\n本ツール群はMITライセンス等のオープンソースソフトウェアおよび各種CDNライブラリ（gifshot等）を利用してブラウザ上で動作しています。'); return false;" style="color: #3b82f6; text-decoration: none;">利用規約・ライセンス</a>
+    </div>
+  </div>
+</footer>
 
+<script>
+  // 著作権の年号を自動で現在の年にするスクリプト
+  document.getElementById('copyright-year').textContent = new Date().getFullYear();
+</script>
   <script>
     const textA = document.getElementById('text-a');
     const textB = document.getElementById('text-b');
