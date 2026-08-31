@@ -1,5 +1,5 @@
 // pixaiConfig.js
- 
+
 window.pixaiConfig = {
   promptGroups: [
     {
@@ -36,15 +36,22 @@ window.pixaiConfig = {
       ]
     },
     {
-      title: "髪型・髪色",
-      group: "hair",
+      title: "髪型",
+      group: "hairStyle",
       type: "multi",
       options: [
         { label: "ロングヘア", tag: "long hair", selected: true },
         { label: "ボブ", tag: "bob cut" },
         { label: "ツインテール", tag: "twintails" },
         { label: "ポニーテール", tag: "ponytail" },
-        { label: "ぱっつん前髪", tag: "blunt bangs" },
+        { label: "ぱっつん前髪", tag: "blunt bangs" }
+      ]
+    },
+    {
+      title: "髪色",
+      group: "hairColor",
+      type: "single",
+      options: [
         { label: "シルバー髪", tag: "silver hair", selected: true },
         { label: "金髪", tag: "blonde hair" },
         { label: "黒髪", tag: "black hair" },
@@ -91,14 +98,28 @@ window.pixaiConfig = {
   ],
 
   updatePreviewAppearance(prompt, svgHair, svgClothes) {
-    if (prompt.includes('silver hair')) svgHair.setAttribute('fill', '#94a3b8');
-    else if (prompt.includes('blonde hair')) svgHair.setAttribute('fill', '#eab308');
-    else if (prompt.includes('black hair')) svgHair.setAttribute('fill', '#1e293b');
-    else svgHair.setAttribute('fill', '#64748b');
+    // 髪色の反映
+    if (prompt.includes('silver hair')) {
+      svgHair.setAttribute('fill', '#94a3b8');
+    } else if (prompt.includes('blonde hair')) {
+      svgHair.setAttribute('fill', '#eab308');
+    } else if (prompt.includes('black hair')) {
+      svgHair.setAttribute('fill', '#1e293b');
+    } else {
+      svgHair.setAttribute('fill', '#64748b');
+    }
 
-    if (prompt.includes('school uniform')) svgClothes.setAttribute('fill', '#0284c7');
-    else if (prompt.includes('maid outfit')) svgClothes.setAttribute('fill', '#334155');
-    else if (prompt.includes('hoodie')) svgClothes.setAttribute('fill', '#a855f7');
-    else svgClothes.setAttribute('fill', '#3b82f6');
+    // 服装の反映
+    if (prompt.includes('school uniform')) {
+      svgClothes.setAttribute('fill', '#0284c7');
+    } else if (prompt.includes('maid outfit')) {
+      svgClothes.setAttribute('fill', '#334155');
+    } else if (prompt.includes('hoodie')) {
+      svgClothes.setAttribute('fill', '#a855f7');
+    } else if (prompt.includes('t-shirt')) {
+      svgClothes.setAttribute('fill', '#ef4444');
+    } else {
+      svgClothes.setAttribute('fill', '#3b82f6');
+    }
   }
 };
