@@ -265,7 +265,7 @@
         formContainer.appendChild(gridEl);
       });
 
-function updateAll() {
+      function updateAll() {
         const selectedChips = document.querySelectorAll('.chip.selected');
         let tags = [];
         selectedChips.forEach(chip => {
@@ -289,7 +289,7 @@ function updateAll() {
           tags.push(`colored eyelashes, [${meshHex}] streaks`);
         }
 
-        // ★ここで先頭にクオリティ指定タグを固定で追加する
+        // 先頭にクオリティ指定タグを追加
         const qualityPrefix = "(masterpiece, best quality, ultra detailed, cinematic anime illustration:1.2)";
         const allTags = [qualityPrefix, ...tags];
 
@@ -300,7 +300,21 @@ function updateAll() {
         svgHair.setAttribute('fill', baseHex);
         config.updatePreviewAppearance(finalPrompt, svgHair, svgClothes);
       }
-    }
+
+      copyBtn.addEventListener('click', () => {
+        promptResult.select();
+        navigator.clipboard.writeText(promptResult.value).then(() => {
+          copyBtn.textContent = 'コピーしました！';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = 'プロンプトをコピー';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+
+      updateAll();
+    });
   </script>
 </body>
 </html>
