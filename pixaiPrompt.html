@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixAI プロンプトジェネレーター</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --sub-text: #64748b;
+      --border: #e2e8f0;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 30px 15px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .nav-back:hover { text-decoration: underline; }
+    
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    h2, h3 { margin-bottom: 16px; color: #0f172a; }
+    
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin: 16px 0 8px;
+      color: #334155;
+      border-left: 4px solid var(--primary);
+      padding-left: 8px;
+    }
+    .options-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      padding: 6px 12px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      border-radius: 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .chip:hover { background: #f1f5f9; border-color: #cbd5e1; }
+    .chip.selected {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #3b82f6;
+      font-weight: bold;
+    }
+
+    .preview-sticky { position: sticky; top: 20px; }
+    .preview-box {
+      background: #e2e8f0;
+      border-radius: 8px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .prompt-output {
+      width: 100%;
+      height: 90px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #f8fafc;
+      resize: none;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.2s;
+    }
+    .copy-btn:hover { background: var(--primary-hover); }
+    .copy-btn.copied { background: #10b981; }
+  </style>
+</head>
+<body>
+
+  <div style="max-width: 1000px; margin: 0 auto;">
+    <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
+    <h1 style="margin-bottom: 20px; font-size: 24px;">PixAI プロンプトジェネレーター</h1>
+
+    <div class="layout">
+      <!-- 選択フォームエリア（JSで動的生成） -->
+      <div>
+        <div class="panel" id="formContainer">
+          <h3>キャラクター設定</h3>
+          <!-- 選択肢がここに自動で読み込まれます -->
+        </div>
+      </div>
+
+      <!-- プレビュー＆出力エリア -->
+      <div class="preview-sticky">
+        <div class="panel">
+          <h3>イメージプレビュー</h3>
+          <div class="preview-box">
+            <svg id="avatarSvg" width="160" height="220" viewBox="0 0 160 220">
+              <ellipse cx="80" cy="180" rx="40" ry="50" fill="#cbd5e1" />
+              <path id="svgClothes" d="M40 160 Q80 140 120 160 L130 220 L30 220 Z" fill="#3b82f6" />
+              <circle cx="80" cy="90" r="35" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" />
+              <path id="svgHair" d="M45 80 Q80 30 115 80 Q130 140 110 180 Q80 160 50 180 Q30 140 45 80 Z" fill="#94a3b8" />
+            </svg>
+          </div>
+
+          <h3>生成プロンプト (PixAI用)</h3>
+          <textarea id="promptResult" class="prompt-output" readonly></textarea>
+          <button id="copyBtn" class="copy-btn">プロンプトをコピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 外部設定ファイルをモジュールとして読み込み -->
+  <script type="module">
+    import { promptGroups, updatePreviewAppearance } from './pixaiConfig.js';
+
+    const formContainer = document.getElementById('formContainer');
+    const promptResult = document.getElementById('promptResult');
+    const copyBtn = document.getElementById('copyBtn');
+    const svgHair = document.getElementById('svgHair');
+    const svgClothes = document.getElementById('svgClothes');
+
+    // 設定ファイルから選択肢のHTMLを自動構築
+    promptGroups.forEach(g => {
+      const titleEl = document.createElement('div');
+      titleEl.className = 'section-title';
+      titleEl.textContent = g.title;
+      formContainer.appendChild(titleEl);
+
+      const gridEl = document.createElement('div');
+      gridEl.className = 'options-grid';
+      gridEl.setAttribute('data-group', g.group);
+      gridEl.setAttribute('data-type', g.type);
+
+      g.options.forEach(opt => {
+        const chip = document.createElement('div');
+        chip.className = `chip ${opt.selected ? 'selected' : ''}`;
+        chip.setAttribute('data-tag', opt.tag);
+        chip.textContent = opt.label;
+
+        chip.addEventListener('click', () => {
+          if (g.type === 'single') {
+            gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            chip.classList.add('selected');
+          } else {
+            chip.classList.toggle('selected');
+          }
+          updateAll();
+        });
+
+        gridEl.appendChild(chip);
+      });
+
+      formContainer.appendChild(gridEl);
+    });
+
+    function updateAll() {
+      const selectedChips = document.querySelectorAll('.chip.selected');
+      let tags = [];
+      selectedChips.forEach(chip => {
+        tags.push(chip.getAttribute('data-tag'));
+      });
+
+      const finalPrompt = tags.join(', ');
+      promptResult.value = finalPrompt;
+
+      // 外部ファイル側のSVGプレビュー更新関数を呼び出す
+      updatePreviewAppearance(finalPrompt, svgHair, svgClothes);
+    }
+
+    copyBtn.addEventListener('click', () => {
+      promptResult.select();
+      navigator.clipboard.writeText(promptResult.value).then(() => {
+        copyBtn.textContent = 'コピーしました！';
+        copyBtn.classList.add('copied');
+        setTimeout(() => {
+          copyBtn.textContent = 'プロンプトをコピー';
+          copyBtn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+
+    // 初期実行
+    updateAll();
+  </script>
+</body>
+</html>
