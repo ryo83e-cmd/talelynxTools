@@ -64,6 +64,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      align-items: center;
     }
     .chip {
       padding: 6px 12px;
@@ -81,6 +82,21 @@
       color: #1d4ed8;
       border-color: #3b82f6;
       font-weight: bold;
+    }
+    .color-picker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .color-picker-wrap input[type="color"] {
+      border: none;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      border-radius: 4px;
+      background: none;
     }
 
     .preview-sticky { position: sticky; top: 20px; }
@@ -159,13 +175,12 @@
     </div>
   </div>
 
-  <!-- 設定ファイルを通常読み込み -->
   <script src="./pixaiConfig.js"></script>
   <script>
     window.addEventListener('DOMContentLoaded', () => {
       const config = window.pixaiConfig;
       if (!config) {
-        alert('pixaiConfig.js が正しく読み込まれていません。');
+        alert('pixaiConfig.js が読み込まれていません。');
         return;
       }
 
@@ -174,6 +189,8 @@
       const copyBtn = document.getElementById('copyBtn');
       const svgHair = document.getElementById('svgHair');
       const svgClothes = document.getElementById('svgClothes');
+
+      let customInnerColorTag = "";
 
       config.promptGroups.forEach(g => {
         const titleEl = document.createElement('div');
@@ -193,7 +210,7 @@
           chip.textContent = opt.label;
 
           chip.addEventListener('click', () => {
-            if (g.type === 'single') {
+            if (g.type === 'single' || g.type === 'customColor') {
               gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
               chip.classList.add('selected');
             } else {
@@ -205,6 +222,27 @@
           gridEl.appendChild(chip);
         });
 
+        // 髪色セクションにインナーカラー自由指定用のカラーピッカーを追加
+        if (g.group === 'hairColor') {
+          const pickerWrap = document.createElement('div');
+          pickerWrap.className = 'color-picker-wrap';
+          pickerWrap.innerHTML = `
+            <span>インナーカラー追加:</span>
+            <input type="color" id="innerColorPicker" value="#ff758c">
+            <label><input type="checkbox" id="enableInnerColor"> 有効化</label>
+          `;
+          gridEl.appendChild(pickerWrap);
+
+          pickerWrap.querySelector('#innerColorPicker').addEventListener('input', (e) => {
+            if (document.getElementById('enableInnerColor').checked) {
+              updateAll();
+            }
+          });
+          pickerWrap.querySelector('#enableInnerColor').addEventListener('change', () => {
+            updateAll();
+          });
+        }
+
         formContainer.appendChild(gridEl);
       });
 
@@ -212,8 +250,16 @@
         const selectedChips = document.querySelectorAll('.chip.selected');
         let tags = [];
         selectedChips.forEach(chip => {
-          tags.push(chip.getAttribute('data-tag'));
+          const t = chip.getAttribute('data-tag');
+          if (t) tags.push(t);
         });
+
+        // インナーカラー有効時のカスタムタグ追加
+        const enableInner = document.getElementById('enableInnerColor');
+        if (enableInner && enableInner.checked) {
+          const hexColor = document.getElementById('innerColorPicker').value;
+          tags.push(`streaked hair, multicolored hair, [${hexColor}] inner hair`);
+        }
 
         const finalPrompt = tags.join(', ');
         promptResult.value = finalPrompt;
