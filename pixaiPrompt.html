@@ -83,17 +83,26 @@
       border-color: #3b82f6;
       font-weight: bold;
     }
-    .color-picker-wrap {
+    .color-settings-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+      width: 100%;
+      font-size: 13px;
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .color-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 8px;
-      font-size: 13px;
     }
-    .color-picker-wrap input[type="color"] {
+    .color-row input[type="color"] {
       border: none;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       cursor: pointer;
       border-radius: 4px;
       background: none;
@@ -190,8 +199,6 @@
       const svgHair = document.getElementById('svgHair');
       const svgClothes = document.getElementById('svgClothes');
 
-      let customInnerColorTag = "";
-
       config.promptGroups.forEach(g => {
         const titleEl = document.createElement('div');
         titleEl.className = 'section-title';
@@ -203,43 +210,55 @@
         gridEl.setAttribute('data-group', g.group);
         gridEl.setAttribute('data-type', g.type);
 
-        g.options.forEach(opt => {
-          const chip = document.createElement('div');
-          chip.className = `chip ${opt.selected ? 'selected' : ''}`;
-          chip.setAttribute('data-tag', opt.tag);
-          chip.textContent = opt.label;
-
-          chip.addEventListener('click', () => {
-            if (g.type === 'single' || g.type === 'customColor') {
-              gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-              chip.classList.add('selected');
-            } else {
-              chip.classList.toggle('selected');
-            }
-            updateAll();
-          });
-
-          gridEl.appendChild(chip);
-        });
-
-        // 髪色セクションにインナーカラー自由指定用のカラーピッカーを追加
-        if (g.group === 'hairColor') {
-          const pickerWrap = document.createElement('div');
-          pickerWrap.className = 'color-picker-wrap';
-          pickerWrap.innerHTML = `
-            <span>インナーカラー追加:</span>
-            <input type="color" id="innerColorPicker" value="#ff758c">
-            <label><input type="checkbox" id="enableInnerColor"> 有効化</label>
+        if (g.type === 'customColorPicker') {
+          // 髪色・インナー・メッシュのカラーピッカー専用レイアウト
+          const colorBox = document.createElement('div');
+          colorBox.className = 'color-settings-box';
+          colorBox.innerHTML = `
+            <div class="color-row">
+              <input type="color" id="baseColorPicker" value="#94a3b8">
+              <span>ベース髪色: <strong id="baseColorHex">#94a3b8</strong></span>
+            </div>
+            <div class="color-row">
+              <input type="color" id="innerColorPicker" value="#ff758c">
+              <label><input type="checkbox" id="enableInnerColor"> インナーカラー有効化</label>
+            </div>
+            <div class="color-row">
+              <input type="color" id="meshColorPicker" value="#38bdf8">
+              <label><input type="checkbox" id="enableMeshColor"> メッシュカラー有効化</label>
+            </div>
           `;
-          gridEl.appendChild(pickerWrap);
+          gridEl.appendChild(colorBox);
 
-          pickerWrap.querySelector('#innerColorPicker').addEventListener('input', (e) => {
-            if (document.getElementById('enableInnerColor').checked) {
-              updateAll();
-            }
-          });
-          pickerWrap.querySelector('#enableInnerColor').addEventListener('change', () => {
+          // イベント連動
+          colorBox.querySelector('#baseColorPicker').addEventListener('input', (e) => {
+            document.getElementById('baseColorHex').textContent = e.target.value;
             updateAll();
+          });
+          colorBox.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', updateAll);
+            input.addEventListener('input', updateAll);
+          });
+
+        } else {
+          // 通常のチップ選択肢
+          g.options.forEach(opt => {
+            const chip = document.createElement('div');
+            chip.className = `chip ${opt.selected ? 'selected' : ''}`;
+            chip.setAttribute('data-tag', opt.tag);
+            chip.textContent = opt.label;
+
+            chip.addEventListener('click', () => {
+              if (g.type === 'single') {
+                gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+              } else {
+                chip.classList.toggle('selected');
+              }
+              updateAll();
+            });
+
+            gridEl.appendChild(chip);
           });
         }
 
@@ -254,16 +273,27 @@
           if (t) tags.push(t);
         });
 
-        // インナーカラー有効時のカスタムタグ追加
+        // カスタム髪色・インナー・メッシュのタグ生成
+        const baseHex = document.getElementById('baseColorPicker')?.value || '#94a3b8';
+        tags.push(`[${baseHex}] hair`);
+
         const enableInner = document.getElementById('enableInnerColor');
         if (enableInner && enableInner.checked) {
-          const hexColor = document.getElementById('innerColorPicker').value;
-          tags.push(`streaked hair, multicolored hair, [${hexColor}] inner hair`);
+          const innerHex = document.getElementById('innerColorPicker').value;
+          tags.push(`streaked hair, [${innerHex}] inner hair`);
+        }
+
+        const enableMesh = document.getElementById('enableMeshColor');
+        if (enableMesh && enableMesh.checked) {
+          const meshHex = document.getElementById('meshColorPicker').value;
+          tags.push(`colored eyelashes, [${meshHex}] streaks`);
         }
 
         const finalPrompt = tags.join(', ');
         promptResult.value = finalPrompt;
 
+        // プレビューのベース色を即時反映
+        svgHair.setAttribute('fill', baseHex);
         config.updatePreviewAppearance(finalPrompt, svgHair, svgClothes);
       }
 
