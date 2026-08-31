@@ -1,5 +1,5 @@
 // pixaiConfig.js
-
+ 
 window.pixaiConfig = {
   promptGroups: [
     {
