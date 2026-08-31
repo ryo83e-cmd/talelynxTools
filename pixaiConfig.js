@@ -35,28 +35,50 @@ window.pixaiConfig = {
         { label: "爆乳 (huge)", tag: "huge breasts" }
       ]
     },
+    // 髪型：前髪パーツ
     {
-      title: "髪型",
-      group: "hairStyle",
-      type: "multi",
+      title: "髪型：前髪",
+      group: "hairBangs",
+      type: "single",
+      options: [
+        { label: "なし（おでこ出し）", tag: "no bangs", selected: true },
+        { label: "ぱっつん前髪", tag: "blunt bangs" },
+        { label: "シースルー・カーテン", tag: "curtain bangs" },
+        { label: "ぱっつん・重め", tag: "hime cut" }
+      ]
+    },
+    // 髪型：横髪（サイド）パーツ
+    {
+      title: "髪型：横髪（サイド）",
+      group: "hairSide",
+      type: "single",
+      options: [
+        { label: "なし・普通", tag: "", selected: true },
+        { label: "サイドテール", tag: "sidetails" },
+        { label: "姫カット（サイド）", tag: "earmuffs" },
+        { label: "耳かけ", tag: "hair tucked behind ear" }
+      ]
+    },
+    // 髪型：後ろ髪パーツ
+    {
+      title: "髪型：後ろ髪",
+      group: "hairBack",
+      type: "single",
       options: [
         { label: "ロングヘア", tag: "long hair", selected: true },
+        { label: "ショートヘア", tag: "short hair" },
         { label: "ボブ", tag: "bob cut" },
         { label: "ツインテール", tag: "twintails" },
         { label: "ポニーテール", tag: "ponytail" },
-        { label: "ぱっつん前髪", tag: "blunt bangs" }
+        { label: "お団子（シニヨン）", tag: "hair buns" }
       ]
     },
+    // 髪色・カラー設定（ベース、インナー、メッシュ）
     {
-      title: "髪色",
-      group: "hairColor",
-      type: "single",
-      options: [
-        { label: "シルバー髪", tag: "silver hair", selected: true },
-        { label: "金髪", tag: "blonde hair" },
-        { label: "黒髪", tag: "black hair" },
-        { label: "インナーカラー", tag: "streaked hair" }
-      ]
+      title: "髪色・カラー指定",
+      group: "hairColorCustom",
+      type: "customColorPicker",
+      options: []
     },
     {
       title: "ポージング・視線",
@@ -98,18 +120,19 @@ window.pixaiConfig = {
   ],
 
   updatePreviewAppearance(prompt, svgHair, svgClothes) {
-    // 髪色の反映
-    if (prompt.includes('silver hair')) {
-      svgHair.setAttribute('fill', '#94a3b8');
-    } else if (prompt.includes('blonde hair')) {
+    // プレビュー用の簡易カラー抽出（ベース色を判定）
+    if (prompt.includes('blonde hair')) {
       svgHair.setAttribute('fill', '#eab308');
     } else if (prompt.includes('black hair')) {
       svgHair.setAttribute('fill', '#1e293b');
+    } else if (prompt.includes('pink hair')) {
+      svgHair.setAttribute('fill', '#f472b6');
+    } else if (prompt.includes('blue hair')) {
+      svgHair.setAttribute('fill', '#38bdf8');
     } else {
-      svgHair.setAttribute('fill', '#64748b');
+      svgHair.setAttribute('fill', '#94a3b8'); // デフォルト・シルバー系
     }
 
-    // 服装の反映
     if (prompt.includes('school uniform')) {
       svgClothes.setAttribute('fill', '#0284c7');
     } else if (prompt.includes('maid outfit')) {
