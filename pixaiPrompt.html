@@ -131,11 +131,10 @@
     <h1 style="margin-bottom: 20px; font-size: 24px;">PixAI プロンプトジェネレーター</h1>
 
     <div class="layout">
-      <!-- 選択フォームエリア（JSで動的生成） -->
+      <!-- 選択フォームエリア -->
       <div>
         <div class="panel" id="formContainer">
           <h3>キャラクター設定</h3>
-          <!-- 選択肢がここに自動で読み込まれます -->
         </div>
       </div>
 
@@ -160,78 +159,82 @@
     </div>
   </div>
 
-  <!-- 外部設定ファイルをモジュールとして読み込み -->
-  <script type="module">
-    import { promptGroups, updatePreviewAppearance } from './pixaiConfig.js';
+  <!-- 設定ファイルを通常読み込み -->
+  <script src="./pixaiConfig.js"></script>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      const config = window.pixaiConfig;
+      if (!config) {
+        alert('pixaiConfig.js が正しく読み込まれていません。');
+        return;
+      }
 
-    const formContainer = document.getElementById('formContainer');
-    const promptResult = document.getElementById('promptResult');
-    const copyBtn = document.getElementById('copyBtn');
-    const svgHair = document.getElementById('svgHair');
-    const svgClothes = document.getElementById('svgClothes');
+      const formContainer = document.getElementById('formContainer');
+      const promptResult = document.getElementById('promptResult');
+      const copyBtn = document.getElementById('copyBtn');
+      const svgHair = document.getElementById('svgHair');
+      const svgClothes = document.getElementById('svgClothes');
 
-    // 設定ファイルから選択肢のHTMLを自動構築
-    promptGroups.forEach(g => {
-      const titleEl = document.createElement('div');
-      titleEl.className = 'section-title';
-      titleEl.textContent = g.title;
-      formContainer.appendChild(titleEl);
+      config.promptGroups.forEach(g => {
+        const titleEl = document.createElement('div');
+        titleEl.className = 'section-title';
+        titleEl.textContent = g.title;
+        formContainer.appendChild(titleEl);
 
-      const gridEl = document.createElement('div');
-      gridEl.className = 'options-grid';
-      gridEl.setAttribute('data-group', g.group);
-      gridEl.setAttribute('data-type', g.type);
+        const gridEl = document.createElement('div');
+        gridEl.className = 'options-grid';
+        gridEl.setAttribute('data-group', g.group);
+        gridEl.setAttribute('data-type', g.type);
 
-      g.options.forEach(opt => {
-        const chip = document.createElement('div');
-        chip.className = `chip ${opt.selected ? 'selected' : ''}`;
-        chip.setAttribute('data-tag', opt.tag);
-        chip.textContent = opt.label;
+        g.options.forEach(opt => {
+          const chip = document.createElement('div');
+          chip.className = `chip ${opt.selected ? 'selected' : ''}`;
+          chip.setAttribute('data-tag', opt.tag);
+          chip.textContent = opt.label;
 
-        chip.addEventListener('click', () => {
-          if (g.type === 'single') {
-            gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
-            chip.classList.add('selected');
-          } else {
-            chip.classList.toggle('selected');
-          }
-          updateAll();
+          chip.addEventListener('click', () => {
+            if (g.type === 'single') {
+              gridEl.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+              chip.classList.add('selected');
+            } else {
+              chip.classList.toggle('selected');
+            }
+            updateAll();
+          });
+
+          gridEl.appendChild(chip);
         });
 
-        gridEl.appendChild(chip);
+        formContainer.appendChild(gridEl);
       });
 
-      formContainer.appendChild(gridEl);
+      function updateAll() {
+        const selectedChips = document.querySelectorAll('.chip.selected');
+        let tags = [];
+        selectedChips.forEach(chip => {
+          tags.push(chip.getAttribute('data-tag'));
+        });
+
+        const finalPrompt = tags.join(', ');
+        promptResult.value = finalPrompt;
+
+        config.updatePreviewAppearance(finalPrompt, svgHair, svgClothes);
+      }
+
+      copyBtn.addEventListener('click', () => {
+        promptResult.select();
+        navigator.clipboard.writeText(promptResult.value).then(() => {
+          copyBtn.textContent = 'コピーしました！';
+          copyBtn.classList.add('copied');
+          setTimeout(() => {
+            copyBtn.textContent = 'プロンプトをコピー';
+            copyBtn.classList.remove('copied');
+          }, 2000);
+        });
+      });
+
+      updateAll();
     });
-
-    function updateAll() {
-      const selectedChips = document.querySelectorAll('.chip.selected');
-      let tags = [];
-      selectedChips.forEach(chip => {
-        tags.push(chip.getAttribute('data-tag'));
-      });
-
-      const finalPrompt = tags.join(', ');
-      promptResult.value = finalPrompt;
-
-      // 外部ファイル側のSVGプレビュー更新関数を呼び出す
-      updatePreviewAppearance(finalPrompt, svgHair, svgClothes);
-    }
-
-    copyBtn.addEventListener('click', () => {
-      promptResult.select();
-      navigator.clipboard.writeText(promptResult.value).then(() => {
-        copyBtn.textContent = 'コピーしました！';
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.textContent = 'プロンプトをコピー';
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      });
-    });
-
-    // 初期実行
-    updateAll();
   </script>
 </body>
 </html>
