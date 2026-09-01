@@ -19,25 +19,25 @@
       <!-- ヘッダー：モード切替 ＆ API設定ボタン -->
       <div class="header-bar">
         <div class="mode-selector">
-          <button class="mode-btn active" id="modeImage" onclick="setMode('image')">🎨 画像生成プロンプト</button>
-          <button class="mode-btn" id="modeRoleplay" onclick="setMode('roleplay')">💬 ロールプレイ用</button>
+          <button class="mode-btn active" id="modeImage">🎨 画像生成プロンプト</button>
+          <button class="mode-btn" id="modeRoleplay">💬 ロールプレイ用</button>
         </div>
         <div class="header-actions">
-          <button class="tool-btn" onclick="openApiModal()">⚙️ API設定</button>
+          <button class="tool-btn" id="openApiBtn">⚙️ API設定</button>
         </div>
       </div>
 
       <!-- ツールバー -->
       <div class="toolbar">
         <div class="tool-group">
-          <button class="tool-btn" onclick="wrapText('**', '**')"><b>太字</b></button>
-          <button class="tool-btn" onclick="wrapText('(', ':1.2)')">重み付</button>
-          <button class="tool-btn" onclick="undo()" id="undoBtn" title="元に戻す (Ctrl+Z)" disabled>↩ 戻す</button>
-          <button class="tool-btn" onclick="redo()" id="redoBtn" title="やり直し (Ctrl+Y)" disabled>↪ やり直し</button>
-          <button class="tool-btn" onclick="clearEditor()" style="color: #ef4444;">クリア</button>
+          <button class="tool-btn" id="boldBtn"><b>太字</b></button>
+          <button class="tool-btn" id="weightBtn">重み付</button>
+          <button class="tool-btn" id="undoBtn" title="元に戻す (Ctrl+Z)" disabled>↩ 戻す</button>
+          <button class="tool-btn" id="redoBtn" title="やり直し (Ctrl+Y)" disabled>↪ やり直し</button>
+          <button class="tool-btn" id="clearBtn" style="color: #ef4444;">クリア</button>
         </div>
         <div class="tool-group">
-          <button class="tool-btn ai-btn" onclick="enhancePrompt()">✨ AIブラッシュアップ</button>
+          <button class="tool-btn ai-btn" id="aiBtn">✨ AIブラッシュアップ</button>
         </div>
       </div>
 
@@ -47,15 +47,15 @@
       <!-- メインエディタ -->
       <div class="editor-wrapper" id="editorWrapper">
         <div class="line-numbers" id="lineNumbers">1</div>
-        <textarea id="promptEditor" placeholder="プロンプトをここに入力..." oninput="handleInput()" onscroll="syncScroll()" onselect="updateSelectionTooltip()" onmouseup="updateSelectionTooltip()" onkeyup="updateSelectionTooltip()"></textarea>
+        <textarea id="promptEditor" placeholder="プロンプトをここに入力..."></textarea>
       </div>
 
       <div class="footer-bar">
         <div class="stats" id="charCount">文字数: 0 | 行数: 1</div>
         <div class="actions">
-          <button class="file-btn" onclick="downloadFile('txt')">💾 .txt保存</button>
-          <button class="file-btn" onclick="downloadFile('md')">💾 .md保存</button>
-          <button id="copyBtn" class="btn" onclick="copyText()">テキストをコピー</button>
+          <button class="file-btn" id="saveTxtBtn">💾 .txt保存</button>
+          <button class="file-btn" id="saveMdBtn">💾 .md保存</button>
+          <button id="copyBtn" class="btn">テキストをコピー</button>
         </div>
       </div>
     </div>
@@ -73,8 +73,8 @@
         <input type="password" id="apiKeyInput" placeholder="AIzaSy..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="tool-btn" onclick="closeApiModal()">キャンセル</button>
-        <button class="btn" onclick="saveApiKey()" style="padding: 6px 14px; font-size: 13px;">保存する</button>
+        <button class="tool-btn" id="closeApiBtn">キャンセル</button>
+        <button class="btn" id="saveApiKeyBtn" style="padding: 6px 14px; font-size: 13px;">保存する</button>
       </div>
     </div>
   </div>
@@ -87,8 +87,8 @@
         <input type="text" id="searchInput" placeholder="検索ワードを入力..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
       </div>
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
-        <button class="tool-btn" onclick="closeSearchModal()">閉じる</button>
-        <button class="btn" onclick="executeSearch()" style="padding: 6px 14px; font-size: 13px;">次を検索 (Enter)</button>
+        <button class="tool-btn" id="closeSearchBtn">閉じる</button>
+        <button class="btn" id="executeSearchBtn" style="padding: 6px 14px; font-size: 13px;">次を検索 (Enter)</button>
       </div>
     </div>
   </div>
