@@ -1,4 +1,3 @@
-// DOM読み込み完了後に安全に初期化
 document.addEventListener('DOMContentLoaded', () => {
   const editor = document.getElementById('promptEditor');
   const lineNumbers = document.getElementById('lineNumbers');
@@ -81,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     updateLinesAndStats();
-    hideSelectionTooltip();
+    updateSelection();
   }
 
   function renderChips(chips) {
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 履歴管理
+  // 履歴スタック
   function pushHistory(newText) {
     if (undoStack.length > 0 && undoStack[undoStack.length - 1] === newText) return;
     undoStack.push(newText);
@@ -112,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
       persistContent();
       updateLinesAndStats();
       updateUndoRedoUI();
-      hideSelectionTooltip();
     }
   }
 
@@ -124,7 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
       persistContent();
       updateLinesAndStats();
       updateUndoRedoUI();
-      hideSelectionTooltip();
     }
   }
 
@@ -140,18 +137,17 @@ document.addEventListener('DOMContentLoaded', () => {
       persistContent();
     }, 300);
     updateLinesAndStats();
-    hideSelectionTooltip();
   }
 
   function persistContent() {
     if (editor) localStorage.setItem(STORAGE_KEYS[currentMode], editor.value);
   }
 
+  // スクロール同期（縦スクロールを行番号と完全一致させる）
   function syncScroll() {
     if (lineNumbers && editor) {
       lineNumbers.scrollTop = editor.scrollTop;
     }
-    hideSelectionTooltip();
   }
 
   function updateLinesAndStats() {
@@ -172,30 +168,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function updateSelectionTooltip() {
+  // 選択文字数表示（画面を壊さず右上に表示）
+  function updateSelection() {
     if (!editor || !tooltip) return;
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const selectedLen = Math.abs(end - start);
 
-    if (selectedLen === 0) {
-      hideSelectionTooltip();
-      return;
+    if (selectedLen > 0) {
+      tooltip.textContent = `選択中: ${selectedLen}文字`;
+      tooltip.style.display = 'block';
+    } else {
+      tooltip.style.display = 'none';
     }
-
-    const editorRect = editor.getBoundingClientRect();
-    tooltip.textContent = `${selectedLen}文字選択`;
-    tooltip.style.display = 'block';
-
-    const topPos = editorRect.top + 28 + window.scrollY;
-    const leftPos = editorRect.left + (editorRect.width / 2) + window.scrollX;
-
-    tooltip.style.top = `${topPos}px`;
-    tooltip.style.left = `${leftPos}px`;
-  }
-
-  function hideSelectionTooltip() {
-    if (tooltip) tooltip.style.display = 'none';
   }
 
   function insertText(str) {
@@ -211,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pushHistory(editor.value);
     persistContent();
     updateLinesAndStats();
-    hideSelectionTooltip();
   }
 
   function wrapText(before, after) {
@@ -230,7 +214,6 @@ document.addEventListener('DOMContentLoaded', () => {
     pushHistory(editor.value);
     persistContent();
     updateLinesAndStats();
-    hideSelectionTooltip();
   }
 
   function clearEditor() {
@@ -240,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
       pushHistory('');
       persistContent();
       updateLinesAndStats();
-      hideSelectionTooltip();
     }
   }
 
@@ -282,7 +264,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
-  // モーダル操作
   function openApiModal() {
     if (apiModal && apiKeyInput) {
       apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
@@ -331,13 +312,12 @@ document.addEventListener('DOMContentLoaded', () => {
       editor.focus();
       editor.setSelectionRange(index, index + query.length);
       const linesBefore = text.substring(0, index).split('\n').length;
-      editor.scrollTop = (linesBefore - 3) * 22;
+      editor.scrollTop = (linesBefore - 3) * 20;
     } else {
       alert('見つかりませんでした。');
     }
   }
 
-  // AIブラッシュアップ
   async function enhancePrompt() {
     const apiKey = localStorage.getItem('gemini_api_key');
     if (!apiKey) {
@@ -404,13 +384,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // イベントリスナーの安全なバインド
+  // リスナー登録
   if (editor) {
     editor.addEventListener('input', handleInput);
     editor.addEventListener('scroll', syncScroll);
-    editor.addEventListener('select', updateSelectionTooltip);
-    editor.addEventListener('mouseup', updateSelectionTooltip);
-    editor.addEventListener('keyup', updateSelectionTooltip);
+    editor.addEventListener('select', updateSelection);
+    editor.addEventListener('mouseup', updateSelection);
+    editor.addEventListener('keyup', updateSelection);
 
     editor.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
@@ -480,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 初回起動
   const savedMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
   setMode(savedMode, false, true);
 });
