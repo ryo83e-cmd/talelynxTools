@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIプロンプト エディタ</title>
+  <link rel="stylesheet" href="./editorStyle.css">
+</head>
+<body>
+
+  <!-- 選択文字数ポップアップツールチップ -->
+  <div id="selectionTooltip"></div>
+
+  <div style="max-width: 1000px; margin: 0 auto;">
+    <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
+    <h1 style="margin-bottom: 20px; font-size: 24px;">AIプロンプト エディタ</h1>
+
+    <div class="editor-container">
+      <!-- ヘッダー：モード切替 ＆ API設定ボタン -->
+      <div class="header-bar">
+        <div class="mode-selector">
+          <button class="mode-btn active" id="modeImage" onclick="setMode('image')">🎨 画像生成プロンプト</button>
+          <button class="mode-btn" id="modeRoleplay" onclick="setMode('roleplay')">💬 ロールプレイ用</button>
+        </div>
+        <div class="header-actions">
+          <button class="tool-btn" onclick="openApiModal()">⚙️ API設定</button>
+        </div>
+      </div>
+
+      <!-- ツールバー -->
+      <div class="toolbar">
+        <div class="tool-group">
+          <button class="tool-btn" onclick="wrapText('**', '**')"><b>太字</b></button>
+          <button class="tool-btn" onclick="wrapText('(', ':1.2)')">重み付</button>
+          <button class="tool-btn" onclick="clearEditor()" style="color: #ef4444;">クリア</button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn ai-btn" onclick="enhancePrompt()">✨ AIブラッシュアップ</button>
+        </div>
+      </div>
+
+      <!-- クイックチップス -->
+      <div class="quick-chips" id="quickChipsContainer"></div>
+
+      <!-- メインエディタ（ダークテーマ対応・行数＋テキストエリア） -->
+      <div class="editor-wrapper">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <textarea id="promptEditor" placeholder="プロンプトをここに入力..." oninput="syncEditor()" onscroll="syncScroll()"></textarea>
+      </div>
+
+      <div class="footer-bar">
+        <div class="stats" id="charCount">文字数: 0 | 行数: 1</div>
+        <div class="actions">
+          <button class="file-btn" onclick="downloadFile('txt')">💾 .txt保存</button>
+          <button class="file-btn" onclick="downloadFile('md')">💾 .md保存</button>
+          <button id="copyBtn" class="btn" onclick="copyText()">テキストをコピー</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API設定モーダル -->
+  <div id="apiModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>APIキー設定</h3>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">
+        Gemini API Keyはブラウザのローカルストレージに安全に保存され、外部送信されることはありません。
+      </p>
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Gemini API Key</label>
+        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tool-btn" onclick="closeApiModal()">キャンセル</button>
+        <button class="btn" onclick="saveApiKey()" style="padding: 6px 14px; font-size: 13px;">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 簡易検索モーダル (Ctrl+F用) -->
+  <div id="searchModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 320px;">
+      <h3>プロンプト内を検索</h3>
+      <div style="margin-bottom: 12px;">
+        <input type="text" id="searchInput" placeholder="検索ワードを入力..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button class="tool-btn" onclick="closeSearchModal()">閉じる</button>
+        <button class="btn" onclick="executeSearch()" style="padding: 6px 14px; font-size: 13px;">次を検索</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./editorScript.js"></script>
+</body>
+</html>
