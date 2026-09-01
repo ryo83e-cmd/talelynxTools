@@ -8,11 +8,11 @@
   --ai-color: #8b5cf6;
   --ai-hover: #7c3aed;
   
-  --editor-bg: #0f172a;
-  --editor-text: #f8fafc;
-  --editor-line-bg: #1e293b;
-  --editor-line-text: #64748b;
-  --editor-border: #334155;
+  --editor-bg: #1d1f21;
+  --editor-text: #c5c8c6;
+  --editor-line-bg: #17181a;
+  --editor-line-text: #5c6370;
+  --editor-border: #333842;
 }
 
 *, *::before, *::after {
@@ -109,7 +109,7 @@ body {
 }
 .ai-btn:hover { background: var(--ai-hover); }
 
-/* --- エディタ枠（崩れ防止の絶対レイアウト） --- */
+/* --- エディタ枠（重ね合わせ構造） --- */
 .editor-wrapper {
   position: relative;
   display: flex;
@@ -129,8 +129,8 @@ body {
   color: var(--editor-line-text);
   font-family: Consolas, Monaco, "Courier New", monospace;
   font-size: 13px;
-  line-height: 20px; /* 高さの完全固定 */
-  padding: 10px 4px 10px 0;
+  line-height: 20px;
+  padding: 10px 6px 10px 0;
   text-align: right;
   user-select: none;
   overflow: hidden;
@@ -138,23 +138,66 @@ body {
   border-right: 1px solid var(--editor-border);
 }
 
-textarea {
+.editor-stage {
+  position: relative;
   flex: 1;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 奥のハイライト層 */
+.highlight-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  background: transparent !important;
+  border: none !important;
+  overflow: hidden !important;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.highlight-layer code {
+  font-family: Consolas, Monaco, "Courier New", monospace !important;
+  font-size: 13px !important;
+  line-height: 20px !important;
+  white-space: pre !important;
+  tab-size: 2;
+  word-spacing: normal;
+  word-break: normal;
+}
+
+/* 手前の入力層（透明化） */
+textarea {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 10px 12px;
   font-family: Consolas, Monaco, "Courier New", monospace;
   font-size: 13px;
-  line-height: 20px; /* 行番号と完全一致 */
+  line-height: 20px;
   border: none;
   background: transparent;
-  color: var(--editor-text);
-  white-space: pre; /* 行番号ズレを防ぐため横スクロールを許可 */
-  overflow: auto; /* 縦横スクロールバーはtextareaの右端・最下端にのみ出る */
+  color: transparent; /* 文字を透明にして背後のハイライトを表示 */
+  caret-color: #38bdf8; /* カーソルのみ表示 */
+  white-space: pre;
+  overflow: auto;
   resize: none;
   outline: none;
-  caret-color: #38bdf8;
+  tab-size: 2;
+  z-index: 1;
+}
+
+/* 選択範囲のみ薄い水色で表示 */
+textarea::selection {
+  background: rgba(56, 189, 248, 0.25);
 }
 
 .footer-bar {
@@ -231,6 +274,13 @@ textarea {
   display: none;
   z-index: 10;
   border: 1px solid #334155;
+}
+
+.credit-bar {
+  margin-top: 10px;
+  text-align: right;
+  font-size: 10px;
+  color: #94a3b8;
 }
 
 .modal-overlay {
