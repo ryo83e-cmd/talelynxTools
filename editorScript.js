@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const editor = document.getElementById('promptEditor');
+  const highlightCode = document.getElementById('highlightCode');
+  const highlightLayer = document.querySelector('.highlight-layer');
   const lineNumbers = document.getElementById('lineNumbers');
   const charCount = document.getElementById('charCount');
   const copyBtn = document.getElementById('copyBtn');
@@ -40,6 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
     mode: 'editor_saved_mode'
   };
 
+  // ハイライト描画の更新
+  function updateHighlight() {
+    if (!editor || !highlightCode) return;
+    const text = editor.value;
+    // 空行で末尾が消えないように調整
+    highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
+    if (window.Prism) {
+      Prism.highlightElement(highlightCode);
+    }
+  }
+
   // モード切替
   function setMode(mode, shouldPersist = true, isInitialLoad = false) {
     if (!isInitialLoad && currentMode && editor) {
@@ -79,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    updateHighlight();
     updateLinesAndStats();
     updateSelection();
   }
@@ -109,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const prev = undoStack[undoStack.length - 1];
       editor.value = prev;
       persistContent();
+      updateHighlight();
       updateLinesAndStats();
       updateUndoRedoUI();
     }
@@ -120,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
       undoStack.push(next);
       editor.value = next;
       persistContent();
+      updateHighlight();
       updateLinesAndStats();
       updateUndoRedoUI();
     }
@@ -136,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveDebounceTimer = setTimeout(() => {
       persistContent();
     }, 300);
+    updateHighlight();
     updateLinesAndStats();
   }
 
@@ -143,10 +160,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editor) localStorage.setItem(STORAGE_KEYS[currentMode], editor.value);
   }
 
-  // スクロール同期（縦スクロールを行番号と完全一致させる）
+  // スクロール同期（行番号 ＆ ハイライト層 ＆ テキストエリア）
   function syncScroll() {
-    if (lineNumbers && editor) {
+    if (!editor) return;
+    if (lineNumbers) {
       lineNumbers.scrollTop = editor.scrollTop;
+    }
+    if (highlightLayer) {
+      highlightLayer.scrollTop = editor.scrollTop;
+      highlightLayer.scrollLeft = editor.scrollLeft;
     }
   }
 
@@ -168,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 選択文字数表示（画面を壊さず右上に表示）
   function updateSelection() {
     if (!editor || !tooltip) return;
     const start = editor.selectionStart;
@@ -195,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pushHistory(editor.value);
     persistContent();
+    updateHighlight();
     updateLinesAndStats();
   }
 
@@ -213,6 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pushHistory(editor.value);
     persistContent();
+    updateHighlight();
     updateLinesAndStats();
   }
 
@@ -222,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
       editor.value = '';
       pushHistory('');
       persistContent();
+      updateHighlight();
       updateLinesAndStats();
     }
   }
@@ -369,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editor.value = refinedText;
         pushHistory(refinedText);
         persistContent();
+        updateHighlight();
         updateLinesAndStats();
       } else {
         throw new Error('AIからの応答データ形式が正しくありません。');
@@ -384,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // リスナー登録
+  // イベントリスナー
   if (editor) {
     editor.addEventListener('input', handleInput);
     editor.addEventListener('scroll', syncScroll);
