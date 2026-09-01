@@ -14,18 +14,24 @@
   --editor-line-text: #64748b;
   --editor-border: #334155;
 }
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg);
   color: var(--text);
   line-height: 1.5;
-  padding: 30px 15px;
+  padding: 20px 12px;
   max-width: 1000px;
   margin: 0 auto;
 }
+
 .nav-back {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   color: var(--primary);
   text-decoration: none;
   font-size: 14px;
@@ -37,18 +43,20 @@ body {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 16px;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   position: relative;
 }
+
 .header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
+
 .mode-selector {
   display: flex;
   gap: 6px;
@@ -72,7 +80,7 @@ body {
 .toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 12px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border);
@@ -101,51 +109,61 @@ body {
 }
 .ai-btn:hover { background: var(--ai-hover); }
 
+/* --- エディタ枠（崩れ防止の絶対レイアウト） --- */
 .editor-wrapper {
+  position: relative;
   display: flex;
+  width: 100%;
+  height: 420px;
   border: 1px solid var(--editor-border);
   border-radius: 8px;
   background: var(--editor-bg);
   overflow: hidden;
-  position: relative;
 }
+
 .line-numbers {
-  width: 45px;
+  width: 44px;
+  flex-shrink: 0;
+  height: 100%;
   background: var(--editor-line-bg);
   color: var(--editor-line-text);
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 14px 4px 14px 0;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 20px; /* 高さの完全固定 */
+  padding: 10px 4px 10px 0;
   text-align: right;
   user-select: none;
-  box-sizing: border-box;
   overflow: hidden;
   white-space: pre;
+  border-right: 1px solid var(--editor-border);
 }
+
 textarea {
   flex: 1;
-  height: 350px;
-  padding: 14px;
-  font-family: monospace;
-  font-size: 14px;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 10px 12px;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 13px;
+  line-height: 20px; /* 行番号と完全一致 */
   border: none;
   background: transparent;
   color: var(--editor-text);
-  box-sizing: border-box;
-  resize: vertical;
-  line-height: 1.6;
-  white-space: pre;
-  overflow-y: auto;
+  white-space: pre; /* 行番号ズレを防ぐため横スクロールを許可 */
+  overflow: auto; /* 縦横スクロールバーはtextareaの右端・最下端にのみ出る */
+  resize: none;
+  outline: none;
   caret-color: #38bdf8;
 }
-textarea:focus { outline: none; }
 
 .footer-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 .stats {
   font-size: 12px;
@@ -160,11 +178,11 @@ textarea:focus { outline: none; }
   background: #f1f5f9;
   color: #334155;
   border: 1px solid var(--border);
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   transition: background 0.2s;
 }
 .file-btn:hover { background: #e2e8f0; }
@@ -172,11 +190,11 @@ textarea:focus { outline: none; }
   background: var(--primary);
   color: white;
   border: none;
-  padding: 10px 18px;
+  padding: 8px 16px;
   border-radius: 6px;
   font-weight: bold;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   transition: background 0.2s;
 }
 .btn:hover { background: var(--primary-hover); }
@@ -201,29 +219,18 @@ textarea:focus { outline: none; }
 
 #selectionTooltip {
   position: absolute;
+  top: 12px;
+  right: 16px;
   background: #0f172a;
-  color: white;
-  padding: 3px 8px;
+  color: #38bdf8;
+  padding: 4px 8px;
   font-size: 11px;
+  font-weight: bold;
   border-radius: 4px;
   pointer-events: none;
   display: none;
-  z-index: 1000;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
-  white-space: nowrap;
-  transform: translate(-50%, -100%);
-  margin-top: -6px;
+  z-index: 10;
   border: 1px solid #334155;
-}
-#selectionTooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border-width: 4px;
-  border-style: solid;
-  border-color: #0f172a transparent transparent transparent;
 }
 
 .modal-overlay {
@@ -241,14 +248,9 @@ textarea:focus { outline: none; }
 }
 .modal-content {
   background: var(--card-bg);
-  padding: 24px;
+  padding: 20px;
   border-radius: 12px;
-  width: 100%;
+  width: 90%;
   max-width: 400px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  animation: modalFadeIn 0.2s ease;
-}
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
