@@ -14,6 +14,10 @@
   --editor-line-text: #5c6370;
   --editor-border: #333842;
   
+  /* エディタ・ハイライト層の完全同期用フォント変数 */
+  --editor-font: Consolas, Monaco, "Courier New", monospace;
+  --editor-font-size: 13px;
+  --editor-line-height: 20px;
 }
 
 *, *::before, *::after {
@@ -128,9 +132,9 @@ body {
   height: 100%;
   background: var(--editor-line-bg);
   color: var(--editor-line-text);
-  font-family: Consolas, Monaco, "Courier New", monospace;
-  font-size: 13px;
-  line-height: 20px;
+  font-family: var(--editor-font);
+  font-size: var(--editor-font-size);
+  line-height: var(--editor-line-height);
   padding: 10px 6px 10px 0;
   text-align: right;
   user-select: none;
@@ -163,16 +167,17 @@ body {
 }
 
 .highlight-layer code {
-  font-family: Consolas, Monaco, "Courier New", monospace !important;
-  font-size: 13px !important;
-  line-height: 20px !important;
+  font-family: var(--editor-font) !important;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  letter-spacing: 0 !important;
+  word-spacing: 0 !important;
   white-space: pre !important;
   tab-size: 2;
-  word-spacing: normal;
-  word-break: normal;
+  display: block;
 }
 
-/* 手前の入力層（透明化） */
+/* 手前の入力層（透明textarea） */
 textarea {
   position: absolute;
   top: 0;
@@ -181,12 +186,14 @@ textarea {
   height: 100%;
   margin: 0;
   padding: 10px 12px;
-  font-family: Consolas, Monaco, "Courier New", monospace;
-  font-size: 13px;
-  line-height: 20px;
+  font-family: var(--editor-font);
+  font-size: var(--editor-font-size);
+  line-height: var(--editor-line-height);
+  letter-spacing: 0;
+  word-spacing: 0;
   border: none;
   background: transparent;
-  color: transparent; /* 文字を透明にして背後のハイライトを表示 */
+  color: transparent; /* 文字は透明にして背後のハイライトを表示 */
   caret-color: #38bdf8; /* カーソルのみ表示 */
   white-space: pre;
   overflow: auto;
@@ -194,6 +201,7 @@ textarea {
   outline: none;
   tab-size: 2;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 /* 選択範囲のみ薄い水色で表示 */
@@ -305,165 +313,38 @@ textarea::selection {
   max-width: 400px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
+
 /* ========================================================
    Prism.js プロンプト＆Markdown 専用カラーカスタマイズ
+   （※カーソルズレ防止のため bold/italic は使用せず色で強調）
    ======================================================== */
 
-/* # 見出し（シャープ記号も含めて全体を鮮やかなシアンに） */
+/* # 見出し（シアン色で強調） */
 .token.title,
 .token.title .token.punctuation {
-  color: #38bdf8 !important; /* 明るいシアン */
-  font-weight: bold !important;
+  color: #38bdf8 !important;
+  font-weight: normal !important;
 }
 
-/* **太字** （アスタリスクも含めてゴールド・イエローに） */
+/* **太字** （ゴールドイエローで強調） */
 .token.bold,
 .token.bold .token.punctuation {
-  color: #facc15 !important; /* ゴールドイエロー */
-  font-weight: bold !important;
+  color: #facc15 !important;
+  font-weight: normal !important;
 }
 
-/* *斜体* */
+/* *斜体* （オレンジで強調） */
 .token.italic,
 .token.italic .token.punctuation {
-  color: #fb923c !important; /* オレンジ */
-  font-style: italic !important;
+  color: #fb923c !important;
+  font-style: normal !important;
 }
 
 /* インラインコード `code` */
 .token.code-snippet,
 .token.code {
-  color: #4ade80 !important; /* ライムグリーン */
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  padding: 1px 3px;
-}
-
-/* リスト記号 (- や 1.) */
-.token.list.punctuation {
-  color: #f43f5e !important; /* ローズレッド */
-  font-weight: bold !important;
-}
-
-/* リンク・URL */
-.token.url,
-.token.url .token.variable {
-  color: #60a5fa !important; /* スカイブルー */
-  text-decoration: underline;
-}
-
-/* 引用 > quote */
-.token.blockquote,
-.token.blockquote .token.punctuation {
-  color: #94a3b8 !important; /* スレートグレー */
-  font-style: italic !important;
-}
-
-/* 画像プロンプトの括弧・記号 ( ) [ ] { } : */
-.token.punctuation {
-  color: #a78bfa !important; /* ラベンダーパープル */
-}
-
-/* プロンプト内の重み付け数値など (:1.2 や 数値) */
-.token.number {
-  color: #34d399 !important; /* エメラルドグリーン */
-  font-weight: bold !important;
-}
-/* ========================================================
-   エディタ・ハイライト層の完全同期設定（ズレ防止）
-   ======================================================== */
-
-/* 共通フォント定義変数 */
-:root {
-  --editor-font: Consolas, Monaco, "Courier New", monospace;
-  --editor-font-size: 13px;
-  --editor-line-height: 20px;
-}
-
-/* 奥のハイライト層 */
-.highlight-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0 !important;
-  padding: 10px 12px !important;
-  background: transparent !important;
-  border: none !important;
-  overflow: hidden !important;
-  pointer-events: none;
-  box-sizing: border-box;
-}
-
-.highlight-layer code {
-  font-family: var(--editor-font) !important;
-  font-size: var(--editor-font-size) !important;
-  line-height: var(--editor-line-height) !important;
-  letter-spacing: 0 !important;
-  word-spacing: 0 !important;
-  white-space: pre !important;
-  tab-size: 2;
-  display: block;
-}
-
-/* 手前の入力層（透明textarea） */
-textarea {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 10px 12px;
-  font-family: var(--editor-font);
-  font-size: var(--editor-font-size);
-  line-height: var(--editor-line-height);
-  letter-spacing: 0;
-  word-spacing: 0;
-  border: none;
-  background: transparent;
-  color: transparent; /* 文字は透明 */
-  caret-color: #38bdf8; /* カーソル色 */
-  white-space: pre;
-  overflow: auto;
-  resize: none;
-  outline: none;
-  tab-size: 2;
-  z-index: 1;
-  box-sizing: border-box;
-}
-
-/* ========================================================
-   Prism.js カラーカスタマイズ（boldを排除して文字幅を固定）
-   ======================================================== */
-
-/* # 見出し（太字にせず鮮やかなシアン色で目立たせる） */
-.token.title,
-.token.title .token.punctuation {
-  color: #38bdf8 !important;
-  font-weight: normal !important; /* ズレ防止 */
-}
-
-/* **太字** （太字にせずゴールド色で目立たせる） */
-.token.bold,
-.token.bold .token.punctuation {
-  color: #facc15 !important;
-  font-weight: normal !important; /* ズレ防止 */
-}
-
-/* *斜体* */
-.token.italic,
-.token.italic .token.punctuation {
-  color: #fb923c !important;
-  font-style: normal !important; /* 斜体による字幅ズレも防止 */
-}
-
-/* インラインコード `code` （背景枠のpaddingを排除して幅を固定） */
-.token.code-snippet,
-.token.code {
   color: #4ade80 !important;
-  background: transparent !important; /* 枠によるズレ防止 */
+  background: transparent !important;
   padding: 0 !important;
 }
 
@@ -477,7 +358,7 @@ textarea {
 .token.url,
 .token.url .token.variable {
   color: #60a5fa !important;
-  text-decoration: none !important; /* 下線によるズレ防止 */
+  text-decoration: none !important;
 }
 
 /* 引用 > quote */
