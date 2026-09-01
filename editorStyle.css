@@ -8,7 +8,6 @@
   --ai-color: #8b5cf6;
   --ai-hover: #7c3aed;
   
-  /* ダークエディタ用変数 */
   --editor-bg: #0f172a;
   --editor-text: #f8fafc;
   --editor-line-bg: #1e293b;
@@ -80,7 +79,7 @@ body {
   justify-content: space-between;
   align-items: center;
 }
-.tool-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.tool-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .tool-btn {
   padding: 6px 10px;
   font-size: 12px;
@@ -93,6 +92,8 @@ body {
   transition: background 0.15s;
 }
 .tool-btn:hover { background: #e2e8f0; }
+.tool-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .ai-btn {
   background: var(--ai-color);
   color: white;
@@ -100,7 +101,6 @@ body {
 }
 .ai-btn:hover { background: var(--ai-hover); }
 
-/* ダークエディタエリア */
 .editor-wrapper {
   display: flex;
   border: 1px solid var(--editor-border);
@@ -199,21 +199,21 @@ textarea:focus { outline: none; }
 }
 .chip:hover { background: #dbeafe; }
 
-/* 選択文字数ポップアップツールチップ */
 #selectionTooltip {
   position: absolute;
   background: #0f172a;
   color: white;
-  padding: 4px 8px;
+  padding: 3px 8px;
   font-size: 11px;
   border-radius: 4px;
   pointer-events: none;
   display: none;
   z-index: 1000;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.15);
   white-space: nowrap;
   transform: translate(-50%, -100%);
   margin-top: -6px;
+  border: 1px solid #334155;
 }
 #selectionTooltip::after {
   content: '';
@@ -226,7 +226,6 @@ textarea:focus { outline: none; }
   border-color: #0f172a transparent transparent transparent;
 }
 
-/* モーダルポップアップ用スタイル */
 .modal-overlay {
   position: fixed;
   top: 0;
