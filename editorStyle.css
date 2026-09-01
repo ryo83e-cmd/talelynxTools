@@ -304,3 +304,67 @@ textarea::selection {
   max-width: 400px;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
+/* ========================================================
+   Prism.js プロンプト＆Markdown 専用カラーカスタマイズ
+   ======================================================== */
+
+/* # 見出し（シャープ記号も含めて全体を鮮やかなシアンに） */
+.token.title,
+.token.title .token.punctuation {
+  color: #38bdf8 !important; /* 明るいシアン */
+  font-weight: bold !important;
+}
+
+/* **太字** （アスタリスクも含めてゴールド・イエローに） */
+.token.bold,
+.token.bold .token.punctuation {
+  color: #facc15 !important; /* ゴールドイエロー */
+  font-weight: bold !important;
+}
+
+/* *斜体* */
+.token.italic,
+.token.italic .token.punctuation {
+  color: #fb923c !important; /* オレンジ */
+  font-style: italic !important;
+}
+
+/* インラインコード `code` */
+.token.code-snippet,
+.token.code {
+  color: #4ade80 !important; /* ライムグリーン */
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  padding: 1px 3px;
+}
+
+/* リスト記号 (- や 1.) */
+.token.list.punctuation {
+  color: #f43f5e !important; /* ローズレッド */
+  font-weight: bold !important;
+}
+
+/* リンク・URL */
+.token.url,
+.token.url .token.variable {
+  color: #60a5fa !important; /* スカイブルー */
+  text-decoration: underline;
+}
+
+/* 引用 > quote */
+.token.blockquote,
+.token.blockquote .token.punctuation {
+  color: #94a3b8 !important; /* スレートグレー */
+  font-style: italic !important;
+}
+
+/* 画像プロンプトの括弧・記号 ( ) [ ] { } : */
+.token.punctuation {
+  color: #a78bfa !important; /* ラベンダーパープル */
+}
+
+/* プロンプト内の重み付け数値など (:1.2 や 数値) */
+.token.number {
+  color: #34d399 !important; /* エメラルドグリーン */
+  font-weight: bold !important;
+}
