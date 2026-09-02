@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+// 選択文字数表示（テキストエリア直上右端）
   function updateSelection() {
     if (!editor || !tooltip) return;
     const start = editor.selectionStart;
@@ -198,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (selectedLen > 0) {
       tooltip.textContent = `選択中: ${selectedLen}文字`;
-      tooltip.style.display = 'block';
+      tooltip.style.display = 'inline-block';
     } else {
       tooltip.style.display = 'none';
     }
