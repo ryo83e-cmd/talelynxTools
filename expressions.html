@@ -38,7 +38,6 @@
     display: flex;
     gap: 8px;
     border-bottom: 2px solid var(--border-color);
-    padding-bottom: 0;
   }
   .tab-btn {
     background: transparent;
@@ -52,9 +51,7 @@
     margin-bottom: -2px;
     transition: all 0.2s;
   }
-  .tab-btn:hover {
-    color: var(--text-primary);
-  }
+  .tab-btn:hover { color: var(--text-primary); }
   .tab-btn.active {
     color: var(--accent-color);
     border-bottom: 2px solid var(--accent-color);
@@ -68,28 +65,49 @@
   .search-input {
     flex: 1;
     min-width: 240px;
-    padding: 10px 14px;
+    padding: 9px 14px;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 4px;
     color: var(--text-primary);
     font-size: 14px;
   }
-  .search-input:focus {
-    outline: 1px solid var(--accent-color);
-  }
+  .search-input:focus { outline: 1px solid var(--accent-color); }
   .action-btn {
     background: var(--tag-bg);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    padding: 10px 16px;
+    padding: 9px 14px;
     font-size: 13px;
     border-radius: 4px;
     cursor: pointer;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
-  .action-btn:hover {
-    background: var(--border-color);
+  .action-btn:hover { background: var(--border-color); }
+  .action-btn.primary {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #fff;
+    font-weight: 600;
+  }
+  .action-btn.primary:hover { opacity: 0.9; }
+  .selection-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .selection-count {
+    color: var(--accent-color);
+    font-weight: 600;
   }
   main {
     max-width: 1200px;
@@ -108,17 +126,28 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .card.selected {
+    border-color: var(--accent-color);
   }
   .card-header {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 8px;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-color);
+    cursor: pointer;
   }
   .card-title {
     font-size: 16px;
     font-weight: 600;
     color: var(--accent-color);
+    flex: 1;
   }
   .badge {
     background: var(--tag-bg);
@@ -185,9 +214,8 @@
 <body>
 
 <header>
-  <h1>描写辞書・リファレンスツール</h1>
+  <h1>描写語彙データベース</h1>
   
-  <!-- タブ切り替えボタン -->
   <div class="tabs">
     <button id="tabOnomato" class="tab-btn active" onclick="switchTab('onomatopoeia')">オノマトペ</button>
     <button id="tabSlang" class="tab-btn" onclick="switchTab('slang')">置き換え語（隠語）</button>
@@ -195,7 +223,14 @@
 
   <div class="controls">
     <input type="text" id="searchInput" class="search-input" placeholder="検索ワードを入力..." oninput="render()">
-    <button class="action-btn" onclick="copyCurrentAsMarkdown()">現在のタブ内容をMarkdownコピー</button>
+    <button class="action-btn" onclick="copyCurrentAsMarkdown()">表示中をすべてMarkdownコピー</button>
+  </div>
+
+  <div class="selection-bar">
+    <span>選択中: <span id="selectedCount" class="selection-count">0</span> 件</span>
+    <button class="action-btn" style="padding: 4px 10px; font-size: 12px;" onclick="toggleSelectAll(true)">表示中を全選択</button>
+    <button class="action-btn" style="padding: 4px 10px; font-size: 12px;" onclick="toggleSelectAll(false)">選択全解除</button>
+    <button class="action-btn primary" style="margin-left: auto;" onclick="copySelectedAsMarkdown()">選択した項目を用語集MDとしてコピー</button>
   </div>
 </header>
 
@@ -205,12 +240,16 @@
 
 <div id="toast" class="toast">コピーしました</div>
 
-<!-- 各データソースの読み込み -->
 <script src="onomatopoeia.js"></script>
 <script src="slang.js"></script>
 
 <script>
   let currentTab = 'onomatopoeia';
+  // タブごとに選択した項目のインデックスを保持
+  const selectedIndices = {
+    onomatopoeia: new Set(),
+    slang: new Set()
+  };
 
   function showToast(text) {
     const toast = document.getElementById('toast');
@@ -225,9 +264,38 @@
     });
   }
 
+  function updateSelectionCount() {
+    const count = selectedIndices[currentTab].size;
+    document.getElementById('selectedCount').textContent = count;
+  }
+
+  function toggleItem(index) {
+    const set = selectedIndices[currentTab];
+    if (set.has(index)) {
+      set.delete(index);
+    } else {
+      set.add(index);
+    }
+    updateSelectionCount();
+    render();
+  }
+
+  function toggleSelectAll(select) {
+    const visibleData = getFilteredData();
+    const set = selectedIndices[currentTab];
+    visibleData.forEach(item => {
+      if (select) {
+        set.add(item._originalIndex);
+      } else {
+        set.delete(item._originalIndex);
+      }
+    });
+    updateSelectionCount();
+    render();
+  }
+
   function switchTab(tabName) {
     currentTab = tabName;
-    
     document.getElementById('tabOnomato').classList.toggle('active', tabName === 'onomatopoeia');
     document.getElementById('tabSlang').classList.toggle('active', tabName === 'slang');
 
@@ -237,6 +305,7 @@
       ? 'オノマトペ、カテゴリ、ニュアンス、用例で検索...' 
       : '対象器官、スタイル、隠語、補足で検索...';
 
+    updateSelectionCount();
     render();
   }
 
@@ -245,7 +314,7 @@
     
     if (currentTab === 'onomatopoeia') {
       if (typeof ONOMATOPOEIA_DATA === 'undefined') return [];
-      return ONOMATOPOEIA_DATA.filter(item => 
+      return ONOMATOPOEIA_DATA.map((item, idx) => ({ ...item, _originalIndex: idx })).filter(item => 
         !q || item.word.toLowerCase().includes(q) ||
         item.category.toLowerCase().includes(q) ||
         item.nuance.toLowerCase().includes(q) ||
@@ -253,7 +322,7 @@
       );
     } else {
       if (typeof SLANG_DATA === 'undefined') return [];
-      return SLANG_DATA.filter(item => 
+      return SLANG_DATA.map((item, idx) => ({ ...item, _originalIndex: idx })).filter(item => 
         !q || item.target.toLowerCase().includes(q) ||
         item.style.toLowerCase().includes(q) ||
         item.notes.toLowerCase().includes(q) ||
@@ -266,6 +335,7 @@
     const container = document.getElementById('gridContainer');
     container.innerHTML = '';
     const data = getFilteredData();
+    const set = selectedIndices[currentTab];
 
     if (data.length === 0) {
       container.innerHTML = '<div style="color:var(--text-secondary); grid-column: 1/-1; padding: 24px 0;">該当する項目が見つかりません。</div>';
@@ -274,10 +344,12 @@
 
     if (currentTab === 'onomatopoeia') {
       data.forEach(item => {
+        const isSelected = set.has(item._originalIndex);
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = `card ${isSelected ? 'selected' : ''}`;
         card.innerHTML = `
           <div class="card-header">
+            <input type="checkbox" class="card-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleItem(${item._originalIndex})">
             <span class="card-title">${item.word}</span>
             <span class="badge">${item.category}</span>
           </div>
@@ -293,10 +365,12 @@
       });
     } else {
       data.forEach(item => {
+        const isSelected = set.has(item._originalIndex);
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = `card ${isSelected ? 'selected' : ''}`;
         card.innerHTML = `
           <div class="card-header">
+            <input type="checkbox" class="card-checkbox" ${isSelected ? 'checked' : ''} onchange="toggleItem(${item._originalIndex})">
             <span class="card-title">${item.target}</span>
             <span class="badge">${item.style}</span>
           </div>
@@ -313,29 +387,61 @@
     }
   }
 
+  // 選択項目のみを用語集Markdownとして生成
+  function copySelectedAsMarkdown() {
+    const set = selectedIndices[currentTab];
+    if (set.size === 0) {
+      showToast('項目が選択されていません');
+      return;
+    }
+
+    let md = '';
+    if (currentTab === 'onomatopoeia') {
+      md += '# 描写用オノマトペ用語集\n\n';
+      const items = ONOMATOPOEIA_DATA.filter((_, idx) => set.has(idx));
+      items.forEach(item => {
+        md += `* **${item.word}** (${item.category})\n`;
+        md += `  * ニュアンス: ${item.nuance}\n`;
+        md += `  * 用例: ${item.examples.join(' / ')}\n`;
+      });
+    } else {
+      md += '# 描写用隠語・換装語彙集\n\n';
+      const items = SLANG_DATA.filter((_, idx) => set.has(idx));
+      items.forEach(item => {
+        md += `* **${item.target}** [${item.style}]\n`;
+        md += `  * 語彙: ${item.terms.join(', ')}\n`;
+        md += `  * 補足: ${item.notes}\n`;
+      });
+    }
+
+    navigator.clipboard.writeText(md).then(() => {
+      showToast(`${set.size} 件の用語集をMarkdownコピーしました`);
+    });
+  }
+
   function copyCurrentAsMarkdown() {
     const data = getFilteredData();
     if (data.length === 0) return;
 
     let md = '';
     if (currentTab === 'onomatopoeia') {
-      md += '# オノマトペ辞書\\n\\n';
+      md += '# オノマトペ辞書\n\n';
       data.forEach(item => {
-        md += `* **${item.word}** (${item.category})\\n`;
-        md += `  * ニュアンス: ${item.nuance}\\n`;
-        md += `  * 用例: ${item.examples.join(' / ')}\\n`;
+        md += `* **${item.word}** (${item.category})\n`;
+        md += `  * ニュアンス: ${item.nuance}\n`;
+        md += `  * 用例: ${item.examples.join(' / ')}\n`;
       });
     } else {
-      md += '# 置き換え語（隠語）辞書\\n\\n';
+      md += '# 置き換え語（隠語）辞書\n\n';
       data.forEach(item => {
-        md += `* **${item.target}** [${item.style}]\\n`;
-        md += `  * 語彙: ${item.terms.join(', ')}\\n`;
-        md += `  * 補足: ${item.notes}\\n`;
+        md += `* **${item.target}** [${item.style}]\n`;
+        md += `  * 語彙: ${item.terms.join(', ')}\n`;
+        md += `  * 補足: ${item.notes}\n`;
       });
     }
 
     navigator.clipboard.writeText(md).then(() => {
-      showToast('Markdown形式でクリップボードにコピーしました');
+      showToast('表示中の全項目をMarkdownコピーしました');
     });
   }
 
