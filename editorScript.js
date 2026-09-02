@@ -615,7 +615,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // 初回起動
-  const savedMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
-  setMode(savedMode, false, true);
-});
+// サジェストエンジンの初期化
+  const suggest = new SuggestEngine(editor, () => currentMode);
+
+  // テスト用ボタンでサジェスト起動
+  const testSuggestBtn = document.getElementById('testSuggestBtn');
+  if (testSuggestBtn) {
+    testSuggestBtn.addEventListener('click', () => {
+      editor.focus();
+      suggest.triggerSuggest();
+    });
+  }
