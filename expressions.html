@@ -106,7 +106,8 @@
   .selection-bar {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     padding: 8px 14px;
@@ -189,7 +190,6 @@
     flex-wrap: wrap;
     gap: 6px;
   }
-  /* 単語チップ */
   .token {
     background: var(--code-bg);
     border: 1px solid var(--border-color);
@@ -204,7 +204,6 @@
   .token:hover {
     border-color: #5c6370;
   }
-  /* 選択状態のチップ */
   .token.selected {
     background: #2d3b2d;
     border-color: var(--accent-active);
@@ -221,6 +220,7 @@
     display: flex;
     gap: 6px;
     justify-content: flex-end;
+    align-items: center;
   }
   .small-btn {
     font-size: 11px;
@@ -271,13 +271,14 @@
 
   <div class="controls">
     <input type="text" id="searchInput" class="search-input" placeholder="検索ワードを入力..." oninput="render()">
+    <button class="action-btn" onclick="selectAllVisible(true)">表示中を全選択</button>
     <button class="action-btn" onclick="clearCurrentSelection()">選択をリセット</button>
     <button class="action-btn primary" onclick="copySelectedTermsAsMarkdown()">選択語彙をプロンプト形式でコピー</button>
   </div>
 
   <div class="selection-bar">
     <span>選択中の語彙数: <span id="selectedCount" class="selection-count">0</span> 語</span>
-    <span style="font-size: 11px; margin-left: 8px;">※ 各単語チップをクリックして個別選択 / 解除ができます</span>
+    <span style="font-size: 11px; margin-left: 8px;">※ 各単語チップをクリックして個別選択、またはカード下のボタンでカテゴリー一括選択が可能です</span>
   </div>
 </header>
 
@@ -293,9 +294,6 @@
 <script>
   let currentTab = 'slang';
 
-  // 選択中の単語を追跡
-  // slang: Map( targetName => Set(term) )
-  // onomatopoeia: Set( word )
   const selectedSlang = new Map();
   const selectedOnomato = new Set();
 
@@ -347,7 +345,7 @@
     render();
   }
 
-  // target名をキーにして安全に一括選択/解除
+  // 隠語：カテゴリー（部位）一括選択・解除
   function selectCardAllSlangByTarget(target, select) {
     if (typeof SLANG_DATA === 'undefined') return;
     const item = SLANG_DATA.find(d => d.target === target);
@@ -362,6 +360,50 @@
     }
     updateCount();
     render();
+  }
+
+  // オノマトペ：カテゴリー分類（例：「接触・愛撫」）一括選択・解除
+  function selectOnomatoByCategory(category, select) {
+    if (typeof ONOMATOPOEIA_DATA === 'undefined') return;
+    const items = ONOMATOPOEIA_DATA.filter(d => d.category === category);
+    items.forEach(item => {
+      if (select) {
+        selectedOnomato.add(item.word);
+      } else {
+        selectedOnomato.delete(item.word);
+      }
+    });
+    updateCount();
+    render();
+  }
+
+  // 表示中の全行・全項目を一括選択
+  function selectAllVisible(select) {
+    const visibleData = getFilteredData();
+    if (visibleData.length === 0) return;
+
+    if (currentTab === 'slang') {
+      visibleData.forEach(item => {
+        if (select) {
+          if (!selectedSlang.has(item.target)) selectedSlang.set(item.target, new Set());
+          const set = selectedSlang.get(item.target);
+          item.styles.flatMap(s => s.terms).forEach(t => set.add(t));
+        } else {
+          selectedSlang.delete(item.target);
+        }
+      });
+    } else {
+      visibleData.forEach(item => {
+        if (select) {
+          selectedOnomato.add(item.word);
+        } else {
+          selectedOnomato.delete(item.word);
+        }
+      });
+    }
+    updateCount();
+    render();
+    showToast(select ? '表示中の全項目を選択しました' : '選択を解除しました');
   }
 
   function clearCurrentSelection() {
@@ -433,7 +475,6 @@
         const stylesHtml = item.styles.map(s => {
           const tokens = s.terms.map(t => {
             const isSelected = selectedSet.has(t);
-            // エスケープ処理を挟んで安全に属性設定
             const safeTarget = encodeURIComponent(item.target);
             const safeTerm = encodeURIComponent(t);
             return `<span class="token ${isSelected ? 'selected' : ''}" onclick="toggleSlangTerm(decodeURIComponent('${safeTarget}'), decodeURIComponent('${safeTerm}'))">${t}</span>`;
@@ -459,7 +500,7 @@
           ${item.description ? `<div class="card-desc">${item.description}</div>` : ''}
           ${stylesHtml}
           <div class="card-actions">
-            <button class="small-btn" onclick="selectCardAllSlangByTarget(decodeURIComponent('${safeTarget}'), true)">この部位を全選択</button>
+            <button class="small-btn" onclick="selectCardAllSlangByTarget(decodeURIComponent('${safeTarget}'), true)">部位全選択</button>
             <button class="small-btn" onclick="selectCardAllSlangByTarget(decodeURIComponent('${safeTarget}'), false)">解除</button>
           </div>
         `;
@@ -472,6 +513,7 @@
         card.className = 'card';
 
         const safeWord = encodeURIComponent(item.word);
+        const safeCategory = encodeURIComponent(item.category);
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${item.word}</span>
@@ -487,13 +529,16 @@
               return `<span class="token" onclick="copyText(decodeURIComponent('${safeEx}'))" title="クリックして用例をコピー">${ex}</span>`;
             }).join('')}
           </div>
+          <div class="card-actions">
+            <button class="small-btn" onclick="selectOnomatoByCategory(decodeURIComponent('${safeCategory}'), true)">同カテゴリ全選択</button>
+            <button class="small-btn" onclick="selectOnomatoByCategory(decodeURIComponent('${safeCategory}'), false)">解除</button>
+          </div>
         `;
         container.appendChild(card);
       });
     }
   }
 
-  // 選択された語彙のみをAIプロンプト向けMarkdown形式でコピー
   function copySelectedTermsAsMarkdown() {
     let md = '';
 
