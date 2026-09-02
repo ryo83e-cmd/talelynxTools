@@ -68,13 +68,49 @@ document.addEventListener('DOMContentLoaded', () => {
   if (geminiModelLabel) geminiModelLabel.textContent = `モデル: ${AI_CONFIG.gemini.model}`;
   if (openaiModelLabel) openaiModelLabel.textContent = `モデル: ${AI_CONFIG.openai.model}`;
 
-  // ハイライト描画の更新
-  function updateHighlight() {
-    if (!editor || !highlightCode) return;
+  // ========================================================
+  // ハイライト ＆ 折り返し行番号の完全同期処理
+  // ========================================================
+  function updateHighlightAndLineNumbers() {
+    if (!editor || !highlightCode || !lineNumbers) return;
+
     const text = editor.value;
-    highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
+    const lines = text.split('\n');
+
+    // 1. 各行を個別要素として背面に配置（行ごとの高さを測定可能にする）
+    highlightCode.innerHTML = '';
+    const lineFragment = document.createDocumentFragment();
+
+    lines.forEach((lineText) => {
+      const lineSpan = document.createElement('span');
+      lineSpan.className = 'editor-line-unit';
+      lineSpan.style.display = 'block';
+      // 空行の高さ潰れ防止
+      lineSpan.textContent = lineText === '' ? ' ' : lineText;
+      lineFragment.appendChild(lineSpan);
+    });
+
+    highlightCode.appendChild(lineFragment);
+
+    // Prism.js による構文着色
     if (window.Prism) {
       Prism.highlightElement(highlightCode);
+    }
+
+    // 2. 折り返しを含めた各行の高さを計測し、行番号の高さを完全一致させる
+    const lineSpans = highlightCode.querySelectorAll('.editor-line-unit');
+    let lineNumHtml = '';
+
+    lineSpans.forEach((span, index) => {
+      const h = span.offsetHeight;
+      lineNumHtml += `<div class="line-num-item" style="height: ${h}px;">${index + 1}</div>`;
+    });
+
+    lineNumbers.innerHTML = lineNumHtml;
+
+    // 文字数・論理行数の更新
+    if (charCount) {
+      charCount.textContent = `文字数: ${text.length} | 行数: ${lines.length}`;
     }
   }
 
@@ -117,8 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    updateHighlight();
-    updateLinesAndStats();
+    updateHighlightAndLineNumbers();
     updateSelection();
   }
 
@@ -148,8 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const prev = undoStack[undoStack.length - 1];
       editor.value = prev;
       persistContent();
-      updateHighlight();
-      updateLinesAndStats();
+      updateHighlightAndLineNumbers();
       updateUndoRedoUI();
     }
   }
@@ -160,8 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
       undoStack.push(next);
       editor.value = next;
       persistContent();
-      updateHighlight();
-      updateLinesAndStats();
+      updateHighlightAndLineNumbers();
       updateUndoRedoUI();
     }
   }
@@ -177,8 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveDebounceTimer = setTimeout(() => {
       persistContent();
     }, 300);
-    updateHighlight();
-    updateLinesAndStats();
+    updateHighlightAndLineNumbers();
   }
 
   function persistContent() {
@@ -194,24 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (highlightLayer) {
       highlightLayer.scrollTop = editor.scrollTop;
       highlightLayer.scrollLeft = editor.scrollLeft;
-    }
-  }
-
-  function updateLinesAndStats() {
-    if (!editor) return;
-    const text = editor.value;
-    const chars = text.length;
-    const lines = text.split('\n').length;
-
-    if (lineNumbers) {
-      let lineNumStr = '';
-      for (let i = 1; i <= lines; i++) {
-        lineNumStr += i + '\n';
-      }
-      lineNumbers.textContent = lineNumStr;
-    }
-    if (charCount) {
-      charCount.textContent = `文字数: ${chars} | 行数: ${lines}`;
     }
   }
 
@@ -242,8 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pushHistory(editor.value);
     persistContent();
-    updateHighlight();
-    updateLinesAndStats();
+    updateHighlightAndLineNumbers();
   }
 
   function wrapText(before, after) {
@@ -261,8 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     pushHistory(editor.value);
     persistContent();
-    updateHighlight();
-    updateLinesAndStats();
+    updateHighlightAndLineNumbers();
   }
 
   function clearEditor() {
@@ -271,8 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
       editor.value = '';
       pushHistory('');
       persistContent();
-      updateHighlight();
-      updateLinesAndStats();
+      updateHighlightAndLineNumbers();
     }
   }
 
@@ -330,11 +341,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (apiModal) apiModal.style.display = 'none';
   }
 
-function saveApiKey() {
+  function saveApiKey() {
     const geminiVal = geminiApiKeyInput ? geminiApiKeyInput.value.trim() : '';
     const openaiVal = openaiApiKeyInput ? openaiApiKeyInput.value.trim() : '';
 
-    // 空文字の場合は削除、値がある場合は保存
     if (geminiVal) {
       localStorage.setItem(STORAGE_KEYS.geminiKey, geminiVal);
     } else {
@@ -386,7 +396,7 @@ function saveApiKey() {
     }
   }
 
-  // --- AI実行処理（定数 AI_CONFIG を参照） ---
+  // --- AI実行処理 ---
   async function runAiEnhance(provider) {
     const isGemini = provider === 'gemini';
     const apiKey = isGemini 
@@ -425,7 +435,6 @@ function saveApiKey() {
       let refinedText = "";
 
       if (isGemini) {
-        // 定数からエンドポイントとモデル名を取得
         const url = AI_CONFIG.gemini.endpoint(apiKey, AI_CONFIG.gemini.model);
         const response = await fetch(url, {
           method: 'POST',
@@ -444,7 +453,6 @@ function saveApiKey() {
         const data = await response.json();
         refinedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
       } else {
-        // 定数からエンドポイント、モデル名、パラメータを取得
         const response = await fetch(AI_CONFIG.openai.endpoint, {
           method: 'POST',
           headers: {
@@ -474,13 +482,11 @@ function saveApiKey() {
         throw new Error('AIからの応答が空でした。');
       }
 
-      // Undoスタックへ元の未トリムテキストを保存
       pushHistory(rawOriginalText);
       editor.value = refinedText;
       pushHistory(refinedText);
       persistContent();
-      updateHighlight();
-      updateLinesAndStats();
+      updateHighlightAndLineNumbers();
 
     } catch (err) {
       console.error(err);
@@ -530,6 +536,9 @@ function saveApiKey() {
       }
     });
   }
+
+  // ウィンドウ幅伸縮時の折り返し再計算
+  window.addEventListener('resize', updateHighlightAndLineNumbers);
 
   if (modeImageBtn) modeImageBtn.addEventListener('click', () => setMode('image'));
   if (modeRoleplayBtn) modeRoleplayBtn.addEventListener('click', () => setMode('roleplay'));
