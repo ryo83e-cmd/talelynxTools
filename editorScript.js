@@ -80,6 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!editor || !highlightCode || !lineNumbers) return;
 
     const text = editor.value;
+    
+    // コピペ時に混入するゼロ幅スペース (\u200B) や不可視制御文字を除去
+    const cleanText = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
     // 1. ハイライト層の更新（Prismを破壊しない純粋なテキスト渡し）
     highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
