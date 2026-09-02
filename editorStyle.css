@@ -31,7 +31,8 @@ body {
   line-height: 1.5;
   padding: 20px 12px;
   max-width: 1000px;
-  margin: 0 auto;
+  margin: 0 auto;-webkit-text-size-adjust: 100%; /* ← 追加 */
+  text-size-adjust: 100%;         /* ← 追加 */
 }
 
 .nav-back {
@@ -230,6 +231,7 @@ body {
   background: transparent !important;
   box-shadow: none !important;
   text-shadow: none !important;
+  max-height: 999999px; /* ← 追加 */
 }
 
 /* 手前の入力層（透明 textarea） */
@@ -260,6 +262,8 @@ textarea {
   tab-size: 2;
   z-index: 1;
   box-sizing: border-box;
+  -webkit-text-fill-color: transparent !important; /* ← 追加 */
+  max-height: 999999px; /* ← 追加 */
 }
 
 textarea::selection {
