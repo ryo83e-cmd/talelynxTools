@@ -31,6 +31,19 @@
     flex-direction: column;
     gap: 14px;
   }
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    width: fit-content;
+    transition: color 0.2s;
+  }
+  .nav-back:hover {
+    color: var(--accent-color);
+  }
   h1 { font-size: 20px; font-weight: 600; }
   .tabs {
     display: flex;
@@ -248,7 +261,7 @@
 <body>
 
 <header>
-    <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
+  <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
   <h1>描写語彙データベース（プロンプト構成用）</h1>
   
   <div class="tabs">
@@ -280,7 +293,7 @@
 <script>
   let currentTab = 'slang';
 
-  // 選択中の単語を追跡するマップ
+  // 選択中の単語を追跡
   // slang: Map( targetName => Set(term) )
   // onomatopoeia: Set( word )
   const selectedSlang = new Map();
@@ -291,6 +304,12 @@
     toast.textContent = text;
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 1500);
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`コピー完了: ${text.length > 20 ? text.slice(0, 20) + '...' : text}`);
+    });
   }
 
   function updateCount() {
@@ -328,12 +347,16 @@
     render();
   }
 
-  function selectCardAllSlang(target, item, select) {
-    const allTerms = item.styles.flatMap(s => s.terms);
+  // target名をキーにして安全に一括選択/解除
+  function selectCardAllSlangByTarget(target, select) {
+    if (typeof SLANG_DATA === 'undefined') return;
+    const item = SLANG_DATA.find(d => d.target === target);
+    if (!item) return;
+
     if (select) {
       if (!selectedSlang.has(target)) selectedSlang.set(target, new Set());
       const set = selectedSlang.get(target);
-      allTerms.forEach(t => set.add(t));
+      item.styles.flatMap(s => s.terms).forEach(t => set.add(t));
     } else {
       selectedSlang.delete(target);
     }
@@ -407,10 +430,13 @@
         const card = document.createElement('div');
         card.className = 'card';
 
-        let stylesHtml = item.styles.map(s => {
+        const stylesHtml = item.styles.map(s => {
           const tokens = s.terms.map(t => {
             const isSelected = selectedSet.has(t);
-            return `<span class="token ${isSelected ? 'selected' : ''}" onclick="toggleSlangTerm('${item.target}', '${t}')">${t}</span>`;
+            // エスケープ処理を挟んで安全に属性設定
+            const safeTarget = encodeURIComponent(item.target);
+            const safeTerm = encodeURIComponent(t);
+            return `<span class="token ${isSelected ? 'selected' : ''}" onclick="toggleSlangTerm(decodeURIComponent('${safeTarget}'), decodeURIComponent('${safeTerm}'))">${t}</span>`;
           }).join('');
 
           return `
@@ -424,6 +450,7 @@
           `;
         }).join('');
 
+        const safeTarget = encodeURIComponent(item.target);
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${item.target}</span>
@@ -432,8 +459,8 @@
           ${item.description ? `<div class="card-desc">${item.description}</div>` : ''}
           ${stylesHtml}
           <div class="card-actions">
-            <button class="small-btn" onclick='selectCardAllSlang("${item.target}", ${JSON.stringify(item)}, true)'>この部位を全選択</button>
-            <button class="small-btn" onclick='selectCardAllSlang("${item.target}", null, false)'>解除</button>
+            <button class="small-btn" onclick="selectCardAllSlangByTarget(decodeURIComponent('${safeTarget}'), true)">この部位を全選択</button>
+            <button class="small-btn" onclick="selectCardAllSlangByTarget(decodeURIComponent('${safeTarget}'), false)">解除</button>
           </div>
         `;
         container.appendChild(card);
@@ -443,6 +470,8 @@
         const isSelected = selectedOnomato.has(item.word);
         const card = document.createElement('div');
         card.className = 'card';
+
+        const safeWord = encodeURIComponent(item.word);
         card.innerHTML = `
           <div class="card-header">
             <span class="card-title">${item.word}</span>
@@ -450,9 +479,14 @@
           </div>
           <div class="card-desc">${item.nuance}</div>
           <div class="token-container">
-            <span class="token ${isSelected ? 'selected' : ''}" onclick="toggleOnomatoWord('${item.word}')">単語: ${item.word}</span>
+            <span class="token ${isSelected ? 'selected' : ''}" onclick="toggleOnomatoWord(decodeURIComponent('${safeWord}'))">単語: ${item.word}</span>
           </div>
-          <div class="card-desc" style="margin-top: 4px;">用例: ${item.examples.join(' / ')}</div>
+          <div class="token-container" style="margin-top: 4px;">
+            ${item.examples.map(ex => {
+              const safeEx = encodeURIComponent(ex);
+              return `<span class="token" onclick="copyText(decodeURIComponent('${safeEx}'))" title="クリックして用例をコピー">${ex}</span>`;
+            }).join('')}
+          </div>
         `;
         container.appendChild(card);
       });
