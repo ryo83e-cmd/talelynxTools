@@ -1,3 +1,18 @@
+// ========================================================
+// AIモデル・エンドポイント設定定数（ここを編集してモデルを変更）
+// ========================================================
+const AI_CONFIG = {
+  gemini: {
+    model: 'gemini-2.5-flash',
+    endpoint: (key, model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`
+  },
+  openai: {
+    model: 'gpt-4o-mini',
+    endpoint: 'https://api.openai.com/v1/chat/completions',
+    temperature: 0.7
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const editor = document.getElementById('promptEditor');
   const highlightCode = document.getElementById('highlightCode');
@@ -16,12 +31,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeApiBtn = document.getElementById('closeApiBtn');
   const saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
   const apiModal = document.getElementById('apiModal');
-  const apiKeyInput = document.getElementById('apiKeyInput');
+
+  const geminiApiKeyInput = document.getElementById('geminiApiKeyInput');
+  const openaiApiKeyInput = document.getElementById('openaiApiKeyInput');
+  const geminiModelLabel = document.getElementById('geminiModelLabel');
+  const openaiModelLabel = document.getElementById('openaiModelLabel');
 
   const boldBtn = document.getElementById('boldBtn');
   const weightBtn = document.getElementById('weightBtn');
   const clearBtn = document.getElementById('clearBtn');
-  const aiBtn = document.getElementById('aiBtn');
+  const aiGeminiBtn = document.getElementById('aiGeminiBtn');
+  const aiOpenaiBtn = document.getElementById('aiOpenaiBtn');
   const saveTxtBtn = document.getElementById('saveTxtBtn');
   const saveMdBtn = document.getElementById('saveMdBtn');
 
@@ -39,14 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const STORAGE_KEYS = {
     image: 'editor_content_image',
     roleplay: 'editor_content_roleplay',
-    mode: 'editor_saved_mode'
+    mode: 'editor_saved_mode',
+    geminiKey: 'gemini_api_key',
+    openaiKey: 'openai_api_key'
   };
+
+  // モーダル内のモデル名ラベルを定数から自動反映
+  if (geminiModelLabel) geminiModelLabel.textContent = `モデル: ${AI_CONFIG.gemini.model}`;
+  if (openaiModelLabel) openaiModelLabel.textContent = `モデル: ${AI_CONFIG.openai.model}`;
 
   // ハイライト描画の更新
   function updateHighlight() {
     if (!editor || !highlightCode) return;
     const text = editor.value;
-    // 空行で末尾が消えないように調整
     highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
     if (window.Prism) {
       Prism.highlightElement(highlightCode);
@@ -160,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editor) localStorage.setItem(STORAGE_KEYS[currentMode], editor.value);
   }
 
-  // スクロール同期（行番号 ＆ ハイライト層 ＆ テキストエリア）
+  // スクロール同期
   function syncScroll() {
     if (!editor) return;
     if (lineNumbers) {
@@ -190,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-// 選択文字数表示（テキストエリア直上右端）
+  // 選択文字数バッジ表示
   function updateSelection() {
     if (!editor || !tooltip) return;
     const start = editor.selectionStart;
@@ -289,11 +314,16 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
+  // --- API設定モーダル制御 ---
   function openApiModal() {
-    if (apiModal && apiKeyInput) {
-      apiKeyInput.value = localStorage.getItem('gemini_api_key') || '';
-      apiModal.style.display = 'flex';
+    if (!apiModal) return;
+    if (geminiApiKeyInput) {
+      geminiApiKeyInput.value = localStorage.getItem(STORAGE_KEYS.geminiKey) || '';
     }
+    if (openaiApiKeyInput) {
+      openaiApiKeyInput.value = localStorage.getItem(STORAGE_KEYS.openaiKey) || '';
+    }
+    apiModal.style.display = 'flex';
   }
 
   function closeApiModal() {
@@ -301,14 +331,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function saveApiKey() {
-    if (apiKeyInput) {
-      const key = apiKeyInput.value.trim();
-      localStorage.setItem('gemini_api_key', key);
-      alert('APIキーを保存しました！');
-      closeApiModal();
+    if (geminiApiKeyInput) {
+      localStorage.setItem(STORAGE_KEYS.geminiKey, geminiApiKeyInput.value.trim());
     }
+    if (openaiApiKeyInput) {
+      localStorage.setItem(STORAGE_KEYS.openaiKey, openaiApiKeyInput.value.trim());
+    }
+    alert('APIキーを保存しました！');
+    closeApiModal();
   }
 
+  // --- 簡易検索モーダル ---
   function openSearchModal() {
     if (searchModal && searchInput) {
       searchModal.style.display = 'flex';
@@ -343,10 +376,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function enhancePrompt() {
-    const apiKey = localStorage.getItem('gemini_api_key');
+  // --- AI実行処理（定数 AI_CONFIG を参照） ---
+  async function runAiEnhance(provider) {
+    const isGemini = provider === 'gemini';
+    const apiKey = isGemini 
+      ? localStorage.getItem(STORAGE_KEYS.geminiKey) 
+      : localStorage.getItem(STORAGE_KEYS.openaiKey);
+
+    const targetBtn = isGemini ? aiGeminiBtn : aiOpenaiBtn;
+    const providerName = isGemini ? 'Gemini' : 'ChatGPT';
+
     if (!apiKey) {
-      alert('右上の「⚙️ API設定」からGemini API Keyを設定してください。');
+      alert(`「⚙️ API設定」から ${providerName} の API Key を設定してください。`);
       openApiModal();
       return;
     }
@@ -359,10 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (aiBtn) {
-      aiBtn.textContent = '✨ AI思考中...';
-      aiBtn.disabled = true;
-    }
+    if (aiGeminiBtn) aiGeminiBtn.disabled = true;
+    if (aiOpenaiBtn) aiOpenaiBtn.disabled = true;
+    targetBtn.textContent = '✨ 思考中...';
 
     let systemInstruction = "";
     if (currentMode === 'image') {
@@ -372,45 +412,82 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptTextForApi }] }],
-          systemInstruction: { parts: [{ text: systemInstruction }] }
-        })
-      });
+      let refinedText = "";
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        const errMsg = errData.error?.message || `HTTPエラー: ${response.status}`;
-        throw new Error(errMsg);
-      }
+      if (isGemini) {
+        // 定数からエンドポイントとモデル名を取得
+        const url = AI_CONFIG.gemini.endpoint(apiKey, AI_CONFIG.gemini.model);
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptTextForApi }] }],
+            systemInstruction: { parts: [{ text: systemInstruction }] }
+          })
+        });
 
-      const data = await response.json();
-      if (data.candidates && data.candidates[0].content) {
-        const refinedText = data.candidates[0].content.parts[0].text.trim();
-        pushHistory(rawOriginalText);
-        editor.value = refinedText;
-        pushHistory(refinedText);
-        persistContent();
-        updateHighlight();
-        updateLinesAndStats();
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(`Gemini: ${errData.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        refinedText = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
       } else {
-        throw new Error('AIからの応答データ形式が正しくありません。');
+        // 定数からエンドポイント、モデル名、パラメータを取得
+        const response = await fetch(AI_CONFIG.openai.endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: AI_CONFIG.openai.model,
+            messages: [
+              { role: 'system', content: systemInstruction },
+              { role: 'user', content: promptTextForApi }
+            ],
+            temperature: AI_CONFIG.openai.temperature
+          })
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(`OpenAI: ${errData.error?.message || response.statusText}`);
+        }
+
+        const data = await response.json();
+        refinedText = data.choices?.[0]?.message?.content?.trim() || "";
       }
+
+      if (!refinedText) {
+        throw new Error('AIからの応答が空でした。');
+      }
+
+      // Undoスタックへ元の未トリムテキストを保存
+      pushHistory(rawOriginalText);
+      editor.value = refinedText;
+      pushHistory(refinedText);
+      persistContent();
+      updateHighlight();
+      updateLinesAndStats();
+
     } catch (err) {
       console.error(err);
       alert(`ブラッシュアップに失敗しました。\n詳細: ${err.message}`);
     } finally {
-      if (aiBtn) {
-        aiBtn.textContent = '✨ AIブラッシュアップ';
-        aiBtn.disabled = false;
+      if (aiGeminiBtn) {
+        aiGeminiBtn.disabled = false;
+        aiGeminiBtn.textContent = '✨ Gemini';
+      }
+      if (aiOpenaiBtn) {
+        aiOpenaiBtn.disabled = false;
+        aiOpenaiBtn.textContent = '✨ ChatGPT';
       }
     }
   }
 
-  // イベントリスナー
+  // イベントリスナー登録
   if (editor) {
     editor.addEventListener('input', handleInput);
     editor.addEventListener('scroll', syncScroll);
@@ -451,10 +528,12 @@ document.addEventListener('DOMContentLoaded', () => {
   if (undoBtn) undoBtn.addEventListener('click', undo);
   if (redoBtn) redoBtn.addEventListener('click', redo);
   if (clearBtn) clearBtn.addEventListener('click', clearEditor);
-  if (aiBtn) aiBtn.addEventListener('click', enhancePrompt);
   if (copyBtn) copyBtn.addEventListener('click', copyText);
   if (saveTxtBtn) saveTxtBtn.addEventListener('click', () => downloadFile('txt'));
   if (saveMdBtn) saveMdBtn.addEventListener('click', () => downloadFile('md'));
+
+  if (aiGeminiBtn) aiGeminiBtn.addEventListener('click', () => runAiEnhance('gemini'));
+  if (aiOpenaiBtn) aiOpenaiBtn.addEventListener('click', () => runAiEnhance('openai'));
 
   if (openApiBtn) openApiBtn.addEventListener('click', openApiModal);
   if (closeApiBtn) closeApiBtn.addEventListener('click', closeApiModal);
@@ -486,6 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // 初回起動
   const savedMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
   setMode(savedMode, false, true);
 });
