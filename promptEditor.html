@@ -10,8 +10,6 @@
 </head>
 <body>
 
-
-
   <div style="max-width: 1000px; margin: 0 auto;">
     <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
     <h1 style="margin-bottom: 20px; font-size: 24px;">AIプロンプト エディタ</h1>
@@ -28,7 +26,7 @@
         </div>
       </div>
 
-      <!-- ツールバー -->
+      <!-- ツールバー（Gemini / ChatGPT 独立ボタン） -->
       <div class="toolbar">
         <div class="tool-group">
           <button class="tool-btn" id="boldBtn"><b>太字</b></button>
@@ -38,14 +36,15 @@
           <button class="tool-btn" id="clearBtn" style="color: #ef4444;">クリア</button>
         </div>
         <div class="tool-group">
-          <button class="tool-btn ai-btn" id="aiBtn">✨ AIブラッシュアップ</button>
+          <button class="tool-btn ai-btn gemini-btn" id="aiGeminiBtn">✨ Gemini</button>
+          <button class="tool-btn ai-btn openai-btn" id="aiOpenaiBtn">✨ ChatGPT</button>
         </div>
       </div>
 
       <!-- クイックチップス -->
       <div class="quick-chips" id="quickChipsContainer"></div>
       
-      <!-- エディタ直上バー（選択文字数バッジ） -->
+      <!-- エディタ直上バー（文字数・行数 ＆ 選択文字数バッジ） -->
       <div class="editor-top-bar">
         <span id="selectionTooltip" class="selection-badge"></span>
         <div class="stats" id="charCount">文字数: 0 | 行数: 1</div>
@@ -78,14 +77,23 @@
   <!-- API設定モーダル -->
   <div id="apiModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-      <h3>APIキー設定</h3>
-      <p style="font-size: 11px; color: #64748b; margin-bottom: 12px; line-height: 1.4;">
-        APIキーはこのブラウザの localStorage に保存され、AIブラッシュアップ実行時の Gemini API 認証に直接使用されます。
+      <h3>AI 連携設定</h3>
+      <p style="font-size: 11px; color: #64748b; margin-bottom: 14px; line-height: 1.4;">
+        各APIキーはブラウザの localStorage に安全に保存されます。利用するサービスのキーを入力してください。
       </p>
-      <div style="margin-bottom: 15px;">
+
+      <div style="margin-bottom: 14px;">
         <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">Gemini API Key</label>
-        <input type="password" id="apiKeyInput" placeholder="AIzaSy..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
+        <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
+        <span id="geminiModelLabel" style="font-size: 10px; color: #94a3b8;">モデル: 読み込み中...</span>
       </div>
+
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px;">OpenAI API Key</label>
+        <input type="password" id="openaiApiKeyInput" placeholder="sk-..." style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #fff; color: var(--text);">
+        <span id="openaiModelLabel" style="font-size: 10px; color: #94a3b8;">モデル: 読み込み中...</span>
+      </div>
+
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button class="tool-btn" id="closeApiBtn">キャンセル</button>
         <button class="btn" id="saveApiKeyBtn" style="padding: 6px 14px; font-size: 13px;">保存する</button>
