@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>描写語彙データベース</title>
+<style>
+  :root {
+    --bg-color: #121316;
+    --card-bg: #1c1e24;
+    --border-color: #2e323b;
+    --text-primary: #e6e8ec;
+    --text-secondary: #9aa0a6;
+    --accent-color: #e06c75;
+    --tag-bg: #282c34;
+    --code-bg: #181a1f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    padding: 24px;
+    line-height: 1.5;
+  }
+  header {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover {
+    color: var(--text-primary);
+  }
+  .tab-btn.active {
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+  }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-input {
+    flex: 1;
+    min-width: 240px;
+    padding: 10px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  .search-input:focus {
+    outline: 1px solid var(--accent-color);
+  }
+  .action-btn {
+    background: var(--tag-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .action-btn:hover {
+    background: var(--border-color);
+  }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent-color);
+  }
+  .badge {
+    background: var(--tag-bg);
+    border: 1px solid var(--border-color);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .token-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .token {
+    background: var(--code-bg);
+    border: 1px solid var(--border-color);
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .token:hover {
+    border-color: var(--accent-color);
+    color: #fff;
+  }
+  .card-actions {
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .copy-card-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent-color);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+    z-index: 1000;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>描写辞書・リファレンスツール</h1>
+  
+  <!-- タブ切り替えボタン -->
+  <div class="tabs">
+    <button id="tabOnomato" class="tab-btn active" onclick="switchTab('onomatopoeia')">オノマトペ</button>
+    <button id="tabSlang" class="tab-btn" onclick="switchTab('slang')">置き換え語（隠語）</button>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="searchInput" class="search-input" placeholder="検索ワードを入力..." oninput="render()">
+    <button class="action-btn" onclick="copyCurrentAsMarkdown()">現在のタブ内容をMarkdownコピー</button>
+  </div>
+</header>
+
+<main>
+  <div id="gridContainer" class="grid"></div>
+</main>
+
+<div id="toast" class="toast">コピーしました</div>
+
+<!-- 各データソースの読み込み -->
+<script src="onomatopoeia.js"></script>
+<script src="slang.js"></script>
+
+<script>
+  let currentTab = 'onomatopoeia';
+
+  function showToast(text) {
+    const toast = document.getElementById('toast');
+    toast.textContent = text;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1500);
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(`コピー完了: ${text.length > 20 ? text.slice(0, 20) + '...' : text}`);
+    });
+  }
+
+  function switchTab(tabName) {
+    currentTab = tabName;
+    
+    document.getElementById('tabOnomato').classList.toggle('active', tabName === 'onomatopoeia');
+    document.getElementById('tabSlang').classList.toggle('active', tabName === 'slang');
+
+    const searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    searchInput.placeholder = tabName === 'onomatopoeia' 
+      ? 'オノマトペ、カテゴリ、ニュアンス、用例で検索...' 
+      : '対象器官、スタイル、隠語、補足で検索...';
+
+    render();
+  }
+
+  function getFilteredData() {
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    
+    if (currentTab === 'onomatopoeia') {
+      if (typeof ONOMATOPOEIA_DATA === 'undefined') return [];
+      return ONOMATOPOEIA_DATA.filter(item => 
+        !q || item.word.toLowerCase().includes(q) ||
+        item.category.toLowerCase().includes(q) ||
+        item.nuance.toLowerCase().includes(q) ||
+        item.examples.some(ex => ex.toLowerCase().includes(q))
+      );
+    } else {
+      if (typeof SLANG_DATA === 'undefined') return [];
+      return SLANG_DATA.filter(item => 
+        !q || item.target.toLowerCase().includes(q) ||
+        item.style.toLowerCase().includes(q) ||
+        item.notes.toLowerCase().includes(q) ||
+        item.terms.some(t => t.toLowerCase().includes(q))
+      );
+    }
+  }
+
+  function render() {
+    const container = document.getElementById('gridContainer');
+    container.innerHTML = '';
+    const data = getFilteredData();
+
+    if (data.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-secondary); grid-column: 1/-1; padding: 24px 0;">該当する項目が見つかりません。</div>';
+      return;
+    }
+
+    if (currentTab === 'onomatopoeia') {
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">${item.word}</span>
+            <span class="badge">${item.category}</span>
+          </div>
+          <div class="card-desc">${item.nuance}</div>
+          <div class="token-container">
+            ${item.examples.map(ex => `<span class="token" onclick="copyText('${ex}')" title="クリックしてコピー">${ex}</span>`).join('')}
+          </div>
+          <div class="card-actions">
+            <button class="action-btn copy-card-btn" onclick="copyText('${item.word}')">単語をコピー</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    } else {
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">${item.target}</span>
+            <span class="badge">${item.style}</span>
+          </div>
+          <div class="card-desc">${item.notes}</div>
+          <div class="token-container">
+            ${item.terms.map(t => `<span class="token" onclick="copyText('${t}')" title="クリックしてコピー">${t}</span>`).join('')}
+          </div>
+          <div class="card-actions">
+            <button class="action-btn copy-card-btn" onclick="copyText('${item.terms.join(', ')}')">全語彙をコピー</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+  }
+
+  function copyCurrentAsMarkdown() {
+    const data = getFilteredData();
+    if (data.length === 0) return;
+
+    let md = '';
+    if (currentTab === 'onomatopoeia') {
+      md += '# オノマトペ辞書\\n\\n';
+      data.forEach(item => {
+        md += `* **${item.word}** (${item.category})\\n`;
+        md += `  * ニュアンス: ${item.nuance}\\n`;
+        md += `  * 用例: ${item.examples.join(' / ')}\\n`;
+      });
+    } else {
+      md += '# 置き換え語（隠語）辞書\\n\\n';
+      data.forEach(item => {
+        md += `* **${item.target}** [${item.style}]\\n`;
+        md += `  * 語彙: ${item.terms.join(', ')}\\n`;
+        md += `  * 補足: ${item.notes}\\n`;
+      });
+    }
+
+    navigator.clipboard.writeText(md).then(() => {
+      showToast('Markdown形式でクリップボードにコピーしました');
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    switchTab('onomatopoeia');
+  });
+</script>
+</body>
+</html>
