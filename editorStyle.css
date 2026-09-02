@@ -181,7 +181,6 @@ body {
   align-items: flex-start;
   justify-content: flex-end;
   box-sizing: border-box;
-  /* 高さはJSで動的に折り返し分を反映 */
 }
 .editor-stage {
   position: relative;
@@ -201,14 +200,13 @@ body {
   padding: var(--editor-padding-top) 12px var(--editor-padding-bottom) 12px !important;
   background: transparent !important;
   border: none !important;
-  overflow-y: scroll !important; /* ← ここを hidden から scroll に変更して textarea と描画幅を完全一致させる */
+  overflow-y: scroll !important;
   overflow-x: hidden !important;
   pointer-events: none;
   box-sizing: border-box;
-  scrollbar-color: transparent transparent; /* 背面のスクロールバーは見えないように透明化 */
+  scrollbar-color: transparent transparent;
 }
 
-/* Chrome / Safari / Edge 向けに背面の重複スクロールバーを非表示化 */
 .highlight-layer::-webkit-scrollbar {
   width: 0px;
   background: transparent;
@@ -221,7 +219,6 @@ body {
   line-height: var(--editor-line-height) !important;
   letter-spacing: normal !important;
   word-spacing: normal !important;
-  /* ↓ 折り返し設定（手前のtextareaと完全に同一化） */
   white-space: pre-wrap !important;
   word-break: break-all !important;
   overflow-wrap: break-word !important;
@@ -253,12 +250,11 @@ textarea {
   background: transparent !important;
   color: transparent !important;
   caret-color: #38bdf8 !important;
-  /* ↓ 折り返し設定（背面のcodeと完全に同一化） */
   white-space: pre-wrap !important;
   word-break: break-all !important;
   overflow-wrap: break-word !important;
-  overflow-y: scroll !important; /* 縦スクロールバーを常時表示して幅のブレを防止 */
-  overflow-x: hidden !important; /* 横スクロールを無効化 */
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
   resize: none;
   outline: none;
   tab-size: 2;
