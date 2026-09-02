@@ -627,9 +627,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 初期化完了時のモード復元（もし未実行であれば）
-  if (typeof setMode === 'function') {
-    setMode(savedMode, false, true);
-  }
+  // 保存されていたモードまたはデフォルト（image）で初期ロードを実行
+  const initialMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
+  setMode(initialMode, false, true);
 
-});
+}); // ← 【重要】DOMContentLoadedのブロックをここで確実に閉じる
