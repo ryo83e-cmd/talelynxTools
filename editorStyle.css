@@ -14,10 +14,11 @@
   --editor-line-text: #5c6370;
   --editor-border: #333842;
   
-  /* エディタ・ハイライト層の完全同期用フォント変数 */
-  --editor-font: Consolas, Monaco, "Courier New", monospace;
+--editor-font: Consolas, Monaco, "Courier New", monospace;
   --editor-font-size: 13px;
   --editor-line-height: 20px;
+  --editor-padding-top: 10px;
+  --editor-padding-bottom: 10px;
 }
 
 *, *::before, *::after {
@@ -127,20 +128,21 @@ body {
 }
 
 .line-numbers {
-  width: 44px;
+width: 44px;
   flex-shrink: 0;
   height: 100%;
   background: var(--editor-line-bg);
   color: var(--editor-line-text);
-  font-family: var(--editor-font);
-  font-size: var(--editor-font-size);
-  line-height: var(--editor-line-height);
-  padding: 10px 6px 10px 0;
+  font-family: var(--editor-font) !important;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  padding: var(--editor-padding-top) 6px var(--editor-padding-bottom) 0 !important;
   text-align: right;
   user-select: none;
   overflow: hidden;
   white-space: pre;
   border-right: 1px solid var(--editor-border);
+  box-sizing: border-box;
 }
 
 .editor-stage {
@@ -158,7 +160,7 @@ body {
   width: 100%;
   height: 100%;
   margin: 0 !important;
-  padding: 10px 12px !important;
+  padding: var(--editor-padding-top) 12px var(--editor-padding-bottom) 12px !important;
   background: transparent !important;
   border: none !important;
   overflow: hidden !important;
@@ -166,15 +168,22 @@ body {
   box-sizing: border-box;
 }
 
-.highlight-layer code {
+.highlight-layer code,
+.highlight-layer code[class*="language-"] {
   font-family: var(--editor-font) !important;
   font-size: var(--editor-font-size) !important;
   line-height: var(--editor-line-height) !important;
-  letter-spacing: 0 !important;
-  word-spacing: 0 !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
   white-space: pre !important;
-  tab-size: 2;
-  display: block;
+  tab-size: 2 !important;
+  display: block !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important; /* テーマの影によるボヤけ・ズレ防止 */
 }
 
 /* 手前の入力層（透明textarea） */
@@ -184,18 +193,18 @@ textarea {
   left: 0;
   width: 100%;
   height: 100%;
-  margin: 0;
-  padding: 10px 12px;
-  font-family: var(--editor-font);
-  font-size: var(--editor-font-size);
-  line-height: var(--editor-line-height);
-  letter-spacing: 0;
-  word-spacing: 0;
-  border: none;
-  background: transparent;
-  color: transparent; /* 文字は透明にして背後のハイライトを表示 */
-  caret-color: #38bdf8; /* カーソルのみ表示 */
-  white-space: pre;
+  margin: 0 !important;
+  padding: var(--editor-padding-top) 12px var(--editor-padding-bottom) 12px !important;
+  font-family: var(--editor-font) !important;
+  font-size: var(--editor-font-size) !important;
+  line-height: var(--editor-line-height) !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  border: none !important;
+  background: transparent !important;
+  color: transparent !important; /* 文字は透明化 */
+  caret-color: #38bdf8 !important; /* カーソル色 */
+  white-space: pre !important;
   overflow: auto;
   resize: none;
   outline: none;
