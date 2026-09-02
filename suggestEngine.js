@@ -24,9 +24,8 @@ class SuggestEngine {
     this.listElement.className = 'suggest-list';
     this.container.appendChild(this.listElement);
 
-    // エディタの親要素（.editor-stage）内に配置
-    const stage = this.editor.closest('.editor-stage') || this.editor.parentElement;
-    stage.appendChild(this.container);
+    // エディタ枠の overflow:hidden や重なり順に邪魔されないよう最前面(body直下)に追加
+    document.body.appendChild(this.container);
   }
 
   bindEvents() {
@@ -57,18 +56,23 @@ class SuggestEngine {
       }
     });
 
-    // 画面外クリックやフォーカス外れで閉じる
-    window.addEventListener('click', (e) => {
-      if (this.isOpen && !this.container.contains(e.target) && e.target !== this.editor) {
-        this.close();
+    // 画面外クリックで閉じる処理（mousedownではなくclickで判定し、即時クローズ事故を防止）
+    document.addEventListener('click', (e) => {
+      if (!this.isOpen) return;
+      const testBtn = document.getElementById('testSuggestBtn');
+      
+      // ポップアップ本体、エディタ本体、または起動ボタン内のクリック時は閉じない
+      if (this.container.contains(e.target) || e.target === this.editor || (testBtn && testBtn.contains(e.target))) {
+        return;
       }
+      this.close();
     });
   }
 
   // 文脈（シンタックス）解析を行い、候補リストを構築
   triggerSuggest() {
     const text = this.editor.value;
-    const pos = this.editor.selectionStart;
+    const pos = this.editor.selectionStart || 0;
     const textBefore = text.slice(0, pos);
     const textAfter = text.slice(pos);
     const mode = this.getCurrentMode ? this.getCurrentMode() : 'image';
@@ -90,7 +94,6 @@ class SuggestEngine {
     const lastParenOpen = textBefore.lastIndexOf('(');
     const lastParenClose = textBefore.lastIndexOf(')');
     if (lastParenOpen > lastParenClose) {
-      // 括弧が開いたままの状態
       items.push(
         { label: ':1.2) (重み強化して閉じる)', insert: ':1.2)', desc: '強調構文' },
         { label: ':0.8) (重み弱化して閉じる)', insert: ':0.8)', desc: '弱化構文' },
@@ -109,11 +112,11 @@ class SuggestEngine {
       );
     }
 
-    // --- 文脈判定4: 入力途中の単語による辞書マッチング ---
+    // --- 文脈判定4: 入力途中の単語または辞書マッチング ---
     const wordMatch = textBefore.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
     const query = wordMatch ? wordMatch[1].toLowerCase() : '';
 
-    const dictionary = (SUGGEST_DATA && SUGGEST_DATA[mode]) ? SUGGEST_DATA[mode] : [];
+    const dictionary = (typeof SUGGEST_DATA !== 'undefined' && SUGGEST_DATA[mode]) ? SUGGEST_DATA[mode] : [];
 
     if (query) {
       const filtered = dictionary.filter(item => 
@@ -121,7 +124,7 @@ class SuggestEngine {
       );
       items.push(...filtered);
     } else {
-      // 直前に単語がない場合は辞書の先頭候補をそのまま提示
+      // 単語入力がない場合は辞書リストを全件提示
       items.push(...dictionary);
     }
 
@@ -157,7 +160,7 @@ class SuggestEngine {
     this.selectedIndex = (this.selectedIndex + dir + this.currentItems.length) % this.currentItems.length;
     const items = this.listElement.querySelectorAll('.suggest-item');
     items.forEach((el, idx) => el.classList.toggle('active', idx === this.selectedIndex));
-    // 選択項目が表示領域に入るようスクロール
+    
     const activeEl = items[this.selectedIndex];
     if (activeEl) {
       activeEl.scrollIntoView({ block: 'nearest' });
@@ -176,7 +179,7 @@ class SuggestEngine {
     let insertText = selected.insert;
     let removeLength = 0;
 
-    // 単語マッチで挿入する場合、入力途中の被り文字を置き換え
+    // 単語入力時の被り文字置換
     const wordMatch = textBefore.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
     if (wordMatch && !insertText.startsWith(':') && !insertText.startsWith(')') && !insertText.startsWith('**')) {
       removeLength = wordMatch[1].length;
@@ -187,13 +190,13 @@ class SuggestEngine {
     this.editor.selectionStart = this.editor.selectionEnd = startPos + insertText.length;
     this.editor.focus();
 
-    // エディタに変更イベントを発火させ、ハイライトと文字数を更新
+    // エディタに変更イベントを発火させてハイライト等を再計算
     this.editor.dispatchEvent(new Event('input'));
 
     this.close();
   }
 
-open() {
+  open() {
     this.isOpen = true;
     this.selectedIndex = 0;
     this.container.style.display = 'block';
