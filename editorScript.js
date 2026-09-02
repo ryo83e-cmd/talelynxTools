@@ -69,42 +69,39 @@ document.addEventListener('DOMContentLoaded', () => {
   if (openaiModelLabel) openaiModelLabel.textContent = `モデル: ${AI_CONFIG.openai.model}`;
 
   // ========================================================
-  // ハイライト ＆ 折り返し行番号の完全同期処理
+  // ハイライト ＆ 折り返し行番号の安全同期処理
   // ========================================================
+  // 行高さ測定用の不可視ダミー要素
+  const lineMeasurer = document.createElement('div');
+  lineMeasurer.style.cssText = 'position: absolute; visibility: hidden; height: auto; width: 100%; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; font-family: Consolas, Monaco, "Courier New", monospace; font-size: 13px; line-height: 20px; box-sizing: border-box; pointer-events: none; top: -9999px;';
+  document.body.appendChild(lineMeasurer);
+
   function updateHighlightAndLineNumbers() {
     if (!editor || !highlightCode || !lineNumbers) return;
 
     const text = editor.value;
-    const lines = text.split('\n');
 
-    // 1. 各行を個別要素として背面に配置（行ごとの高さを測定可能にする）
-    highlightCode.innerHTML = '';
-    const lineFragment = document.createDocumentFragment();
-
-    lines.forEach((lineText) => {
-      const lineSpan = document.createElement('span');
-      lineSpan.className = 'editor-line-unit';
-      lineSpan.style.display = 'block';
-      // 空行の高さ潰れ防止
-      lineSpan.textContent = lineText === '' ? ' ' : lineText;
-      lineFragment.appendChild(lineSpan);
-    });
-
-    highlightCode.appendChild(lineFragment);
-
-    // Prism.js による構文着色
+    // 1. ハイライト層の更新（Prismを破壊しない純粋なテキスト渡し）
+    highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
     if (window.Prism) {
       Prism.highlightElement(highlightCode);
     }
 
-    // 2. 折り返しを含めた各行の高さを計測し、行番号の高さを完全一致させる
-    const lineSpans = highlightCode.querySelectorAll('.editor-line-unit');
+    // 2. 行番号の高さ計算（折り返し追従）
+    // テキストエリアの実効幅を取得してダミー測定器にセット
+    const computedStyle = window.getComputedStyle(editor);
+    const contentWidth = editor.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
+    lineMeasurer.style.width = contentWidth + 'px';
+
+    const lines = text.split('\n');
     let lineNumHtml = '';
 
-    lineSpans.forEach((span, index) => {
-      const h = span.offsetHeight;
-      lineNumHtml += `<div class="line-num-item" style="height: ${h}px;">${index + 1}</div>`;
-    });
+    for (let i = 0; i < lines.length; i++) {
+      const lineText = lines[i];
+      lineMeasurer.textContent = lineText === '' ? ' ' : lineText;
+      const h = lineMeasurer.offsetHeight || 20;
+      lineNumHtml += `<div class="line-num-item" style="height: ${h}px; line-height: 20px;">${i + 1}</div>`;
+    }
 
     lineNumbers.innerHTML = lineNumHtml;
 
