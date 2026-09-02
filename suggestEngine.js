@@ -1,5 +1,5 @@
 // ========================================================
-// サジェスト制御エンジン (suggestEngine.js) - 構文拡張版
+// サジェスト制御エンジン (suggestEngine.js)
 // ========================================================
 class SuggestEngine {
   constructor(editor, getCurrentModeCallback) {
@@ -89,59 +89,104 @@ class SuggestEngine {
 
     const items = [];
 
-    // --- 構文判定1: アスタリスクの閉じ判定 (1個と2個を厳密に分離) ---
-    // まず ** を除去した上で単一 * の残数をチェック
+    // ========================================================
+    // 判定A: 何もない行・行頭のとき（箇条書き・見出しのスマート提示）
+    // ========================================================
+    if (lineBeforeCursor.trim() === '') {
+      // 直前の非空行を1行探す
+      const prevLines = text.slice(0, lineStart).split('\n');
+      let prevLine = '';
+      for (let i = prevLines.length - 1; i >= 0; i--) {
+        if (prevLines[i].trim() !== '') {
+          prevLine = prevLines[i];
+          break;
+        }
+      }
+
+      // 直前が箇条書き行かチェック
+      const boldListMatch = prevLine.match(/^(\s*[-*]\s+)\*\*[^*]+:\*\*/);
+      const plainListMatch = prevLine.match(/^(\s*[-*]\s+)/);
+
+      if (boldListMatch) {
+        // パターン1: 直前が「-   **名前:**」のような定義リスト
+        const prefix = boldListMatch[1];
+        items.push(
+          { label: `${prefix}**項目:** (定義リスト継続)`, insert: `${prefix}**項目:** `, selectRange: [prefix.length + 2, prefix.length + 4], desc: '直前スタイル継承' },
+          { label: `${prefix} (シンプルな箇条書き)`, insert: `${prefix}`, desc: 'リスト記号のみ' },
+          { label: '### (小見出し)', insert: '### ', desc: 'セクション区切り' }
+        );
+      } else if (plainListMatch) {
+        // パターン2: 直前が通常の「- 」や「* 」箇条書き
+        const prefix = plainListMatch[1];
+        items.push(
+          { label: `${prefix} (箇条書き継続)`, insert: `${prefix}`, desc: '直前スタイル継承' },
+          { label: `${prefix}**項目:** (定義リスト開始)`, insert: `${prefix}**項目:** `, selectRange: [prefix.length + 2, prefix.length + 4], desc: '太字見出し付き' },
+          { label: '### (小見出し)', insert: '### ', desc: 'セクション区切り' }
+        );
+      } else {
+        // パターン3: 直前が本文、見出し、または文書の先頭
+        items.push(
+          { label: '### (小見出し)', insert: '### ', desc: '主要セクション' },
+          { label: '## (中見出し)', insert: '## ', desc: '大枠カテゴリ' },
+          { label: '-   **項目:** (定義リスト開始)', insert: '-   **項目:** ', selectRange: [6, 8], desc: 'プロンプト定型' },
+          { label: '- (箇条書き開始)', insert: '- ', desc: 'リスト作成' }
+        );
+      }
+
+      this.currentItems = items;
+      this.render();
+      this.open();
+      return;
+    }
+
+    // ========================================================
+    // 判定B: インライン入力中（閉じ構文・マクロ変数・辞書検索）
+    // ========================================================
+
+    // 1. アスタリスクの閉じ判定
     const cleanedDouble = lineBeforeCursor.replace(/\*\*/g, '');
     const singleAsteriskCount = (cleanedDouble.match(/\*/g) || []).length;
     const doubleAsteriskCount = (lineBeforeCursor.match(/\*\*/g) || []).length;
 
-    // 太字 (**) の未閉じ
     if (doubleAsteriskCount % 2 !== 0 && !lineAfterCursor.startsWith('**')) {
       items.push({ label: '** (太字を閉じる)', insert: '**', desc: 'Markdown太字' });
     }
-    // 斜体 (*) の未閉じ
     if (singleAsteriskCount % 2 !== 0 && !lineAfterCursor.startsWith('*')) {
       items.push({ label: '* (イタリックを閉じる)', insert: '*', desc: 'Markdown斜体' });
     }
 
-    // --- 構文判定2: 波括弧 { } および変数構文 {user} / {{user}} ---
+    // 2. 波括弧 { } および変数構文 {user} / {{user}}
     const braceMatch = lineBeforeCursor.match(/(\{+)$/);
     const openBracesTotal = (lineBeforeCursor.match(/\{/g) || []).length;
     const closeBracesTotal = (lineBeforeCursor.match(/\}/g) || []).length;
 
     if (braceMatch || openBracesTotal > closeBracesTotal) {
       const braceCount = braceMatch ? braceMatch[1].length : 0;
-
       if (braceCount === 1) {
-        // { が1つ打たれている場合
         items.push(
           { label: '{user} (単一波括弧)', insert: 'user}', desc: 'ユーザー変数' },
           { label: '{char} (単一波括弧)', insert: 'char}', desc: 'キャラ変数' },
-          { label: '{{user}} (二重波括弧に拡張)', insert: '{user}}', desc: 'ユーザー変数' },
-          { label: '{{char}} (二重波括弧に拡張)', insert: '{char}}', desc: 'キャラ変数' },
+          { label: '{{user}} (二重波括弧)', insert: '{user}}', desc: 'ユーザー変数' },
+          { label: '{{char}} (二重波括弧)', insert: '{char}}', desc: 'キャラ変数' },
           { label: '} (波括弧を閉じる)', insert: '}', desc: '構文補完' }
         );
       } else if (braceCount >= 2) {
-        // {{ が打たれている場合
         items.push(
           { label: '{{user}}', insert: 'user}}', desc: '二重波括弧変数' },
           { label: '{{char}}', insert: 'char}}', desc: '二重波括弧変数' },
           { label: '}} (二重波括弧を閉じる)', insert: '}}', desc: '構文補完' }
         );
       } else {
-        // 開き波括弧が文章の前に残っている場合
         items.push(
           { label: '{{user}}', insert: '{{user}}', desc: '二重波括弧' },
           { label: '{user}', insert: '{user}', desc: '単一波括弧' },
-          { label: '{{char}}', insert: '{{char}}', desc: '二重波括弧' },
-          { label: '{char}', insert: '{char}', desc: '単一波括弧' },
           { label: '}} (二重閉じ)', insert: '}}', desc: '構文補完' },
           { label: '} (単一閉じ)', insert: '}', desc: '構文補完' }
         );
       }
     }
 
-    // --- 構文判定3: 丸括弧 '(' の閉じ判定 ---
+    // 3. 丸括弧 '(' の閉じ判定
     const lastParenOpen = lineBeforeCursor.lastIndexOf('(');
     const lastParenClose = lineBeforeCursor.lastIndexOf(')');
     if (lastParenOpen !== -1 && (lastParenClose === -1 || lastParenOpen > lastParenClose) && !lineAfterCursor.startsWith(')')) {
@@ -156,14 +201,14 @@ class SuggestEngine {
       }
     }
 
-    // --- 構文判定4: 鉤括弧「 の閉じ判定 ---
+    // 4. 鉤括弧「 の閉じ判定
     const lastQuoteOpen = lineBeforeCursor.lastIndexOf('「');
     const lastQuoteClose = lineBeforeCursor.lastIndexOf('」');
     if (lastQuoteOpen !== -1 && (lastQuoteClose === -1 || lastQuoteOpen > lastQuoteClose) && !lineAfterCursor.startsWith('」')) {
       items.push({ label: '」 (鍵括弧を閉じる)', insert: '」', desc: '台詞補完' });
     }
 
-    // --- 構文判定5: 入力中単語の辞書マッチ ---
+    // 5. 単語の辞書マッチング
     const wordMatch = lineBeforeCursor.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
     const query = wordMatch ? wordMatch[1].toLowerCase() : '';
 
@@ -226,18 +271,24 @@ class SuggestEngine {
     let insertText = selected.insert;
     let removeLength = 0;
 
-    // 単語マッチ時の補完文字重複削除
     const wordMatch = textBefore.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
-    const isSpecialSyntax = /^[*:)}」]/.test(insertText) || insertText.startsWith('user}}') || insertText.startsWith('char}}');
+    const isSpecialSyntax = /^[*:)}」#\-]/.test(insertText) || insertText.startsWith('user') || insertText.startsWith('{user');
     if (wordMatch && !isSpecialSyntax) {
       removeLength = wordMatch[1].length;
     }
 
     const startPos = pos - removeLength;
     this.editor.value = text.slice(0, startPos) + insertText + textAfter;
-    this.editor.selectionStart = this.editor.selectionEnd = startPos + insertText.length;
-    this.editor.focus();
 
+    // 項目名があらかじめ選択される範囲指定がある場合、そこを選択状態にする
+    if (selected.selectRange) {
+      this.editor.selectionStart = startPos + selected.selectRange[0];
+      this.editor.selectionEnd = startPos + selected.selectRange[1];
+    } else {
+      this.editor.selectionStart = this.editor.selectionEnd = startPos + insertText.length;
+    }
+
+    this.editor.focus();
     this.editor.dispatchEvent(new Event('input'));
     this.close();
   }
