@@ -407,3 +407,64 @@ textarea::selection {
   color: #34d399 !important;
   font-weight: normal !important;
 }
+
+/* ========================================================
+   サジェスト・補完ドロップダウン UI
+   ======================================================== */
+.suggest-dropdown {
+  position: absolute;
+  z-index: 1000;
+  width: 280px;
+  max-height: 200px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  overflow-y: auto;
+}
+
+.suggest-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.suggest-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: var(--editor-font);
+  font-size: 12px;
+  color: #e2e8f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.suggest-item:last-child {
+  border-bottom: none;
+}
+
+.suggest-item.active,
+.suggest-item:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.suggest-label {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggest-desc {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.suggest-item.active .suggest-desc {
+  color: #e0e7ff;
+}
