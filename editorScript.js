@@ -626,3 +626,10 @@ document.addEventListener('DOMContentLoaded', () => {
       suggest.triggerSuggest();
     });
   }
+
+  // 初期化完了時のモード復元（もし未実行であれば）
+  if (typeof setMode === 'function') {
+    setMode(savedMode, false, true);
+  }
+
+});
