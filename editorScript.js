@@ -3,7 +3,8 @@
 // ========================================================
 const AI_CONFIG = {
   gemini: {
-    model: 'gemini-2.5-flash',
+    //model: 'gemini-2.5-flash',
+    model: 'models/gemini-3.6-flash',
     endpoint: (key, model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`
   },
   openai: {
