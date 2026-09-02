@@ -10,8 +10,7 @@
 </head>
 <body>
 
-  <!-- 選択文字数ポップアップ -->
-  <div id="selectionTooltip"></div>
+
 
   <div style="max-width: 1000px; margin: 0 auto;">
     <a href="./index.html" class="nav-back">&larr; ポータルに戻る</a>
@@ -45,7 +44,12 @@
 
       <!-- クイックチップス -->
       <div class="quick-chips" id="quickChipsContainer"></div>
-
+      
+      <!-- エディタ直上バー（選択文字数バッジ） -->
+      <div class="editor-top-bar">
+        <span id="selectionTooltip" class="selection-badge"></span>
+      </div>
+      
       <!-- メインエディタ（行番号 + ハイライト表示層 + 透明入力層） -->
       <div class="editor-wrapper" id="editorWrapper">
         <div class="line-numbers" id="lineNumbers">1</div>
