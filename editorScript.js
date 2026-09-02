@@ -330,14 +330,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (apiModal) apiModal.style.display = 'none';
   }
 
-  function saveApiKey() {
-    if (geminiApiKeyInput) {
-      localStorage.setItem(STORAGE_KEYS.geminiKey, geminiApiKeyInput.value.trim());
+function saveApiKey() {
+    const geminiVal = geminiApiKeyInput ? geminiApiKeyInput.value.trim() : '';
+    const openaiVal = openaiApiKeyInput ? openaiApiKeyInput.value.trim() : '';
+
+    // 空文字の場合は削除、値がある場合は保存
+    if (geminiVal) {
+      localStorage.setItem(STORAGE_KEYS.geminiKey, geminiVal);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.geminiKey);
     }
-    if (openaiApiKeyInput) {
-      localStorage.setItem(STORAGE_KEYS.openaiKey, openaiApiKeyInput.value.trim());
+
+    if (openaiVal) {
+      localStorage.setItem(STORAGE_KEYS.openaiKey, openaiVal);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.openaiKey);
     }
-    alert('APIキーを保存しました！');
+
+    alert('AI連携設定を更新しました！');
     closeApiModal();
   }
 
