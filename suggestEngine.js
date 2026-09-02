@@ -1,5 +1,5 @@
 // ========================================================
-// サジェスト制御エンジン (suggestEngine.js)
+// サジェスト制御エンジン (suggestEngine.js) - UX改善版
 // ========================================================
 class SuggestEngine {
   constructor(editor, getCurrentModeCallback) {
@@ -24,110 +24,128 @@ class SuggestEngine {
     this.listElement.className = 'suggest-list';
     this.container.appendChild(this.listElement);
 
-    // エディタ枠の overflow:hidden や重なり順に邪魔されないよう最前面(body直下)に追加
     document.body.appendChild(this.container);
   }
 
   bindEvents() {
-    // 入力キーの監視
     this.editor.addEventListener('keydown', (e) => {
-      // Ctrl + Space (または Cmd + Space) でトリガー
+      // Ctrl + Space (Cmd + Space) でサジェスト起動
       if ((e.ctrlKey || e.metaKey) && (e.code === 'Space' || e.key === ' ')) {
         e.preventDefault();
         this.triggerSuggest();
         return;
       }
 
-      // ドロップダウン開いている時のキー操作
+      // ドロップダウン表示中のキー操作
       if (this.isOpen) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
           this.navigate(1);
-        } else if (e.key === 'ArrowUp') {
+          return;
+        }
+        if (e.key === 'ArrowUp') {
           e.preventDefault();
           this.navigate(-1);
-        } else if (e.key === 'Enter' || e.key === 'Tab') {
+          return;
+        }
+        if (e.key === 'Enter' || e.key === 'Tab') {
           e.preventDefault();
           this.applySelected();
-        } else if (e.key === 'Escape') {
+          return;
+        }
+        if (e.key === 'Escape') {
           e.preventDefault();
+          this.close();
+          return;
+        }
+
+        // 左右キー等でカーソルが移動した場合は閉じる
+        if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(e.key)) {
           this.close();
         }
       }
     });
 
-    // 画面外クリックで閉じる処理（mousedownではなくclickで判定し、即時クローズ事故を防止）
-    document.addEventListener('click', (e) => {
+    // エディタ内を含め、どこをクリックしても（別の場所にカーソルを置いたら）閉じる
+    document.addEventListener('mousedown', (e) => {
       if (!this.isOpen) return;
       const testBtn = document.getElementById('testSuggestBtn');
-      
-      // ポップアップ本体、エディタ本体、または起動ボタン内のクリック時は閉じない
-      if (this.container.contains(e.target) || e.target === this.editor || (testBtn && testBtn.contains(e.target))) {
+      // ポップアップ本体、または起動ボタン自体のクリック時は閉じない
+      if (this.container.contains(e.target) || (testBtn && testBtn.contains(e.target))) {
         return;
       }
       this.close();
     });
   }
 
-  // 文脈（シンタックス）解析を行い、候補リストを構築
   triggerSuggest() {
     const text = this.editor.value;
     const pos = this.editor.selectionStart || 0;
-    const textBefore = text.slice(0, pos);
-    const textAfter = text.slice(pos);
     const mode = this.getCurrentMode ? this.getCurrentMode() : 'image';
+
+    // 1. カーソルがある「現在の行」のみを抽出して解析
+    const lastLineBreak = text.lastIndexOf('\n', pos - 1);
+    const nextLineBreak = text.indexOf('\n', pos);
+    const lineStart = lastLineBreak === -1 ? 0 : lastLineBreak + 1;
+    const lineEnd = nextLineBreak === -1 ? text.length : nextLineBreak;
+
+    const lineBeforeCursor = text.slice(lineStart, pos);
+    const lineAfterCursor = text.slice(pos, lineEnd);
 
     const items = [];
 
-    // --- 文脈判定1: 強調構文 '**' が開いたままか判定 ---
-    const boldOpenMatches = (textBefore.match(/\*\*/g) || []).length;
-    const isInsideBold = boldOpenMatches % 2 !== 0;
-    if (isInsideBold) {
+    // --- 構文判定1: 現在行で太字 '**' が閉じられていないか ---
+    // カーソル前にある ** の数、カーソル後にある ** の数
+    const boldBefore = (lineBeforeCursor.match(/\*\*/g) || []).length;
+    const boldAfter = (lineAfterCursor.match(/\*\*/g) || []).length;
+    // カーソル前で奇数回開かれていて、直後に閉じる ** がない場合
+    if (boldBefore % 2 !== 0 && !lineAfterCursor.startsWith('**')) {
       items.push({
         label: '** (太字を閉じる)',
         insert: '**',
-        desc: '構文補完: 太字の終了'
+        desc: '構文補完'
       });
     }
 
-    // --- 文脈判定2: 重み付け括弧 '(' の閉じ判定 ---
-    const lastParenOpen = textBefore.lastIndexOf('(');
-    const lastParenClose = textBefore.lastIndexOf(')');
-    if (lastParenOpen > lastParenClose) {
-      items.push(
-        { label: ':1.2) (重み強化して閉じる)', insert: ':1.2)', desc: '強調構文' },
-        { label: ':0.8) (重み弱化して閉じる)', insert: ':0.8)', desc: '弱化構文' },
-        { label: ') (括弧を閉じる)', insert: ')', desc: '構文補完' }
-      );
+    // --- 構文判定2: 丸括弧 '(' が閉じられていないか（画像重み等） ---
+    const lastParenOpen = lineBeforeCursor.lastIndexOf('(');
+    const lastParenClose = lineBeforeCursor.lastIndexOf(')');
+    if (lastParenOpen !== -1 && (lastParenClose === -1 || lastParenOpen > lastParenClose) && !lineAfterCursor.startsWith(')')) {
+      if (mode === 'image') {
+        items.push(
+          { label: ':1.2) (重みを強化して閉じる)', insert: ':1.2)', desc: '強調補完' },
+          { label: ':0.8) (重みを弱化して閉じる)', insert: ':0.8)', desc: '弱化補完' },
+          { label: ') (括弧を閉じる)', insert: ')', desc: '構文補完' }
+        );
+      } else {
+        items.push({ label: ') (括弧を閉じる)', insert: ')', desc: '構文補完' });
+      }
     }
 
-    // --- 文脈判定3: 行頭の '#'（見出し入力中） ---
-    const lastLineBreak = textBefore.lastIndexOf('\n');
-    const currentLineBefore = lastLineBreak === -1 ? textBefore : textBefore.slice(lastLineBreak + 1);
-    if (/^#{1,3}\s*$/.test(currentLineBefore)) {
-      items.push(
-        { label: '【基本情報】', insert: '【基本情報】\n名前: \n年齢: ', desc: '見出し展開' },
-        { label: '【外見】', insert: '【外見】\n身長: \n服装: ', desc: '見出し展開' },
-        { label: '【口調】', insert: '【口調】\n一人称: \n特徴: ', desc: '見出し展開' }
-      );
+    // --- 構文判定3: 鉤括弧「 が閉じられていないか（ロールプレイ用） ---
+    const lastQuoteOpen = lineBeforeCursor.lastIndexOf('「');
+    const lastQuoteClose = lineBeforeCursor.lastIndexOf('」');
+    if (lastQuoteOpen !== -1 && (lastQuoteClose === -1 || lastQuoteOpen > lastQuoteClose) && !lineAfterCursor.startsWith('」')) {
+      items.push({
+        label: '」 (鍵括弧を閉じる)',
+        insert: '」',
+        desc: '台詞補完'
+      });
     }
 
-    // --- 文脈判定4: 入力途中の単語または辞書マッチング ---
-    const wordMatch = textBefore.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
+    // --- 構文判定4: 直前に入力中の英数字/単語があるか ---
+    const wordMatch = lineBeforeCursor.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
     const query = wordMatch ? wordMatch[1].toLowerCase() : '';
 
-    const dictionary = (typeof SUGGEST_DATA !== 'undefined' && SUGGEST_DATA[mode]) ? SUGGEST_DATA[mode] : [];
-
     if (query) {
-      const filtered = dictionary.filter(item => 
+      const dictionary = (typeof SUGGEST_DATA !== 'undefined' && SUGGEST_DATA[mode]) ? SUGGEST_DATA[mode] : [];
+      const matched = dictionary.filter(item => 
         item.label.toLowerCase().includes(query) || (item.desc && item.desc.toLowerCase().includes(query))
       );
-      items.push(...filtered);
-    } else {
-      // 単語入力がない場合は辞書リストを全件提示
-      items.push(...dictionary);
+      items.push(...matched);
     }
 
+    // 補完すべき対象（閉じタグや単語マッチ）が1件もなければ、勝手にテンプレートを出さずに終了
     if (items.length === 0) {
       this.close();
       return;
@@ -179,9 +197,10 @@ class SuggestEngine {
     let insertText = selected.insert;
     let removeLength = 0;
 
-    // 単語入力時の被り文字置換
+    // 辞書マッチ（単語補完）のときは入力途中の文字を置き換え
     const wordMatch = textBefore.match(/([a-zA-Z0-9_\u3040-\u30ff\u4e00-\u9fa5]+)$/);
-    if (wordMatch && !insertText.startsWith(':') && !insertText.startsWith(')') && !insertText.startsWith('**')) {
+    const isSyntaxClose = insertText.startsWith(':') || insertText.startsWith(')') || insertText.startsWith('**') || insertText.startsWith('」');
+    if (wordMatch && !isSyntaxClose) {
       removeLength = wordMatch[1].length;
     }
 
@@ -190,7 +209,7 @@ class SuggestEngine {
     this.editor.selectionStart = this.editor.selectionEnd = startPos + insertText.length;
     this.editor.focus();
 
-    // エディタに変更イベントを発火させてハイライト等を再計算
+    // ハイライト更新
     this.editor.dispatchEvent(new Event('input'));
 
     this.close();
