@@ -173,11 +173,16 @@ body {
   text-align: right;
   user-select: none;
   overflow: hidden;
-  white-space: pre;
   border-right: 1px solid var(--editor-border);
   box-sizing: border-box;
 }
-
+.line-num-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  /* 高さはJSで動的に折り返し分を反映 */
+}
 .editor-stage {
   position: relative;
   flex: 1;
@@ -208,7 +213,10 @@ body {
   line-height: var(--editor-line-height) !important;
   letter-spacing: normal !important;
   word-spacing: normal !important;
-  white-space: pre !important;
+  /* ↓ 折り返し設定（手前のtextareaと完全に同一化） */
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
   tab-size: 2 !important;
   display: block !important;
   padding: 0 !important;
@@ -237,8 +245,12 @@ textarea {
   background: transparent !important;
   color: transparent !important;
   caret-color: #38bdf8 !important;
-  white-space: pre !important;
-  overflow: auto;
+  /* ↓ 折り返し設定（背面のcodeと完全に同一化） */
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  overflow-y: scroll !important; /* 縦スクロールバーを常時表示して幅のブレを防止 */
+  overflow-x: hidden !important; /* 横スクロールを無効化 */
   resize: none;
   outline: none;
   tab-size: 2;
