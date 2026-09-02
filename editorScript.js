@@ -44,6 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const aiOpenaiBtn = document.getElementById('aiOpenaiBtn');
   const saveTxtBtn = document.getElementById('saveTxtBtn');
   const saveMdBtn = document.getElementById('saveMdBtn');
+  
+  const helpModal = document.getElementById('helpModal');
+  const openHelpBtn = document.getElementById('openHelpBtn');
+  const closeHelpBtn = document.getElementById('closeHelpBtn');
+  const closeHelpBottomBtn = document.getElementById('closeHelpBottomBtn');
 
   const searchModal = document.getElementById('searchModal');
   const searchInput = document.getElementById('searchInput');
@@ -405,6 +410,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchModal) searchModal.style.display = 'none';
     if (editor) editor.focus();
   }
+  function openHelpModal() {
+    if (helpModal) helpModal.style.display = 'flex';
+  }
+
+  function closeHelpModal() {
+    if (helpModal) helpModal.style.display = 'none';
+    if (editor) editor.focus();
+  }
 
   function executeSearch() {
     if (!editor || !searchInput) return;
@@ -608,6 +621,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   // --- ここまで追加 ---
+  
+  if (openHelpBtn) openHelpBtn.addEventListener('click', openHelpModal);
+  if (closeHelpBtn) closeHelpBtn.addEventListener('click', closeHelpModal);
+  if (closeHelpBottomBtn) closeHelpBottomBtn.addEventListener('click', closeHelpModal);
+
+  // 背景クリックで閉じる処理
+  window.addEventListener('click', (e) => {
+    if (e.target === apiModal) closeApiModal();
+    if (e.target === searchModal) closeSearchModal();
+    if (e.target === helpModal) closeHelpModal(); // 追加
+  });
+
+  // Escキーで閉じる処理
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeSearchModal();
+      closeApiModal();
+      closeHelpModal(); // 追加
+    }
+  });
 
 
   if (undoBtn) undoBtn.addEventListener('click', undo);
