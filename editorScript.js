@@ -575,6 +575,41 @@ document.addEventListener('DOMContentLoaded', () => {
   if (modeRoleplayBtn) modeRoleplayBtn.addEventListener('click', () => setMode('roleplay'));
   if (boldBtn) boldBtn.addEventListener('click', () => wrapText('**', '**'));
   if (weightBtn) weightBtn.addEventListener('click', () => wrapText('(', ':1.2)'));
+
+  // --- ここから追加 ---
+  const userTagBtn = document.getElementById('userTagBtn');
+  if (userTagBtn) {
+    userTagBtn.title = "クリック: {{user}} / Shift+クリック・右クリック: {user}";
+    
+    // 通常クリック & Shift+クリック
+    userTagBtn.addEventListener('click', (e) => {
+      if (!editor) return;
+      const isSingle = e.shiftKey;
+      const openTag = isSingle ? '{' : '{{';
+      const closeTag = isSingle ? '}' : '}}';
+      const defaultText = isSingle ? '{user}' : '{{user}}';
+
+      if (editor.selectionStart !== editor.selectionEnd) {
+        wrapText(openTag, closeTag);
+      } else {
+        insertText(defaultText);
+      }
+    });
+
+    // 右クリックで単一波括弧 {user}
+    userTagBtn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      if (!editor) return;
+      if (editor.selectionStart !== editor.selectionEnd) {
+        wrapText('{', '}');
+      } else {
+        insertText('{user}');
+      }
+    });
+  }
+  // --- ここまで追加 ---
+
+
   if (undoBtn) undoBtn.addEventListener('click', undo);
   if (redoBtn) redoBtn.addEventListener('click', redo);
   if (clearBtn) clearBtn.addEventListener('click', clearEditor);
