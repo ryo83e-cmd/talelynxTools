@@ -193,14 +193,10 @@ class SuggestEngine {
     this.close();
   }
 
-  open() {
+open() {
     this.isOpen = true;
     this.selectedIndex = 0;
     this.container.style.display = 'block';
-
-    // エディタ右下にフローティング配置（画面外はみ出し防止）
-    this.container.style.bottom = '12px';
-    this.container.style.right = '16px';
   }
 
   close() {
