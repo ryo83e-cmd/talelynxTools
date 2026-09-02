@@ -408,18 +408,26 @@ textarea::selection {
   font-weight: normal !important;
 }
 
+
 /* ========================================================
-   サジェスト・補完ドロップダウン UI
+   サジェスト・補完ドロップダウン UI（テスト用中央表示）
    ======================================================== */
 .suggest-dropdown {
   position: absolute;
   z-index: 1000;
-  width: 280px;
-  max-height: 200px;
-  background: #1e293b;
-  border: 1px solid #334155;
+  width: 320px;
+  max-height: 240px;
+  /* エディタ枠のど真ん中に配置 */
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  bottom: auto !important;
+  right: auto !important;
+  
+  background: #0f172a;
+  border: 2px solid #38bdf8; /* 水色の枠線で目立たせる */
   border-radius: 8px;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
   overflow-y: auto;
 }
 
