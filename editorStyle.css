@@ -476,3 +476,15 @@ textarea::selection {
 .suggest-item.active .suggest-desc {
   color: #e0e7ff;
 }
+
+kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  font-family: Consolas, Monaco, monospace;
+  font-size: 11px;
+  color: #f1f5f9;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
