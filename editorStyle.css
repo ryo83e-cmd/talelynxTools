@@ -201,9 +201,17 @@ body {
   padding: var(--editor-padding-top) 12px var(--editor-padding-bottom) 12px !important;
   background: transparent !important;
   border: none !important;
-  overflow: hidden !important;
+  overflow-y: scroll !important; /* ← ここを hidden から scroll に変更して textarea と描画幅を完全一致させる */
+  overflow-x: hidden !important;
   pointer-events: none;
   box-sizing: border-box;
+  scrollbar-color: transparent transparent; /* 背面のスクロールバーは見えないように透明化 */
+}
+
+/* Chrome / Safari / Edge 向けに背面の重複スクロールバーを非表示化 */
+.highlight-layer::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
 }
 
 .highlight-layer code,
