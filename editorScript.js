@@ -75,14 +75,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const lineMeasurer = document.createElement('div');
   lineMeasurer.style.cssText = 'position: absolute; visibility: hidden; height: auto; width: 100%; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; font-family: Consolas, Monaco, "Courier New", monospace; font-size: 13px; line-height: 20px; box-sizing: border-box; pointer-events: none; top: -9999px;';
   document.body.appendChild(lineMeasurer);
-
+  
+  // コピペ時に混入するゼロ幅スペースやHTML実体参照（&ZeroWidthSpace;等）を完全に除去するクリーナー
+  function sanitizeZeroWidth(str) {
+    if (!str) return '';
+    return str
+      // 生の不可視文字（ゼロ幅スペース、BOM等）を除去
+      .replace(/[\u200B-\u200D\uFEFF]/g, '')
+      // 文字列として混入したゼロ幅スペース実体参照を除去
+      .replace(/&(?:ZeroWidthSpace|#8203|#x200B);?/gi, '');
+  }
+  
   function updateHighlightAndLineNumbers() {
     if (!editor || !highlightCode || !lineNumbers) return;
 
     const text = editor.value;
     
     // コピペ時に混入するゼロ幅スペース (\u200B) や不可視制御文字を除去
-    const cleanText = text.replace(/[\u200B-\u200D\uFEFF]/g, '');
+    const cleanText = sanitizeZeroWidth(text);
 
     // 1. ハイライト層の更新（Prismを破壊しない純粋なテキスト渡し）
     highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
