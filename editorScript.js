@@ -213,8 +213,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (undoBtn) undoBtn.disabled = undoStack.length <= 1;
     if (redoBtn) redoBtn.disabled = redoStack.length === 0;
   }
+  
+  // 目に見えない特殊文字・ゼロ幅文字・BOMを完全に根絶する正規表現
+  const INVISIBLE_CHARS_REGEX = /[\u200B-\u200D\uFEFF\u00AD\u2060\u180E]|^[\uFEFF\u200B]+/g;
+
+  function cleanString(str) {
+    if (!str) return '';
+    return str
+      // 生のゼロ幅スペース、BOM、不可視文字を除去
+      .replace(INVISIBLE_CHARS_REGEX, '')
+      // 文字列として紛れ込んだ実体参照表記も除去
+      .replace(/&(?:ZeroWidthSpace|#8203|#x200b);?/gi, '');
+  }
 
   function handleInput() {
+    // エディタ本体から不可視文字を除去
+    const cleaned = cleanString(editor.value);
+    if (editor.value !== cleaned) {
+      const start = editor.selectionStart;
+      const end = editor.selectionEnd;
+      editor.value = cleaned;
+      // カーソル位置を復元
+      editor.setSelectionRange(start, end);
+    }
     pushHistory(editor.value);
     clearTimeout(saveDebounceTimer);
     saveDebounceTimer = setTimeout(() => {
