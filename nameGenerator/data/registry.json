@@ -6,23 +6,18 @@
       "dir": "europe/na_usa",
       "custom_filters": [
         {
-          "key": "origin",
-          "label": "言語・文化的ルーツ",
-          "options": [
-            {
-              "val": "all",
-              "label": "指定なし"
-            },
-            {
-              "val": "anglo",
-              "label": "アングロ・サクソン系"
-            },
-            {
-              "val": "hispanic",
-              "label": "ヒスパニック系"
-            }
-          ]
-        },
+  "key": "origin",
+  "label": "言語・文化的ルーツ",
+  "options": [
+    { "val": "all", "label": "指定なし（全般）" },
+    { "val": "anglo", "label": "アングロ・サクソン系" },
+    { "val": "african_american", "label": "アフリカ系（黒人系）" },
+    { "val": "hispanic", "label": "ヒスパニック・ラテン系" },
+    { "val": "italian", "label": "イタリア系" },
+    { "val": "german", "label": "ドイツ系" },{ "val": "jewish", "label": "ユダヤ系" },
+    { "val": "east_asian", "label": "東アジア系（日・中・韓）" }
+  ]
+},
         {
           "key": "region",
           "label": "米国内地域",
