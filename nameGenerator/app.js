@@ -112,7 +112,7 @@ async function loadCultureData(cultureId) {
   return cultureBundle;
 }
 
-// 4. スロット充填・名前生成エンジン（地域判定ロジック反映部）
+// 4. スロット充填・名前生成エンジン（スロット別フィルタ判定修正済み）
 function generateNames(cultureData, query, count = 10) {
   const { era, gender, tags } = query;
 
@@ -141,7 +141,7 @@ function generateNames(cultureData, query, count = 10) {
 
       // スロット内パーツの選定とフィルタリング
       const candidates = pool.filter(item => {
-        // 1. 性別判定
+        // 1. 性別判定（アイテム側にgender指定がある場合のみ比較）
         if (gender !== 'any' && item.gender && item.gender !== gender) {
           return false;
         }
@@ -151,27 +151,35 @@ function generateNames(cultureData, query, count = 10) {
           return false;
         }
 
-        // 3. 動的タグ判定（地域・ルーツなど）
+        // 3. 動的タグ判定
         if (tags.length > 0) {
           const itemTags = item.tags || [];
 
           for (const filterTag of tags) {
             const [key, val] = filterTag.split(':');
 
-            if (key === 'region') {
-              // アイテムが保持している region:* タグ一覧を取得
+            // 【名字スロットの場合】
+            if (slotName === 'surname') {
+              // 名字には style や origin は無関係のためスキップ
+              if (key !== 'region') continue;
+
               const itemRegions = itemTags
                 .filter(t => t.startsWith('region:'))
                 .map(t => t.split(':')[1]);
 
-              // アイテムに地域限定タグが付いている場合、ユーザーの指定地域と一致しなければ弾く
-              // （地域限定タグを持たない汎用・全国区アイテムはそのまま通過させる）
+              // 地域限定タグ付き名字の場合、選択地域と一致しなければ弾く（全国区無タグは通過）
               if (itemRegions.length > 0 && !itemRegions.includes(val)) {
                 return false;
               }
-            } else {
-              // origin（文化的ルーツ）や身分等は指定タグとの完全一致を要求
-              if (!itemTags.includes(filterTag)) {
+            } 
+            // 【名前・部品スロットの場合】
+            else {
+              // 名前側には region（都道府県・米国内地域等）は無関係のためスキップ
+              if (key === 'region') continue;
+
+              // アイテム側が該当キー（styleやorigin等）のタグを保持している場合、指定と一致するか検査
+              const itemKeys = itemTags.map(t => t.split(':')[0]);
+              if (itemKeys.includes(key) && !itemTags.includes(filterTag)) {
                 return false;
               }
             }
@@ -192,7 +200,7 @@ function generateNames(cultureData, query, count = 10) {
     }
 
     if (isPatternValid) {
-      // 日本人名（jp_等）以外はカタカナ読みを併記
+      // 日本人名（jp_japan等）以外はカタカナ読みを併記
       const isJapanese = cultureData.cultureId.startsWith('jp_');
       const displayText = isJapanese ? outputRaw : `${outputRaw}（${outputKana}）`;
       results.set(outputRaw, displayText);
