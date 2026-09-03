@@ -131,6 +131,33 @@
           ]
         }
       ]
+    },
+    {
+      "id": "de_germany",
+      "name": "ドイツ",
+      "dir": "europe/de_germany",
+      "custom_filters": [
+        {
+          "key": "origin",
+          "label": "言語・文化的ルーツ",
+          "options": [
+            { "val": "all", "label": "指定なし（全般）" },
+            { "val": "native", "label": "ドイツ伝統系" },
+            { "val": "turkish", "label": "トルコ系" },
+            { "val": "slavic_polish", "label": "東欧・スラヴ系（ポーランド等）" }
+          ]
+        },
+        {
+          "key": "region",
+          "label": "国内地域（地方偏在）",
+          "options": [
+            { "val": "all", "label": "全国（標準職業姓など）" },
+            { "val": "north", "label": "北部（低地ドイツ・沿岸部）" },
+            { "val": "south", "label": "南部（バイエルン・高地カトリック圏）" },
+            { "val": "east", "label": "東部（ベルリン・旧東独・スラヴ接触圏）" }
+          ]
+        }
+      ]
     }
   ]
 }
