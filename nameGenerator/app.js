@@ -112,7 +112,7 @@ async function loadCultureData(cultureId) {
   return cultureBundle;
 }
 
-// 4. スロット充填・名前生成エンジン（名字ルーツ判定修正済み）
+// 4. スロット充填・名前生成エンジン（パターンA：同化名・母国名の自然混在対応版）
 function generateNames(cultureData, query, count = 10) {
   const { era, gender, tags } = query;
 
@@ -141,7 +141,7 @@ function generateNames(cultureData, query, count = 10) {
 
       // スロット内パーツの選定とフィルタリング
       const candidates = pool.filter(item => {
-        // 1. 性別判定（アイテム側にgender指定がある場合のみ比較）
+        // 1. 性別判定
         if (gender !== 'any' && item.gender && item.gender !== gender) {
           return false;
         }
@@ -160,36 +160,50 @@ function generateNames(cultureData, query, count = 10) {
 
             // 【名字スロットの場合】
             if (slotName === 'surname') {
-              // 名字に関係のない格式タグ（日本向けのstyle等）はスキップ
+              // 名字に関係のない格式（style等）はスキップ
               if (key === 'style') continue;
 
-              // 地域（都道府県・米国内地域）の判定
+              // 地域偏在（都道府県・米国内地域）の判定
               if (key === 'region') {
                 const itemRegions = itemTags
                   .filter(t => t.startsWith('region:'))
                   .map(t => t.split(':')[1]);
 
-                // 地域限定タグを持つ姓は、選択地域と一致しなければ弾く（全国区無タグは通過）
                 if (itemRegions.length > 0 && !itemRegions.includes(val)) {
                   return false;
                 }
                 continue;
               }
 
-              // ルーツ（origin）など、名字が持つべき属性は完全一致を要求
+              // ルーツ（origin）など、姓の固有属性は厳格に一致を要求
               if (!itemTags.includes(filterTag)) {
                 return false;
               }
             } 
             // 【名前・部品スロットの場合】
             else {
-              // 名前側には地域偏在タグ（region）は関係ないのでスキップ
+              // 名前には地域偏在（region）は関係ないのでスキップ
               if (key === 'region') continue;
 
-              // アイテム側が該当キー（styleやorigin等）のタグを保持している場合、指定と一致するか検査
-              const itemKeys = itemTags.map(t => t.split(':')[0]);
-              if (itemKeys.includes(key) && !itemTags.includes(filterTag)) {
-                return false;
+              // 日本の武家・通称等の格式指定（style）がある場合
+              if (key === 'style') {
+                const itemStyles = itemTags.filter(t => t.startsWith('style:'));
+                if (itemStyles.length > 0 && !itemTags.includes(filterTag)) {
+                  return false;
+                }
+                continue;
+              }
+
+              // アメリカ等の文化的ルーツ（origin）の判定（パターンA実装部）
+              if (key === 'origin') {
+                // そのルーツ固有の名前（例: origin:german）か、
+                // あるいは社会汎用・同化名（origin:anglo または origin指定なし）なら通過
+                const isTargetOrigin = itemTags.includes(filterTag);
+                const isGeneralName = itemTags.includes('origin:anglo') || !itemTags.some(t => t.startsWith('origin:'));
+
+                if (!isTargetOrigin && !isGeneralName) {
+                  return false;
+                }
               }
             }
           }
