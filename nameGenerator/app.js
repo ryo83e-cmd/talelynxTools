@@ -112,7 +112,7 @@ async function loadCultureData(cultureId) {
   return cultureBundle;
 }
 
-// 4. スロット充填・名前生成エンジン（スロット別フィルタ判定修正済み）
+// 4. スロット充填・名前生成エンジン（名字ルーツ判定修正済み）
 function generateNames(cultureData, query, count = 10) {
   const { era, gender, tags } = query;
 
@@ -160,21 +160,30 @@ function generateNames(cultureData, query, count = 10) {
 
             // 【名字スロットの場合】
             if (slotName === 'surname') {
-              // 名字には style や origin は無関係のためスキップ
-              if (key !== 'region') continue;
+              // 名字に関係のない格式タグ（日本向けのstyle等）はスキップ
+              if (key === 'style') continue;
 
-              const itemRegions = itemTags
-                .filter(t => t.startsWith('region:'))
-                .map(t => t.split(':')[1]);
+              // 地域（都道府県・米国内地域）の判定
+              if (key === 'region') {
+                const itemRegions = itemTags
+                  .filter(t => t.startsWith('region:'))
+                  .map(t => t.split(':')[1]);
 
-              // 地域限定タグ付き名字の場合、選択地域と一致しなければ弾く（全国区無タグは通過）
-              if (itemRegions.length > 0 && !itemRegions.includes(val)) {
+                // 地域限定タグを持つ姓は、選択地域と一致しなければ弾く（全国区無タグは通過）
+                if (itemRegions.length > 0 && !itemRegions.includes(val)) {
+                  return false;
+                }
+                continue;
+              }
+
+              // ルーツ（origin）など、名字が持つべき属性は完全一致を要求
+              if (!itemTags.includes(filterTag)) {
                 return false;
               }
             } 
             // 【名前・部品スロットの場合】
             else {
-              // 名前側には region（都道府県・米国内地域等）は無関係のためスキップ
+              // 名前側には地域偏在タグ（region）は関係ないのでスキップ
               if (key === 'region') continue;
 
               // アイテム側が該当キー（styleやorigin等）のタグを保持している場合、指定と一致するか検査
