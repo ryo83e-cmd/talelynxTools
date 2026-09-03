@@ -1,0 +1,7 @@
+{
+  "culture_id": "fr_france",
+  "slots": {
+    "surname": "slots/surname.json",
+    "given": "slots/given.json"
+  }
+}
