@@ -1,12 +1,14 @@
 [
-  { "val": "Smith", "kana": "スミス", "weight": 100, "tags": ["origin:anglo"] },
-  { "val": "Johnson", "kana": "ジョンソン", "weight": 95, "tags": ["origin:anglo"] },
-  { "val": "Williams", "kana": "ウィリアムズ", "weight": 90, "tags": ["origin:anglo"] },
-  { "val": "Brown", "kana": "ブラウン", "weight": 85, "tags": ["origin:anglo"] },
-  { "val": "Miller", "kana": "ミラー", "weight": 80, "tags": ["origin:anglo"] },
-  { "val": "Garcia", "kana": "ガルシア", "weight": 95, "tags": ["origin:hispanic"] },
-  { "val": "Rodriguez", "kana": "ロドリゲス", "weight": 90, "tags": ["origin:hispanic"] },
-  { "val": "Martinez", "kana": "マルティネス", "weight": 85, "tags": ["origin:hispanic"] },
-  { "val": "Hernandez", "kana": "エルナンデス", "weight": 80, "tags": ["origin:hispanic"] },
-  { "val": "Lopez", "kana": "ロペス", "weight": 75, "tags": ["origin:hispanic"] }
+  { "val": "Smith", "kana": "スミス", "weight": 100, "tags": ["origin:anglo", "region:south", "region:midwest", "region:northeast"] },
+  { "val": "Johnson", "kana": "ジョンソン", "weight": 95, "tags": ["origin:anglo", "region:midwest", "region:south"] },
+  { "val": "Williams", "kana": "ウィリアムズ", "weight": 90, "tags": ["origin:anglo", "region:south", "region:midwest"] },
+  { "val": "Brown", "kana": "ブラウン", "weight": 85, "tags": ["origin:anglo", "region:northeast", "region:south"] },
+  { "val": "Miller", "kana": "ミラー", "weight": 80, "tags": ["origin:anglo", "region:midwest", "region:northeast"] },
+  { "val": "Garcia", "kana": "ガルシア", "weight": 95, "tags": ["origin:hispanic", "region:southwest", "region:south"] },
+  { "val": "Rodriguez", "kana": "ロドリゲス", "weight": 90, "tags": ["origin:hispanic", "region:southwest", "region:northeast"] },
+  { "val": "Martinez", "kana": "マルティネス", "weight": 85, "tags": ["origin:hispanic", "region:southwest"] },
+  { "val": "Hernandez", "kana": "エルナンデス", "weight": 80, "tags": ["origin:hispanic", "region:southwest"] },
+  { "val": "Lopez", "kana": "ロペス", "weight": 75, "tags": ["origin:hispanic", "region:southwest"] },
+  { "val": "Larson", "kana": "ラーソン", "weight": 80, "tags": ["origin:scandinavian", "region:midwest"] },
+  { "val": "Russo", "kana": "ルッソ", "weight": 80, "tags": ["origin:italian", "region:northeast"] }
 ]

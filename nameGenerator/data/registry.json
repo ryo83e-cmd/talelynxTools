@@ -13,7 +13,18 @@
             { "val": "anglo", "label": "アングロ・サクソン系" },
             { "val": "hispanic", "label": "ヒスパニック系" }
           ]
-        }
+        },
+{
+  "key": "region",
+  "label": "米国内地域",
+  "options": [
+    { "val": "all", "label": "全米（標準）" },
+    { "val": "south", "label": "南部（ディープサウスなど）" },
+    { "val": "southwest", "label": "南西部（テキサス・カリフォルニア等）" },
+    { "val": "northeast", "label": "北東部（NY・ニューイングランド等）" },
+    { "val": "midwest", "label": "中西部（五大湖周辺等）" }
+  ]
+}
       ]
     }
   ]

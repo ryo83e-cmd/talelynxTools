@@ -12,6 +12,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   setupUI();
 });
 
+// 1. 全体設定（registry.json）の読み込み
 async function loadRegistry() {
   try {
     const res = await fetch(`${DATA_ROOT}/registry.json`);
@@ -34,6 +35,7 @@ async function loadRegistry() {
   }
 }
 
+// 2. 文化圏の切り替えと動的入力フォームの生成
 function onCultureChange(cultureId) {
   const cultureMeta = currentRegistry.cultures.find(c => c.id === cultureId);
   const container = document.getElementById('dynamicFilters');
@@ -70,6 +72,7 @@ function onCultureChange(cultureId) {
   });
 }
 
+// 3. 必要な文化圏データの並列フェッチとキャッシュ
 async function loadCultureData(cultureId) {
   if (cache.cultures[cultureId]) {
     return cache.cultures[cultureId];
@@ -84,12 +87,17 @@ async function loadCultureData(cultureId) {
     fetch(`${basePath}/patterns.json`)
   ]);
 
+  if (!manifestRes.ok || !patternsRes.ok) {
+    throw new Error(`設定ファイルの取得に失敗しました: ${basePath}`);
+  }
+
   const manifest = await manifestRes.json();
   const patterns = await patternsRes.json();
 
   const slotKeys = Object.keys(manifest.slots);
   const slotPromises = slotKeys.map(async key => {
     const res = await fetch(`${basePath}/${manifest.slots[key]}`);
+    if (!res.ok) throw new Error(`スロットファイルの取得に失敗しました: ${manifest.slots[key]}`);
     return res.json();
   });
 
@@ -104,16 +112,18 @@ async function loadCultureData(cultureId) {
   return cultureBundle;
 }
 
+// 4. スロット充填・名前生成エンジン（地域判定ロジック反映部）
 function generateNames(cultureData, query, count = 10) {
   const { era, gender, tags } = query;
 
-  const validPatterns = cultureData.patterns.filter(p => 
+  // 年代条件に合致する命名パターンの抽出
+  const validPatterns = cultureData.patterns.filter(p =>
     !p.era_range || (era >= p.era_range[0] && era <= p.era_range[1])
   );
 
   if (validPatterns.length === 0) return [];
 
-  const results = new Map(); // 重複防止用（key: 原語表記, value: 表示文字列）
+  const results = new Map(); // 重複防止（key: 原語表記, value: 表示文字列）
   let attempts = 0;
 
   while (results.size < count && attempts < 400) {
@@ -129,13 +139,45 @@ function generateNames(cultureData, query, count = 10) {
       const slotName = match.replace(/[{}]/g, '');
       const pool = cultureData.slots[slotName] || [];
 
+      // スロット内パーツの選定とフィルタリング
       const candidates = pool.filter(item => {
-        if (gender !== 'any' && item.gender && item.gender !== gender) return false;
-        if (item.era && (era < item.era[0] || era > item.era[1])) return false;
-        if (tags.length > 0 && item.tags) {
-          const hasRequiredTags = tags.every(t => item.tags.includes(t));
-          if (!hasRequiredTags) return false;
+        // 1. 性別判定
+        if (gender !== 'any' && item.gender && item.gender !== gender) {
+          return false;
         }
+
+        // 2. 年代判定
+        if (item.era && (era < item.era[0] || era > item.era[1])) {
+          return false;
+        }
+
+        // 3. 動的タグ判定（地域・ルーツなど）
+        if (tags.length > 0) {
+          const itemTags = item.tags || [];
+
+          for (const filterTag of tags) {
+            const [key, val] = filterTag.split(':');
+
+            if (key === 'region') {
+              // アイテムが保持している region:* タグ一覧を取得
+              const itemRegions = itemTags
+                .filter(t => t.startsWith('region:'))
+                .map(t => t.split(':')[1]);
+
+              // アイテムに地域限定タグが付いている場合、ユーザーの指定地域と一致しなければ弾く
+              // （地域限定タグを持たない汎用・全国区アイテムはそのまま通過させる）
+              if (itemRegions.length > 0 && !itemRegions.includes(val)) {
+                return false;
+              }
+            } else {
+              // origin（文化的ルーツ）や身分等は指定タグとの完全一致を要求
+              if (!itemTags.includes(filterTag)) {
+                return false;
+              }
+            }
+          }
+        }
+
         return true;
       });
 
@@ -150,7 +192,7 @@ function generateNames(cultureData, query, count = 10) {
     }
 
     if (isPatternValid) {
-      // 日本人名（jp_等）以外は カタカナ表記を併記
+      // 日本人名（jp_等）以外はカタカナ読みを併記
       const isJapanese = cultureData.cultureId.startsWith('jp_');
       const displayText = isJapanese ? outputRaw : `${outputRaw}（${outputKana}）`;
       results.set(outputRaw, displayText);
@@ -160,6 +202,7 @@ function generateNames(cultureData, query, count = 10) {
   return Array.from(results.values());
 }
 
+// 重み付き抽選ユーティリティ
 function pickByWeight(items) {
   const total = items.reduce((sum, i) => sum + (i.weight || 1), 0);
   let random = Math.random() * total;
@@ -170,6 +213,7 @@ function pickByWeight(items) {
   return items[0];
 }
 
+// 5. UIイベントハンドラ
 function setupUI() {
   document.getElementById('cultureSelect').addEventListener('change', (e) => {
     onCultureChange(e.target.value);
@@ -185,6 +229,7 @@ function setupUI() {
       const gender = document.getElementById('genderSelect').value;
       const era = parseInt(document.getElementById('eraInput').value, 10);
 
+      // 動的フィルタの値を取得（all 以外のものを key:val 形式で配列化）
       const tags = [];
       const dynamicSelects = document.querySelectorAll('#dynamicFilters select');
       dynamicSelects.forEach(sel => {
@@ -199,7 +244,7 @@ function setupUI() {
       const list = document.getElementById('resultsList');
       list.innerHTML = '';
       if (results.length === 0) {
-        list.innerHTML = '<li>条件に合致する名前が見つかりませんでした。年代やルーツを変更してください。</li>';
+        list.innerHTML = '<li>条件に合致する名前が見つかりませんでした。条件を変更して再試行してください。</li>';
       } else {
         results.forEach(item => {
           const li = document.createElement('li');
