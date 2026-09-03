@@ -1,0 +1,47 @@
+[
+  { "val": "Martin", "kana": "マルタン", "weight": 100, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Bernard", "kana": "ベルナール", "weight": 95, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Dubois", "kana": "デュボワ", "weight": 90, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Thomas", "kana": "トマ", "weight": 90, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Robert", "kana": "ロベール", "weight": 85, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Richard", "kana": "リシャール", "weight": 85, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Petit", "kana": "プティ", "weight": 85, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Moreau", "kana": "モロー", "weight": 80, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Laurent", "kana": "ローラン", "weight": 80, "tags": ["origin:native", "region:north_paris"] },
+  { "val": "Dupont", "kana": "デュポン", "weight": 80, "tags": ["origin:native", "region:north_paris"] },
+
+  { "val": "Fabre", "kana": "ファーブル", "weight": 85, "tags": ["origin:native", "region:south_occitanie"] },
+  { "val": "Roux", "kana": "ルー", "weight": 85, "tags": ["origin:native", "region:south_occitanie"] },
+  { "val": "Bonnet", "kana": "ボネ", "weight": 80, "tags": ["origin:native", "region:south_occitanie"] },
+  { "val": "Peyre", "kana": "ペール", "weight": 75, "tags": ["origin:native", "region:south_occitanie"] },
+
+  { "val": "Le Gall", "kana": "ル・ガル", "weight": 85, "tags": ["origin:native", "region:brittany"] },
+  { "val": "Le Goff", "kana": "ル・ゴフ", "weight": 80, "tags": ["origin:native", "region:brittany"] },
+  { "val": "Guillou", "kana": "ギユー", "weight": 75, "tags": ["origin:native", "region:brittany"] },
+  { "val": "Morvan", "kana": "モルヴァン", "weight": 75, "tags": ["origin:native", "region:brittany"] },
+
+  { "val": "Muller", "kana": "ミュレール", "weight": 90, "tags": ["origin:native", "region:alsace"] },
+  { "val": "Schmidt", "kana": "シュミット", "weight": 80, "tags": ["origin:native", "region:alsace"] },
+  { "val": "Meyer", "kana": "メイエール", "weight": 80, "tags": ["origin:native", "region:alsace"] },
+  { "val": "Weber", "kana": "ヴェベール", "weight": 75, "tags": ["origin:native", "region:alsace"] },
+
+  { "val": "Traoré", "kana": "トラオレ", "weight": 95, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Diallo", "kana": "ディアロ", "weight": 95, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Diop", "kana": "ディオップ", "weight": 90, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Camara", "kana": "カマラ", "weight": 90, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Touré", "kana": "トゥーレ", "weight": 85, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Cissé", "kana": "シセ", "weight": 85, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Mendy", "kana": "メンディ", "weight": 85, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Koné", "kana": "コネ", "weight": 80, "tags": ["origin:west_african", "region:north_paris"] },
+  { "val": "Mbappé", "kana": "ムバッペ", "weight": 80, "tags": ["origin:west_african", "region:north_paris"] },
+
+  { "val": "Benali", "kana": "ベナリ", "weight": 85, "tags": ["origin:maghreb", "region:north_paris", "region:south_occitanie"] },
+  { "val": "Mansouri", "kana": "マンスーリ", "weight": 80, "tags": ["origin:maghreb", "region:north_paris", "region:south_occitanie"] },
+  { "val": "Brahimi", "kana": "ブラヒミ", "weight": 80, "tags": ["origin:maghreb", "region:north_paris"] },
+  { "val": "Saidi", "kana": "サイディ", "weight": 75, "tags": ["origin:maghreb", "region:south_occitanie"] },
+
+  { "val": "Da Silva", "kana": "ダ・シルヴァ", "weight": 90, "tags": ["origin:southern_europe", "region:north_paris"] },
+  { "val": "Fernandes", "kana": "フェルナンデス", "weight": 85, "tags": ["origin:southern_europe", "region:north_paris"] },
+  { "val": "Rossi", "kana": "ロッシ", "weight": 80, "tags": ["origin:southern_europe", "region:south_occitanie", "region:north_paris"] },
+  { "val": "Garcia", "kana": "ガルシア", "weight": 85, "tags": ["origin:southern_europe", "region:south_occitanie", "region:north_paris"] }
+]
