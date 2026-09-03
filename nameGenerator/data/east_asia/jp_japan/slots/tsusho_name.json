@@ -1,0 +1,17 @@
+[
+  { "val": "太郎", "gender": "m", "era": [1185, 1874], "weight": 95, "tags": ["style:tsusho"] },
+  { "val": "次郎", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:tsusho"] },
+  { "val": "三郎", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:tsusho"] },
+  { "val": "小太郎", "gender": "m", "era": [1185, 1874], "weight": 85, "tags": ["style:tsusho"] },
+  { "val": "源九郎", "gender": "m", "era": [1185, 1874], "weight": 75, "tags": ["style:tsusho"] },
+  { "val": "又三郎", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:tsusho"] },
+  { "val": "十郎", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:tsusho"] },
+  { "val": "甚八", "gender": "m", "era": [1185, 1874], "weight": 75, "tags": ["style:tsusho"] },
+  { "val": "左衛門", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:tsusho"] },
+  { "val": "右衛門", "gender": "m", "era": [1185, 1874], "weight": 85, "tags": ["style:tsusho"] },
+  { "val": "兵衛", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:tsusho"] },
+  { "val": "助三郎", "gender": "m", "era": [1500, 1874], "weight": 75, "tags": ["style:tsusho"] },
+  { "val": "彦四郎", "gender": "m", "era": [1185, 1874], "weight": 75, "tags": ["style:tsusho"] },
+  { "val": "庄左衛門", "gender": "m", "era": [1500, 1874], "weight": 80, "tags": ["style:tsusho"] },
+  { "val": "勘兵衛", "gender": "m", "era": [1400, 1874], "weight": 80, "tags": ["style:tsusho"] }
+]

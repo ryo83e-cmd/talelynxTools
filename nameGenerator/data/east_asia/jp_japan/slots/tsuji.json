@@ -1,0 +1,11 @@
+[
+  { "val": "義", "gender": "m", "era": [1185, 1874], "weight": 95, "tags": ["style:samurai_formal"] },
+  { "val": "信", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:samurai_formal"] },
+  { "val": "政", "gender": "m", "era": [1185, 1874], "weight": 90, "tags": ["style:samurai_formal"] },
+  { "val": "忠", "gender": "m", "era": [1185, 1874], "weight": 85, "tags": ["style:samurai_formal"] },
+  { "val": "綱", "gender": "m", "era": [1185, 1874], "weight": 85, "tags": ["style:samurai_formal"] },
+  { "val": "元", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:samurai_formal"] },
+  { "val": "広", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:samurai_formal"] },
+  { "val": "定", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:samurai_formal"] },
+  { "val": "長", "gender": "m", "era": [1185, 1874], "weight": 80, "tags": ["style:samurai_formal"] }
+]

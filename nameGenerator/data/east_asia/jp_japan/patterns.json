@@ -1,0 +1,26 @@
+[
+  {
+    "id": "modern_standard",
+    "format": "{surname} {given_modern}",
+    "weight": 100,
+    "era_range": [1875, 2026]
+  },
+  {
+    "id": "premodern_samurai",
+    "format": "{surname} {kanji_prefix}{tsuji}",
+    "weight": 50,
+    "era_range": [1185, 1874]
+  },
+  {
+    "id": "premodern_tsusho_male",
+    "format": "{surname} {tsusho_name}",
+    "weight": 70,
+    "era_range": [1185, 1874]
+  },
+  {
+    "id": "premodern_female",
+    "format": "{surname} {classical_female}",
+    "weight": 60,
+    "era_range": [1185, 1920]
+  }
+]

@@ -1,0 +1,1032 @@
+[
+  {
+    "val": "佐藤",
+    "weight": 100,
+    "tags": []
+  },
+  {
+    "val": "鈴木",
+    "weight": 98,
+    "tags": []
+  },
+  {
+    "val": "高橋",
+    "weight": 95,
+    "tags": []
+  },
+  {
+    "val": "田中",
+    "weight": 95,
+    "tags": []
+  },
+  {
+    "val": "伊藤",
+    "weight": 90,
+    "tags": []
+  },
+  {
+    "val": "渡辺",
+    "weight": 90,
+    "tags": []
+  },
+  {
+    "val": "山本",
+    "weight": 90,
+    "tags": []
+  },
+  {
+    "val": "中村",
+    "weight": 88,
+    "tags": []
+  },
+  {
+    "val": "小林",
+    "weight": 88,
+    "tags": []
+  },
+  {
+    "val": "加藤",
+    "weight": 85,
+    "tags": []
+  },
+  {
+    "val": "吉田",
+    "weight": 85,
+    "tags": []
+  },
+  {
+    "val": "山田",
+    "weight": 85,
+    "tags": []
+  },
+  {
+    "val": "佐々木",
+    "weight": 85,
+    "tags": []
+  },
+  {
+    "val": "山口",
+    "weight": 82,
+    "tags": []
+  },
+  {
+    "val": "松本",
+    "weight": 82,
+    "tags": []
+  },
+  {
+    "val": "井上",
+    "weight": 82,
+    "tags": []
+  },
+  {
+    "val": "木村",
+    "weight": 80,
+    "tags": []
+  },
+  {
+    "val": "林",
+    "weight": 80,
+    "tags": []
+  },
+  {
+    "val": "斎藤",
+    "weight": 80,
+    "tags": []
+  },
+  {
+    "val": "清水",
+    "weight": 80,
+    "tags": []
+  },
+  {
+    "val": "山崎",
+    "weight": 78,
+    "tags": []
+  },
+  {
+    "val": "森",
+    "weight": 78,
+    "tags": []
+  },
+  {
+    "val": "池田",
+    "weight": 78,
+    "tags": []
+  },
+  {
+    "val": "橋本",
+    "weight": 78,
+    "tags": []
+  },
+  {
+    "val": "阿部",
+    "weight": 78,
+    "tags": []
+  },
+  {
+    "val": "石川",
+    "weight": 76,
+    "tags": []
+  },
+  {
+    "val": "山下",
+    "weight": 76,
+    "tags": []
+  },
+  {
+    "val": "中島",
+    "weight": 75,
+    "tags": []
+  },
+  {
+    "val": "石井",
+    "weight": 75,
+    "tags": []
+  },
+  {
+    "val": "小川",
+    "weight": 74,
+    "tags": []
+  },
+  {
+    "val": "前田",
+    "weight": 74,
+    "tags": []
+  },
+  {
+    "val": "岡田",
+    "weight": 72,
+    "tags": []
+  },
+  {
+    "val": "長谷川",
+    "weight": 72,
+    "tags": []
+  },
+  {
+    "val": "藤田",
+    "weight": 72,
+    "tags": []
+  },
+  {
+    "val": "後藤",
+    "weight": 72,
+    "tags": []
+  },
+  {
+    "val": "近藤",
+    "weight": 72,
+    "tags": []
+  },
+  {
+    "val": "村上",
+    "weight": 70,
+    "tags": []
+  },
+  {
+    "val": "遠藤",
+    "weight": 70,
+    "tags": []
+  },
+  {
+    "val": "青木",
+    "weight": 70,
+    "tags": []
+  },
+  {
+    "val": "坂本",
+    "weight": 70,
+    "tags": []
+  },
+  {
+    "val": "福田",
+    "weight": 68,
+    "tags": []
+  },
+  {
+    "val": "太田",
+    "weight": 68,
+    "tags": []
+  },
+  {
+    "val": "西村",
+    "weight": 68,
+    "tags": []
+  },
+  {
+    "val": "藤井",
+    "weight": 68,
+    "tags": []
+  },
+  {
+    "val": "金子",
+    "weight": 68,
+    "tags": []
+  },
+  {
+    "val": "岡本",
+    "weight": 66,
+    "tags": []
+  },
+  {
+    "val": "藤原",
+    "weight": 66,
+    "tags": []
+  },
+  {
+    "val": "中川",
+    "weight": 66,
+    "tags": []
+  },
+  {
+    "val": "三浦",
+    "weight": 66,
+    "tags": []
+  },
+  {
+    "val": "中野",
+    "weight": 64,
+    "tags": []
+  },
+  {
+    "val": "原",
+    "weight": 64,
+    "tags": []
+  },
+  {
+    "val": "小野",
+    "weight": 64,
+    "tags": []
+  },
+  {
+    "val": "田村",
+    "weight": 64,
+    "tags": []
+  },
+  {
+    "val": "竹内",
+    "weight": 62,
+    "tags": []
+  },
+  {
+    "val": "金井",
+    "weight": 55,
+    "tags": []
+  },
+  {
+    "val": "和田",
+    "weight": 62,
+    "tags": []
+  },
+  {
+    "val": "中山",
+    "weight": 62,
+    "tags": []
+  },
+  {
+    "val": "石田",
+    "weight": 62,
+    "tags": []
+  },
+  {
+    "val": "上田",
+    "weight": 60,
+    "tags": []
+  },
+  {
+    "val": "森田",
+    "weight": 60,
+    "tags": []
+  },
+  {
+    "val": "原田",
+    "weight": 60,
+    "tags": []
+  },
+  {
+    "val": "柴田",
+    "weight": 60,
+    "tags": []
+  },
+  {
+    "val": "酒井",
+    "weight": 60,
+    "tags": []
+  },
+  {
+    "val": "工藤",
+    "weight": 90,
+    "tags": [
+      "region:aomori",
+      "region:akita"
+    ]
+  },
+  {
+    "val": "対馬",
+    "weight": 85,
+    "tags": [
+      "region:aomori"
+    ]
+  },
+  {
+    "val": "成田",
+    "weight": 78,
+    "tags": [
+      "region:aomori",
+      "region:akita"
+    ]
+  },
+  {
+    "val": "三上",
+    "weight": 75,
+    "tags": [
+      "region:aomori",
+      "region:iwate"
+    ]
+  },
+  {
+    "val": "佐々木",
+    "weight": 95,
+    "tags": [
+      "region:iwate",
+      "region:akita"
+    ]
+  },
+  {
+    "val": "菅原",
+    "weight": 90,
+    "tags": [
+      "region:iwate",
+      "region:miyagi"
+    ]
+  },
+  {
+    "val": "千葉",
+    "weight": 90,
+    "tags": [
+      "region:miyagi",
+      "region:iwate"
+    ]
+  },
+  {
+    "val": "及川",
+    "weight": 82,
+    "tags": [
+      "region:iwate",
+      "region:miyagi"
+    ]
+  },
+  {
+    "val": "小野寺",
+    "weight": 82,
+    "tags": [
+      "region:iwate",
+      "region:miyagi"
+    ]
+  },
+  {
+    "val": "阿部",
+    "weight": 82,
+    "tags": [
+      "region:miyagi",
+      "region:yamagata"
+    ]
+  },
+  {
+    "val": "佐藤",
+    "weight": 100,
+    "tags": [
+      "region:akita",
+      "region:yamagata"
+    ]
+  },
+  {
+    "val": "齋藤",
+    "weight": 90,
+    "tags": [
+      "region:yamagata",
+      "region:fukushima"
+    ]
+  },
+  {
+    "val": "斉藤",
+    "weight": 80,
+    "tags": [
+      "region:yamagata",
+      "region:fukushima"
+    ]
+  },
+  {
+    "val": "高橋",
+    "weight": 88,
+    "tags": [
+      "region:akita",
+      "region:yamagata"
+    ]
+  },
+  {
+    "val": "庄司",
+    "weight": 80,
+    "tags": [
+      "region:yamagata",
+      "region:miyagi"
+    ]
+  },
+  {
+    "val": "武田",
+    "weight": 72,
+    "tags": [
+      "region:yamagata",
+      "region:akita"
+    ]
+  },
+  {
+    "val": "根本",
+    "weight": 85,
+    "tags": [
+      "region:ibaraki",
+      "region:fukushima"
+    ]
+  },
+  {
+    "val": "鈴木",
+    "weight": 85,
+    "tags": [
+      "region:fukushima",
+      "region:tochigi"
+    ]
+  },
+  {
+    "val": "大島",
+    "weight": 80,
+    "tags": [
+      "region:tochigi",
+      "region:gunma"
+    ]
+  },
+  {
+    "val": "茂木",
+    "weight": 80,
+    "tags": [
+      "region:gunma",
+      "region:tochigi"
+    ]
+  },
+  {
+    "val": "新井",
+    "weight": 85,
+    "tags": [
+      "region:saitama",
+      "region:gunma"
+    ]
+  },
+  {
+    "val": "篠原",
+    "weight": 80,
+    "tags": [
+      "region:chiba",
+      "region:saitama"
+    ]
+  },
+  {
+    "val": "石井",
+    "weight": 85,
+    "tags": [
+      "region:chiba",
+      "region:ibaraki"
+    ]
+  },
+  {
+    "val": "五十嵐",
+    "weight": 85,
+    "tags": [
+      "region:niigata",
+      "region:fukushima"
+    ]
+  },
+  {
+    "val": "渡邉",
+    "weight": 85,
+    "tags": [
+      "region:yamanashi",
+      "region:niigata"
+    ]
+  },
+  {
+    "val": "渡邊",
+    "weight": 72,
+    "tags": [
+      "region:niigata",
+      "region:yamanashi"
+    ]
+  },
+  {
+    "val": "深沢",
+    "weight": 80,
+    "tags": [
+      "region:yamanashi"
+    ]
+  },
+  {
+    "val": "宮坂",
+    "weight": 80,
+    "tags": [
+      "region:nagano"
+    ]
+  },
+  {
+    "val": "下条",
+    "weight": 75,
+    "tags": [
+      "region:nagano"
+    ]
+  },
+  {
+    "val": "小林",
+    "weight": 78,
+    "tags": [
+      "region:nagano",
+      "region:gunma"
+    ]
+  },
+  {
+    "val": "丸山",
+    "weight": 75,
+    "tags": [
+      "region:nagano",
+      "region:niigata"
+    ]
+  },
+  {
+    "val": "辻",
+    "weight": 85,
+    "tags": [
+      "region:fukui",
+      "region:shiga"
+    ]
+  },
+  {
+    "val": "山本",
+    "weight": 90,
+    "tags": [
+      "region:fukui",
+      "region:ishikawa"
+    ]
+  },
+  {
+    "val": "道下",
+    "weight": 80,
+    "tags": [
+      "region:ishikawa",
+      "region:toyama"
+    ]
+  },
+  {
+    "val": "森田",
+    "weight": 80,
+    "tags": [
+      "region:toyama"
+    ]
+  },
+  {
+    "val": "南",
+    "weight": 72,
+    "tags": [
+      "region:ishikawa",
+      "region:fukui"
+    ]
+  },
+  {
+    "val": "宮本",
+    "weight": 70,
+    "tags": [
+      "region:ishikawa",
+      "region:fukui"
+    ]
+  },
+  {
+    "val": "望月",
+    "weight": 90,
+    "tags": [
+      "region:shizuoka",
+      "region:yamanashi"
+    ]
+  },
+  {
+    "val": "杉山",
+    "weight": 85,
+    "tags": [
+      "region:shizuoka"
+    ]
+  },
+  {
+    "val": "鈴木",
+    "weight": 90,
+    "tags": [
+      "region:shizuoka",
+      "region:aichi"
+    ]
+  },
+  {
+    "val": "山田",
+    "weight": 78,
+    "tags": [
+      "region:shizuoka",
+      "region:aichi"
+    ]
+  },
+  {
+    "val": "水野",
+    "weight": 85,
+    "tags": [
+      "region:aichi",
+      "region:gifu"
+    ]
+  },
+  {
+    "val": "加藤",
+    "weight": 90,
+    "tags": [
+      "region:aichi",
+      "region:gifu"
+    ]
+  },
+  {
+    "val": "伊藤",
+    "weight": 95,
+    "tags": [
+      "region:mie",
+      "region:aichi"
+    ]
+  },
+  {
+    "val": "服部",
+    "weight": 80,
+    "tags": [
+      "region:aichi",
+      "region:gifu"
+    ]
+  },
+  {
+    "val": "神谷",
+    "weight": 75,
+    "tags": [
+      "region:aichi"
+    ]
+  },
+  {
+    "val": "岩田",
+    "weight": 72,
+    "tags": [
+      "region:aichi",
+      "region:gifu"
+    ]
+  },
+  {
+    "val": "奥田",
+    "weight": 80,
+    "tags": [
+      "region:nara",
+      "region:mie"
+    ]
+  },
+  {
+    "val": "前田",
+    "weight": 85,
+    "tags": [
+      "region:osaka",
+      "region:hyogo"
+    ]
+  },
+  {
+    "val": "玉置",
+    "weight": 80,
+    "tags": [
+      "region:wakayama"
+    ]
+  },
+  {
+    "val": "井上",
+    "weight": 85,
+    "tags": [
+      "region:kyoto",
+      "region:hyogo"
+    ]
+  },
+  {
+    "val": "足立",
+    "weight": 80,
+    "tags": [
+      "region:tottori",
+      "region:hyogo"
+    ]
+  },
+  {
+    "val": "藤原",
+    "weight": 78,
+    "tags": [
+      "region:kyoto",
+      "region:hyogo"
+    ]
+  },
+  {
+    "val": "西村",
+    "weight": 75,
+    "tags": [
+      "region:kyoto",
+      "region:shiga"
+    ]
+  },
+  {
+    "val": "佐々木",
+    "weight": 85,
+    "tags": [
+      "region:shimane"
+    ]
+  },
+  {
+    "val": "妹尾",
+    "weight": 80,
+    "tags": [
+      "region:okayama"
+    ]
+  },
+  {
+    "val": "難波",
+    "weight": 80,
+    "tags": [
+      "region:okayama"
+    ]
+  },
+  {
+    "val": "岡本",
+    "weight": 80,
+    "tags": [
+      "region:hiroshima"
+    ]
+  },
+  {
+    "val": "村上",
+    "weight": 75,
+    "tags": [
+      "region:hiroshima",
+      "region:yamaguchi"
+    ]
+  },
+  {
+    "val": "末永",
+    "weight": 80,
+    "tags": [
+      "region:yamaguchi",
+      "region:fukuoka"
+    ]
+  },
+  {
+    "val": "藤井",
+    "weight": 80,
+    "tags": [
+      "region:yamaguchi",
+      "region:hiroshima"
+    ]
+  },
+  {
+    "val": "大西",
+    "weight": 85,
+    "tags": [
+      "region:kagawa",
+      "region:ehime"
+    ]
+  },
+  {
+    "val": "越智",
+    "weight": 85,
+    "tags": [
+      "region:ehime"
+    ]
+  },
+  {
+    "val": "武田",
+    "weight": 80,
+    "tags": [
+      "region:tokushima"
+    ]
+  },
+  {
+    "val": "山崎",
+    "weight": 80,
+    "tags": [
+      "region:kochi"
+    ]
+  },
+  {
+    "val": "公文",
+    "weight": 75,
+    "tags": [
+      "region:kochi"
+    ]
+  },
+  {
+    "val": "森",
+    "weight": 72,
+    "tags": [
+      "region:kochi",
+      "region:tokushima"
+    ]
+  },
+  {
+    "val": "古賀",
+    "weight": 90,
+    "tags": [
+      "region:fukuoka",
+      "region:saga"
+    ]
+  },
+  {
+    "val": "野田",
+    "weight": 80,
+    "tags": [
+      "region:fukuoka"
+    ]
+  },
+  {
+    "val": "牟田",
+    "weight": 80,
+    "tags": [
+      "region:saga"
+    ]
+  },
+  {
+    "val": "山口",
+    "weight": 85,
+    "tags": [
+      "region:saga",
+      "region:nagasaki"
+    ]
+  },
+  {
+    "val": "松永",
+    "weight": 80,
+    "tags": [
+      "region:nagasaki"
+    ]
+  },
+  {
+    "val": "田中",
+    "weight": 78,
+    "tags": [
+      "region:nagasaki",
+      "region:kumamoto"
+    ]
+  },
+  {
+    "val": "坂本",
+    "weight": 85,
+    "tags": [
+      "region:kumamoto"
+    ]
+  },
+  {
+    "val": "本田",
+    "weight": 80,
+    "tags": [
+      "region:kumamoto"
+    ]
+  },
+  {
+    "val": "緒方",
+    "weight": 78,
+    "tags": [
+      "region:kumamoto",
+      "region:fukuoka"
+    ]
+  },
+  {
+    "val": "佐藤",
+    "weight": 95,
+    "tags": [
+      "region:oita"
+    ]
+  },
+  {
+    "val": "河野",
+    "weight": 85,
+    "tags": [
+      "region:oita",
+      "region:ehime"
+    ]
+  },
+  {
+    "val": "衛藤",
+    "weight": 82,
+    "tags": [
+      "region:oita"
+    ]
+  },
+  {
+    "val": "黒木",
+    "weight": 90,
+    "tags": [
+      "region:miyazaki"
+    ]
+  },
+  {
+    "val": "甲斐",
+    "weight": 85,
+    "tags": [
+      "region:miyazaki"
+    ]
+  },
+  {
+    "val": "日高",
+    "weight": 78,
+    "tags": [
+      "region:miyazaki",
+      "region:kagoshima"
+    ]
+  },
+  {
+    "val": "有馬",
+    "weight": 80,
+    "tags": [
+      "region:kagoshima"
+    ]
+  },
+  {
+    "val": "鮫島",
+    "weight": 80,
+    "tags": [
+      "region:kagoshima"
+    ]
+  },
+  {
+    "val": "比嘉",
+    "weight": 100,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "金城",
+    "weight": 95,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "大城",
+    "weight": 90,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "宮城",
+    "weight": 85,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "新垣",
+    "weight": 80,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "島袋",
+    "weight": 80,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "上原",
+    "weight": 78,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "知念",
+    "weight": 75,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "玉城",
+    "weight": 75,
+    "tags": [
+      "region:okinawa"
+    ]
+  },
+  {
+    "val": "比屋根",
+    "weight": 65,
+    "tags": [
+      "region:okinawa"
+    ]
+  }
+]

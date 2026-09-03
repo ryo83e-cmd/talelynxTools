@@ -1,0 +1,11 @@
+[
+  { "val": "お市", "gender": "f", "era": [1400, 1880], "weight": 90, "tags": ["style:classical_female"] },
+  { "val": "お濃", "gender": "f", "era": [1400, 1880], "weight": 85, "tags": ["style:classical_female"] },
+  { "val": "お千代", "gender": "f", "era": [1400, 1910], "weight": 90, "tags": ["style:classical_female"] },
+  { "val": "お春", "gender": "f", "era": [1400, 1910], "weight": 85, "tags": ["style:classical_female"] },
+  { "val": "トメ", "gender": "f", "era": [1700, 1920], "weight": 90, "tags": ["style:classical_female"] },
+  { "val": "チヨ", "gender": "f", "era": [1700, 1920], "weight": 90, "tags": ["style:classical_female"] },
+  { "val": "ハル", "gender": "f", "era": [1700, 1920], "weight": 85, "tags": ["style:classical_female"] },
+  { "val": "キヨ", "gender": "f", "era": [1700, 1920], "weight": 85, "tags": ["style:classical_female"] },
+  { "val": "ウメ", "gender": "f", "era": [1700, 1920], "weight": 80, "tags": ["style:classical_female"] }
+]

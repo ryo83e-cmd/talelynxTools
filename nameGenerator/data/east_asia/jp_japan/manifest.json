@@ -1,0 +1,11 @@
+{
+  "culture_id": "jp_japan",
+  "slots": {
+    "surname": "slots/surname.json",
+    "given_modern": "slots/given_modern.json",
+    "tsusho_name": "slots/tsusho_name.json",
+    "kanji_prefix": "slots/kanji_prefix.json",
+    "tsuji": "slots/tsuji.json",
+    "classical_female": "slots/classical_female.json"
+  }
+}
