@@ -1,52 +1,6 @@
 {
   "cultures": [
     {
-      "id": "na_usa",
-      "name": "アメリカ合衆国",
-      "dir": "europe/na_usa",
-      "custom_filters": [
-        {
-  "key": "origin",
-  "label": "言語・文化的ルーツ",
-  "options": [
-    { "val": "all", "label": "指定なし（全般）" },
-    { "val": "anglo", "label": "アングロ・サクソン系" },
-    { "val": "african_american", "label": "アフリカ系（黒人系）" },
-    { "val": "hispanic", "label": "ヒスパニック・ラテン系" },
-    { "val": "italian", "label": "イタリア系" },
-    { "val": "german", "label": "ドイツ系" },{ "val": "jewish", "label": "ユダヤ系" },
-    { "val": "east_asian", "label": "東アジア系（日・中・韓）" }
-  ]
-},
-        {
-          "key": "region",
-          "label": "米国内地域",
-          "options": [
-            {
-              "val": "all",
-              "label": "全米（標準）"
-            },
-            {
-              "val": "south",
-              "label": "南部（ディープサウスなど）"
-            },
-            {
-              "val": "southwest",
-              "label": "南西部（テキサス・カリフォルニア等）"
-            },
-            {
-              "val": "northeast",
-              "label": "北東部（NY・ニューイングランド等）"
-            },
-            {
-              "val": "midwest",
-              "label": "中西部（五大湖周辺等）"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "jp_japan",
       "name": "日本",
       "dir": "east_asia/jp_japan",
@@ -55,220 +9,125 @@
           "key": "region",
           "label": "都道府県（名字の偏在地域）",
           "options": [
-            {
-              "val": "all",
-              "label": "全国共通（佐藤・鈴木等の多頻度姓）"
-            },
-            {
-              "val": "hokkaido",
-              "label": "北海道"
-            },
-            {
-              "val": "aomori",
-              "label": "青森県"
-            },
-            {
-              "val": "iwate",
-              "label": "岩手県"
-            },
-            {
-              "val": "miyagi",
-              "label": "宮城県"
-            },
-            {
-              "val": "akita",
-              "label": "秋田県"
-            },
-            {
-              "val": "yamagata",
-              "label": "山形県"
-            },
-            {
-              "val": "fukushima",
-              "label": "福島県"
-            },
-            {
-              "val": "ibaraki",
-              "label": "茨城県"
-            },
-            {
-              "val": "tochigi",
-              "label": "栃木県"
-            },
-            {
-              "val": "gunma",
-              "label": "群馬県"
-            },
-            {
-              "val": "saitama",
-              "label": "埼玉県"
-            },
-            {
-              "val": "chiba",
-              "label": "千葉県"
-            },
-            {
-              "val": "tokyo",
-              "label": "東京都"
-            },
-            {
-              "val": "kanagawa",
-              "label": "神奈川県"
-            },
-            {
-              "val": "niigata",
-              "label": "新潟県"
-            },
-            {
-              "val": "toyama",
-              "label": "富山県"
-            },
-            {
-              "val": "ishikawa",
-              "label": "石川県"
-            },
-            {
-              "val": "fukui",
-              "label": "福井県"
-            },
-            {
-              "val": "yamanashi",
-              "label": "山梨県"
-            },
-            {
-              "val": "nagano",
-              "label": "長野県"
-            },
-            {
-              "val": "gifu",
-              "label": "岐阜県"
-            },
-            {
-              "val": "shizuoka",
-              "label": "静岡県"
-            },
-            {
-              "val": "aichi",
-              "label": "愛知県"
-            },
-            {
-              "val": "mie",
-              "label": "三重県"
-            },
-            {
-              "val": "shiga",
-              "label": "滋賀県"
-            },
-            {
-              "val": "kyoto",
-              "label": "京都府"
-            },
-            {
-              "val": "osaka",
-              "label": "大阪府"
-            },
-            {
-              "val": "hyogo",
-              "label": "兵庫県"
-            },
-            {
-              "val": "nara",
-              "label": "奈良県"
-            },
-            {
-              "val": "wakayama",
-              "label": "和歌山県"
-            },
-            {
-              "val": "tottori",
-              "label": "鳥取県"
-            },
-            {
-              "val": "shimane",
-              "label": "島根県"
-            },
-            {
-              "val": "okayama",
-              "label": "岡山県"
-            },
-            {
-              "val": "hiroshima",
-              "label": "広島県"
-            },
-            {
-              "val": "yamaguchi",
-              "label": "山口県"
-            },
-            {
-              "val": "tokushima",
-              "label": "徳島県"
-            },
-            {
-              "val": "kagawa",
-              "label": "香川県"
-            },
-            {
-              "val": "ehime",
-              "label": "愛媛県"
-            },
-            {
-              "val": "kochi",
-              "label": "高知県"
-            },
-            {
-              "val": "fukuoka",
-              "label": "福岡県"
-            },
-            {
-              "val": "saga",
-              "label": "佐賀県"
-            },
-            {
-              "val": "nagasaki",
-              "label": "長崎県"
-            },
-            {
-              "val": "kumamoto",
-              "label": "熊本県"
-            },
-            {
-              "val": "oita",
-              "label": "大分県"
-            },
-            {
-              "val": "miyazaki",
-              "label": "宮崎県"
-            },
-            {
-              "val": "kagoshima",
-              "label": "鹿児島県"
-            },
-            {
-              "val": "okinawa",
-              "label": "沖縄県"
-            }
+            { "val": "all", "label": "全国共通（佐藤・鈴木等の多頻度姓）" },
+            { "val": "hokkaido", "label": "北海道" },
+            { "val": "aomori", "label": "青森県" },
+            { "val": "iwate", "label": "岩手県" },
+            { "val": "miyagi", "label": "宮城県" },
+            { "val": "akita", "label": "秋田県" },
+            { "val": "yamagata", "label": "山形県" },
+            { "val": "fukushima", "label": "福島県" },
+            { "val": "ibaraki", "label": "茨城県" },
+            { "val": "tochigi", "label": "栃木県" },
+            { "val": "gunma", "label": "群馬県" },
+            { "val": "saitama", "label": "埼玉県" },
+            { "val": "chiba", "label": "千葉県" },
+            { "val": "tokyo", "label": "東京都" },
+            { "val": "kanagawa", "label": "神奈川県" },
+            { "val": "niigata", "label": "新潟県" },
+            { "val": "toyama", "label": "富山県" },
+            { "val": "ishikawa", "label": "石川県" },
+            { "val": "fukui", "label": "福井県" },
+            { "val": "yamanashi", "label": "山梨県" },
+            { "val": "nagano", "label": "長野県" },
+            { "val": "gifu", "label": "岐阜県" },
+            { "val": "shizuoka", "label": "静岡県" },
+            { "val": "aichi", "label": "愛知県" },
+            { "val": "mie", "label": "三重県" },
+            { "val": "shiga", "label": "滋賀県" },
+            { "val": "kyoto", "label": "京都府" },
+            { "val": "osaka", "label": "大阪府" },
+            { "val": "hyogo", "label": "兵庫県" },
+            { "val": "nara", "label": "奈良県" },
+            { "val": "wakayama", "label": "和歌山県" },
+            { "val": "tottori", "label": "鳥取県" },
+            { "val": "shimane", "label": "島根県" },
+            { "val": "okayama", "label": "岡山県" },
+            { "val": "hiroshima", "label": "広島県" },
+            { "val": "yamaguchi", "label": "山口県" },
+            { "val": "tokushima", "label": "徳島県" },
+            { "val": "kagawa", "label": "香川県" },
+            { "val": "ehime", "label": "愛媛県" },
+            { "val": "kochi", "label": "高知県" },
+            { "val": "fukuoka", "label": "福岡県" },
+            { "val": "saga", "label": "佐賀県" },
+            { "val": "nagasaki", "label": "長崎県" },
+            { "val": "kumamoto", "label": "熊本県" },
+            { "val": "oita", "label": "大分県" },
+            { "val": "miyazaki", "label": "宮崎県" },
+            { "val": "kagoshima", "label": "鹿児島県" },
+            { "val": "okinawa", "label": "沖縄県" }
           ]
         },
         {
           "key": "style",
           "label": "格式・命名系統（前近代〜近代）",
           "options": [
-            {
-              "val": "all",
-              "label": "指定なし（標準・時代なり）"
-            },
-            {
-              "val": "samurai_formal",
-              "label": "武家実名・名乗り（重厚・二字実名）"
-            },
-            {
-              "val": "tsusho",
-              "label": "通称・十軒術・輩行名（十郎、右衛門、兵衛等）"
-            },
-            {
-              "val": "classical_female",
-              "label": "伝統的女性名（お〜、平仮名二文字）"
-            }
+            { "val": "all", "label": "指定なし（標準・時代なり）" },
+            { "val": "samurai_formal", "label": "武家実名・名乗り（重厚・二字実名）" },
+            { "val": "tsusho", "label": "通称・十軒術・輩行名（十郎、右衛門、兵衛等）" },
+            { "val": "classical_female", "label": "伝統的女性名（お〜、平仮名二文字）" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "na_usa",
+      "name": "アメリカ合衆国",
+      "dir": "europe/na_usa",
+      "custom_filters": [
+        {
+          "key": "origin",
+          "label": "言語・文化的ルーツ",
+          "options": [
+            { "val": "all", "label": "指定なし（全般）" },
+            { "val": "anglo", "label": "アングロ・サクソン系" },
+            { "val": "african_american", "label": "アフリカ系（黒人系）" },
+            { "val": "hispanic", "label": "ヒスパニック・ラテン系" },
+            { "val": "italian", "label": "イタリア系" },
+            { "val": "german", "label": "ドイツ系" },
+            { "val": "jewish", "label": "ユダヤ系" },
+            { "val": "east_asian", "label": "東アジア系（日・中・韓）" }
+          ]
+        },
+        {
+          "key": "region",
+          "label": "米国内地域",
+          "options": [
+            { "val": "all", "label": "全米（標準）" },
+            { "val": "south", "label": "南部（ディープサウスなど）" },
+            { "val": "southwest", "label": "南西部（テキサス・カリフォルニア等）" },
+            { "val": "northeast", "label": "北東部（NY・ニューイングランド等）" },
+            { "val": "midwest", "label": "中西部（五大湖周辺等）" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fr_france",
+      "name": "フランス",
+      "dir": "europe/fr_france",
+      "custom_filters": [
+        {
+          "key": "origin",
+          "label": "言語・文化的ルーツ",
+          "options": [
+            { "val": "all", "label": "指定なし（全般）" },
+            { "val": "native", "label": "フランス伝統系" },
+            { "val": "west_african", "label": "サハラ以南・西アフリカ系" },
+            { "val": "maghreb", "label": "北アフリカ系（マグレブ・アラブ）" },
+            { "val": "southern_europe", "label": "南欧系（ポルトガル・イタリア・スペイン）" }
+          ]
+        },
+        {
+          "key": "region",
+          "label": "国内地域（地方偏在）",
+          "options": [
+            { "val": "all", "label": "全国（標準）" },
+            { "val": "north_paris", "label": "パリ・北部（イル＝ド＝フランス等）" },
+            { "val": "south_occitanie", "label": "南仏（オクシタニア・プロヴァンス）" },
+            { "val": "brittany", "label": "ブルターニュ（ケルト系）" },
+            { "val": "alsace", "label": "アルザス（ゲルマン・独語系）" }
           ]
         }
       ]
