@@ -1,0 +1,8 @@
+[
+  {
+    "id": "standard",
+    "format": "{given} {surname}",
+    "format_kana": "{given}・{surname}",
+    "weight": 100
+  }
+]

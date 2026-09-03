@@ -1,0 +1,7 @@
+{
+  "culture_id": "na_usa",
+  "slots": {
+    "surname": "slots/surname.json",
+    "given": "slots/given.json"
+  }
+}

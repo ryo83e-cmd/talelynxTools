@@ -1,0 +1,14 @@
+[
+  { "val": "James", "kana": "ジェームズ", "gender": "m", "era": [1900, 2026], "weight": 100, "tags": ["origin:anglo"] },
+  { "val": "John", "kana": "ジョン", "gender": "m", "era": [1900, 1980], "weight": 95, "tags": ["origin:anglo"] },
+  { "val": "Liam", "kana": "リアム", "gender": "m", "era": [2010, 2026], "weight": 95, "tags": ["origin:anglo"] },
+  { "val": "Noah", "kana": "ノア", "gender": "m", "era": [2000, 2026], "weight": 90, "tags": ["origin:anglo"] },
+  { "val": "Mateo", "kana": "マテオ", "gender": "m", "era": [2000, 2026], "weight": 85, "tags": ["origin:hispanic"] },
+  { "val": "Santiago", "kana": "サンティアゴ", "gender": "m", "era": [1990, 2026], "weight": 80, "tags": ["origin:hispanic"] },
+  { "val": "Mary", "kana": "メアリー", "gender": "f", "era": [1900, 1970], "weight": 100, "tags": ["origin:anglo"] },
+  { "val": "Emma", "kana": "エマ", "gender": "f", "era": [2000, 2026], "weight": 95, "tags": ["origin:anglo"] },
+  { "val": "Olivia", "kana": "オリヴィア", "gender": "f", "era": [2005, 2026], "weight": 95, "tags": ["origin:anglo"] },
+  { "val": "Sofia", "kana": "ソフィア", "gender": "f", "era": [1990, 2026], "weight": 90, "tags": ["origin:hispanic"] },
+  { "val": "Camila", "kana": "カミラ", "gender": "f", "era": [2005, 2026], "weight": 85, "tags": ["origin:hispanic"] },
+  { "val": "Valentina", "kana": "ヴァレンティナ", "gender": "f", "era": [2000, 2026], "weight": 80, "tags": ["origin:hispanic"] }
+]

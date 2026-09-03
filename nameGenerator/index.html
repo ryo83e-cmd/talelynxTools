@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>名前生成エンジン</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>名前生成設定</h1>
+
+    <div class="form-group">
+      <label for="cultureSelect">地域・文化圏:</label>
+      <select id="cultureSelect"></select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="genderSelect">性別:</label>
+        <select id="genderSelect">
+          <option value="m">男性</option>
+          <option value="f">女性</option>
+          <option value="any">指定なし</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="eraInput">年代 (西暦):</label>
+        <input type="number" id="eraInput" value="2020" min="1000" max="2100">
+      </div>
+    </div>
+
+    <!-- 地域ごとに動的挿入されるフィルタ領域 -->
+    <div id="dynamicFilters" class="dynamic-filters"></div>
+
+    <button id="generateBtn" class="primary-btn">メジャーな名前を10件生成</button>
+
+    <div class="result-container">
+      <h2>出力結果</h2>
+      <ul id="resultsList"></ul>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

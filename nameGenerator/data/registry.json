@@ -1,0 +1,20 @@
+{
+  "cultures": [
+    {
+      "id": "na_usa",
+      "name": "アメリカ合衆国",
+      "dir": "europe/na_usa",
+      "custom_filters": [
+        {
+          "key": "origin",
+          "label": "言語・文化的ルーツ",
+          "options": [
+            { "val": "all", "label": "指定なし" },
+            { "val": "anglo", "label": "アングロ・サクソン系" },
+            { "val": "hispanic", "label": "ヒスパニック系" }
+          ]
+        }
+      ]
+    }
+  ]
+}

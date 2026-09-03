@@ -1,0 +1,12 @@
+[
+  { "val": "Smith", "kana": "スミス", "weight": 100, "tags": ["origin:anglo"] },
+  { "val": "Johnson", "kana": "ジョンソン", "weight": 95, "tags": ["origin:anglo"] },
+  { "val": "Williams", "kana": "ウィリアムズ", "weight": 90, "tags": ["origin:anglo"] },
+  { "val": "Brown", "kana": "ブラウン", "weight": 85, "tags": ["origin:anglo"] },
+  { "val": "Miller", "kana": "ミラー", "weight": 80, "tags": ["origin:anglo"] },
+  { "val": "Garcia", "kana": "ガルシア", "weight": 95, "tags": ["origin:hispanic"] },
+  { "val": "Rodriguez", "kana": "ロドリゲス", "weight": 90, "tags": ["origin:hispanic"] },
+  { "val": "Martinez", "kana": "マルティネス", "weight": 85, "tags": ["origin:hispanic"] },
+  { "val": "Hernandez", "kana": "エルナンデス", "weight": 80, "tags": ["origin:hispanic"] },
+  { "val": "Lopez", "kana": "ロペス", "weight": 75, "tags": ["origin:hispanic"] }
+]
