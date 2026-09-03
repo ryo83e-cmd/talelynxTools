@@ -1,0 +1,52 @@
+[
+  { "val": "Wilhelm", "kana": "ヴィルヘルム", "gender": "m", "era": [1800, 1945], "weight": 100, "tags": ["origin:native"] },
+  { "val": "Friedrich", "kana": "フリードリヒ", "gender": "m", "era": [1800, 1945], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Karl", "kana": "カール", "gender": "m", "era": [1800, 1950], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Heinrich", "kana": "ハインリヒ", "gender": "m", "era": [1800, 1940], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Otto", "kana": "オットー", "gender": "m", "era": [1850, 1945], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Hans", "kana": "ハンス", "gender": "m", "era": [1900, 1960], "weight": 95, "tags": ["origin:native"] },
+
+  { "val": "Klaus", "kana": "クラウス", "gender": "m", "era": [1930, 1975], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Peter", "kana": "ペーター", "gender": "m", "era": [1935, 1985], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Wolfgang", "kana": "ヴォルフガング", "gender": "m", "era": [1930, 1970], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Michael", "kana": "ミヒャエル", "gender": "m", "era": [1950, 1990], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Thomas", "kana": "トーマス", "gender": "m", "era": [1955, 1995], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Stefan", "kana": "シュテファン", "gender": "m", "era": [1960, 1995], "weight": 90, "tags": ["origin:native"] },
+
+  { "val": "Lukas", "kana": "ルーカス", "gender": "m", "era": [1990, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Leon", "kana": "レオン", "gender": "m", "era": [1995, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Paul", "kana": "パウル", "gender": "m", "era": [1995, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Noah", "kana": "ノア", "gender": "m", "era": [2005, 2026], "weight": 100, "tags": ["origin:native"] },
+  { "val": "Ben", "kana": "ベン", "gender": "m", "era": [2005, 2026], "weight": 100, "tags": ["origin:native"] },
+  { "val": "Finn", "kana": "フィン", "gender": "m", "era": [2000, 2026], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Elias", "kana": "エリアス", "gender": "m", "era": [2005, 2026], "weight": 90, "tags": ["origin:native"] },
+
+  { "val": "Gertrud", "kana": "ゲルトルート", "gender": "f", "era": [1800, 1940], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Margarethe", "kana": "マルガレーテ", "gender": "f", "era": [1800, 1945], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Hildegard", "kana": "ヒルデガルト", "gender": "f", "era": [1900, 1940], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Helga", "kana": "ヘルガ", "gender": "f", "era": [1920, 1955], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Ilse", "kana": "イルゼ", "gender": "f", "era": [1915, 1950], "weight": 90, "tags": ["origin:native"] },
+
+  { "val": "Monika", "kana": "モニカ", "gender": "f", "era": [1940, 1975], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Karin", "kana": "カーリン", "gender": "f", "era": [1940, 1970], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Petra", "kana": "ペトラ", "gender": "f", "era": [1950, 1975], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Sabine", "kana": "ザビーネ", "gender": "f", "era": [1955, 1980], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Birgit", "kana": "ビルギット", "gender": "f", "era": [1955, 1975], "weight": 90, "tags": ["origin:native"] },
+  { "val": "Claudia", "kana": "クラウディア", "gender": "f", "era": [1960, 1985], "weight": 90, "tags": ["origin:native"] },
+
+  { "val": "Mia", "kana": "ミア", "gender": "f", "era": [2000, 2026], "weight": 100, "tags": ["origin:native"] },
+  { "val": "Emma", "kana": "エマ", "gender": "f", "era": [2000, 2026], "weight": 100, "tags": ["origin:native"] },
+  { "val": "Hannah", "kana": "ハンナ", "gender": "f", "era": [1995, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Sophia", "kana": "ゾフィーア", "gender": "f", "era": [2000, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Emilia", "kana": "エミリア", "gender": "f", "era": [2005, 2026], "weight": 95, "tags": ["origin:native"] },
+  { "val": "Lina", "kana": "リーナ", "gender": "f", "era": [2000, 2026], "weight": 90, "tags": ["origin:native"] },
+
+  { "val": "Mehmet", "kana": "メフメト", "gender": "m", "era": [1965, 2026], "weight": 90, "tags": ["origin:turkish"] },
+  { "val": "Can", "kana": "ジャン", "gender": "m", "era": [1985, 2026], "weight": 90, "tags": ["origin:turkish"] },
+  { "val": "Emre", "kana": "エムレ", "gender": "m", "era": [1990, 2026], "weight": 85, "tags": ["origin:turkish"] },
+  { "val": "Elif", "kana": "エリフ", "gender": "f", "era": [1980, 2026], "weight": 90, "tags": ["origin:turkish"] },
+  { "val": "Aylin", "kana": "アイリン", "gender": "f", "era": [1985, 2026], "weight": 85, "tags": ["origin:turkish"] },
+
+  { "val": "Jan", "kana": "ヤン", "gender": "m", "era": [1970, 2026], "weight": 85, "tags": ["origin:slavic_polish", "origin:native"] },
+  { "val": "Stanislaus", "kana": "スタニスラウス", "gender": "m", "era": [1880, 1940], "weight": 70, "tags": ["origin:slavic_polish"] }
+]

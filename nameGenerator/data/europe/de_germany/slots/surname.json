@@ -1,0 +1,34 @@
+[
+  { "val": "Müller", "kana": "ミュラー", "era": [1800, 2026], "weight": 100, "tags": ["origin:native", "region:south", "region:east"] },
+  { "val": "Schmidt", "kana": "シュミット", "era": [1800, 2026], "weight": 95, "tags": ["origin:native", "region:north", "region:east"] },
+  { "val": "Schneider", "kana": "シュナイダー", "era": [1800, 2026], "weight": 90, "tags": ["origin:native", "region:south"] },
+  { "val": "Fischer", "kana": "フィッシャー", "era": [1800, 2026], "weight": 90, "tags": ["origin:native", "region:east", "region:south"] },
+  { "val": "Weber", "kana": "ヴェーバー", "era": [1800, 2026], "weight": 85, "tags": ["origin:native", "region:south"] },
+  { "val": "Meyer", "kana": "マイヤー", "era": [1800, 2026], "weight": 85, "tags": ["origin:native", "region:north"] },
+  { "val": "Wagner", "kana": "ヴァグナー", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:east", "region:south"] },
+  { "val": "Becker", "kana": "ベッカー", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:north"] },
+  { "val": "Schulz", "kana": "シュルツ", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:north", "region:east"] },
+  { "val": "Hoffmann", "kana": "ホフマン", "era": [1800, 2026], "weight": 75, "tags": ["origin:native", "region:east"] },
+
+  { "val": "Petersen", "kana": "ペーターゼン", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:north"] },
+  { "val": "Hansen", "kana": "ハンセン", "era": [1800, 2026], "weight": 75, "tags": ["origin:native", "region:north"] },
+  { "val": "Janssen", "kana": "ヤンセン", "era": [1800, 2026], "weight": 75, "tags": ["origin:native", "region:north"] },
+
+  { "val": "Huber", "kana": "フーバー", "era": [1800, 2026], "weight": 85, "tags": ["origin:native", "region:south"] },
+  { "val": "Gruber", "kana": "グルーバー", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:south"] },
+  { "val": "Bauer", "kana": "バウアー", "era": [1800, 2026], "weight": 85, "tags": ["origin:native", "region:south"] },
+  { "val": "Pichler", "kana": "ピヒラー", "era": [1800, 2026], "weight": 70, "tags": ["origin:native", "region:south"] },
+
+  { "val": "Krause", "kana": "クラウゼ", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:east"] },
+  { "val": "Lehmann", "kana": "レーマン", "era": [1800, 2026], "weight": 80, "tags": ["origin:native", "region:east"] },
+  { "val": "Zimmer", "kana": "ツィマー", "era": [1800, 2026], "weight": 75, "tags": ["origin:native", "region:east"] },
+
+  { "val": "Yılmaz", "kana": "ユルマズ", "era": [1965, 2026], "weight": 95, "tags": ["origin:turkish", "region:north", "region:east"] },
+  { "val": "Kaya", "kana": "カヤ", "era": [1965, 2026], "weight": 90, "tags": ["origin:turkish", "region:north"] },
+  { "val": "Demir", "kana": "デミル", "era": [1965, 2026], "weight": 85, "tags": ["origin:turkish", "region:south"] },
+  { "val": "Şahin", "kana": "シャヒン", "era": [1965, 2026], "weight": 85, "tags": ["origin:turkish", "region:north"] },
+  { "val": "Çelik", "kana": "チェリク", "era": [1965, 2026], "weight": 80, "tags": ["origin:turkish", "region:east"] },
+
+  { "val": "Nowak", "kana": "ノヴァク", "era": [1880, 2026], "weight": 85, "tags": ["origin:slavic_polish", "region:east", "region:north"] },
+  { "val": "Kowalski", "kana": "コヴァルスキ", "era": [1880, 2026], "weight": 80, "tags": ["origin:slavic_polish", "region:east", "region:north"] }
+]

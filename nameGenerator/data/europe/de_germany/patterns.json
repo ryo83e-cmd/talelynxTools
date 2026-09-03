@@ -1,0 +1,8 @@
+[
+  {
+    "id": "standard_german",
+    "format": "{given} {surname}",
+    "weight": 100,
+    "era_range": [1800, 2026]
+  }
+]
