@@ -48,5 +48,9 @@
   { "val": "Aylin", "kana": "アイリン", "gender": "f", "era": [1985, 2026], "weight": 85, "tags": ["origin:turkish"] },
 
   { "val": "Jan", "kana": "ヤン", "gender": "m", "era": [1970, 2026], "weight": 85, "tags": ["origin:slavic_polish", "origin:native"] },
-  { "val": "Stanislaus", "kana": "スタニスラウス", "gender": "m", "era": [1880, 1940], "weight": 70, "tags": ["origin:slavic_polish"] }
+  { "val": "Stanislaus", "kana": "スタニスラウス", "gender": "m", "era": [1880, 1940], "weight": 70, "tags": ["origin:slavic_polish"] },
+  { "val": "Danuta", "kana": "ダヌータ", "gender": "f", "era": [1920, 1980], "weight": 80, "tags": ["origin:slavic_polish"] },
+{ "val": "Stanisława", "kana": "スタニスワヴァ", "gender": "f", "era": [1880, 1950], "weight": 75, "tags": ["origin:slavic_polish"] },
+{ "val": "Kasia", "kana": "カシャ", "gender": "f", "era": [1980, 2026], "weight": 85, "tags": ["origin:slavic_polish"] },
+{ "val": "Maja", "kana": "マヤ", "gender": "f", "era": [1995, 2026], "weight": 95, "tags": ["origin:slavic_polish", "origin:native"] }
 ]
