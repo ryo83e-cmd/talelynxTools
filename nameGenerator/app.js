@@ -199,7 +199,19 @@ function generateNames(cultureData, query, count = 10) {
                 // そのルーツ固有の名前（例: origin:german）か、
                 // あるいは社会汎用・同化名（origin:anglo または origin指定なし）なら通過
                 const isTargetOrigin = itemTags.includes(filterTag);
-                const isGeneralName = itemTags.includes('origin:anglo') || !itemTags.some(t => t.startsWith('origin:'));
+                // アメリカ等の文化的ルーツ（origin）の判定（パターンA実装部）
+if (key === 'origin') {
+  const isTargetOrigin = itemTags.includes(filterTag);
+  // anglo に加え、native（欧州共通の現地標準名）も共通枠として通過させる
+  const isGeneralName = 
+    itemTags.includes('origin:anglo') || 
+    itemTags.includes('origin:native') || 
+    !itemTags.some(t => t.startsWith('origin:'));
+
+  if (!isTargetOrigin && !isGeneralName) {
+    return false;
+  }
+}
 
                 if (!isTargetOrigin && !isGeneralName) {
                   return false;
