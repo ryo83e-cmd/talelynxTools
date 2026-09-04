@@ -104,6 +104,45 @@
       ]
     },
     {
+  "id": "uk_britain",
+  "name": "イギリス",
+  "dir": "europe/uk_britain",
+  "custom_filters": [
+    {
+      "key": "style",
+      "label": "社会階層・スタイル",
+      "options": [
+        { "val": "all", "label": "指定なし（標準・時代なり）" },
+        { "val": "upper_gentry", "label": "貴族・ジェントリ層（名家・伝統）" },
+        { "val": "working_class", "label": "労働者・庶民層（大衆・工業都市）" }
+      ]
+    },
+    {
+      "key": "region",
+      "label": "地域・都市圏",
+      "options": [
+        { "val": "all", "label": "全英（標準）" },
+        { "val": "london", "label": "ロンドン（下町〜多文化）" },
+        { "val": "north_england", "label": "イングランド北部（マンチェスター・リーズ等）" },
+        { "val": "liverpool", "label": "リヴァプール（アイルランド移民濃密圏）" },
+        { "val": "scotland_glasgow", "label": "スコットランド（グラスゴー・工業港湾）" },
+        { "val": "scotland_edinburgh", "label": "スコットランド（エディンバラ・学術金融）" },
+        { "val": "wales", "label": "ウェールズ" }
+      ]
+    },
+    {
+      "key": "origin",
+      "label": "言語・文化的ルーツ",
+      "options": [
+        { "val": "all", "label": "指定なし（全般）" },
+        { "val": "native", "label": "英国伝統系（アングロ・ケルト系）" },
+        { "val": "south_asian", "label": "南アジア系（インド・パキスタン等）" },
+        { "val": "black_british", "label": "アフリカ・カリブ系" }
+      ]
+    }
+  ]
+},
+    {
       "id": "fr_france",
       "name": "フランス",
       "dir": "europe/fr_france",
