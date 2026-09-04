@@ -3,7 +3,6 @@
 // ========================================================
 const AI_CONFIG = {
   gemini: {
-    //model: 'gemini-2.5-flash',
     model: 'gemini-3.6-flash',
     endpoint: (key, model) => `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`
   },
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const aiOpenaiBtn = document.getElementById('aiOpenaiBtn');
   const saveTxtBtn = document.getElementById('saveTxtBtn');
   const saveMdBtn = document.getElementById('saveMdBtn');
-  
+
   const helpModal = document.getElementById('helpModal');
   const openHelpBtn = document.getElementById('openHelpBtn');
   const closeHelpBtn = document.getElementById('closeHelpBtn');
@@ -57,7 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const executeSearchBtn = document.getElementById('executeSearchBtn');
 
   let currentMode = 'image';
-  let undoStack = [];
+  // 履歴スタックをオブジェクト構造で初期化 { text: string, cursor: number }
+  let undoStack = [{ text: '', cursor: 0 }];
   let redoStack = [];
   const MAX_HISTORY = 100;
   let saveDebounceTimer = null;
@@ -77,37 +77,28 @@ document.addEventListener('DOMContentLoaded', () => {
   // ========================================================
   // ハイライト ＆ 折り返し行番号の安全同期処理
   // ========================================================
-  // 行高さ測定用の不可視ダミー要素
   const lineMeasurer = document.createElement('div');
   lineMeasurer.style.cssText = 'position: absolute; visibility: hidden; height: auto; width: 100%; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; font-family: Consolas, Monaco, "Courier New", monospace; font-size: 13px; line-height: 20px; box-sizing: border-box; pointer-events: none; top: -9999px;';
   document.body.appendChild(lineMeasurer);
-  
-  // コピペ時に混入するゼロ幅スペースやHTML実体参照（&ZeroWidthSpace;等）を完全に除去するクリーナー
+
   function sanitizeZeroWidth(str) {
     if (!str) return '';
     return str
-      // 生の不可視文字（ゼロ幅スペース、BOM等）を除去
       .replace(/[\u200B-\u200D\uFEFF]/g, '')
-      // 文字列として混入したゼロ幅スペース実体参照を除去
       .replace(/&(?:ZeroWidthSpace|#8203|#x200B);?/gi, '');
   }
-  
+
   function updateHighlightAndLineNumbers() {
     if (!editor || !highlightCode || !lineNumbers) return;
 
     const text = editor.value;
-    
-    // コピペ時に混入するゼロ幅スペース (\u200B) や不可視制御文字を除去
     const cleanText = sanitizeZeroWidth(text);
 
-    // 1. ハイライト層の更新（Prismを破壊しない純粋なテキスト渡し）
     highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
     if (window.Prism) {
       Prism.highlightElement(highlightCode);
     }
 
-    // 2. 行番号の高さ計算（折り返し追従）
-    // テキストエリアの実効幅を取得してダミー測定器にセット
     const computedStyle = window.getComputedStyle(editor);
     const contentWidth = editor.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
     lineMeasurer.style.width = contentWidth + 'px';
@@ -124,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     lineNumbers.innerHTML = lineNumHtml;
 
-    // 文字数・論理行数の更新
     if (charCount) {
       charCount.textContent = `文字数: ${text.length} | 行数: ${lines.length}`;
     }
@@ -145,9 +135,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modeRoleplayBtn) modeRoleplayBtn.classList.toggle('active', mode === 'roleplay');
 
     const loadedContent = localStorage.getItem(STORAGE_KEYS[mode]) || '';
-    if (editor) editor.value = loadedContent;
+    if (editor) {
+      editor.value = loadedContent;
+      editor.setSelectionRange(0, 0);
+    }
 
-    undoStack = [loadedContent];
+    undoStack = [{ text: loadedContent, cursor: 0 }];
     redoStack = [];
     updateUndoRedoUI();
 
@@ -183,66 +176,88 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 履歴スタック
-  function pushHistory(newText) {
-    if (undoStack.length > 0 && undoStack[undoStack.length - 1] === newText) return;
-    undoStack.push(newText);
+  // ==========================================
+  // 履歴管理 (Undo / Redo) - カーソル位置追従版
+  // ==========================================
+  function pushHistory(newText, cursor = null) {
+    const targetCursor = cursor !== null ? cursor : (editor ? editor.selectionStart : 0);
+    const last = undoStack[undoStack.length - 1];
+
+    if (last && last.text === newText) {
+      last.cursor = targetCursor;
+      return;
+    }
+
+    undoStack.push({ text: newText, cursor: targetCursor });
     if (undoStack.length > MAX_HISTORY) undoStack.shift();
     redoStack = [];
     updateUndoRedoUI();
   }
 
   function undo() {
-    if (undoStack.length > 1) {
-      const current = undoStack.pop();
-      redoStack.push(current);
-      const prev = undoStack[undoStack.length - 1];
-      editor.value = prev;
-      persistContent();
-      updateHighlightAndLineNumbers();
-      updateUndoRedoUI();
-    }
+    if (undoStack.length <= 1 || !editor) return;
+
+    const current = {
+      text: editor.value,
+      cursor: editor.selectionStart
+    };
+    redoStack.push(current);
+
+    undoStack.pop();
+    const prev = undoStack[undoStack.length - 1];
+
+    editor.value = prev.text;
+    editor.setSelectionRange(prev.cursor, prev.cursor);
+    editor.focus();
+
+    persistContent();
+    updateHighlightAndLineNumbers();
+    updateUndoRedoUI();
+    updateSelection();
   }
 
   function redo() {
-    if (redoStack.length > 0) {
-      const next = redoStack.pop();
-      undoStack.push(next);
-      editor.value = next;
-      persistContent();
-      updateHighlightAndLineNumbers();
-      updateUndoRedoUI();
-    }
+    if (redoStack.length === 0 || !editor) return;
+
+    const next = redoStack.pop();
+    undoStack.push({
+      text: editor.value,
+      cursor: editor.selectionStart
+    });
+
+    editor.value = next.text;
+    editor.setSelectionRange(next.cursor, next.cursor);
+    editor.focus();
+
+    persistContent();
+    updateHighlightAndLineNumbers();
+    updateUndoRedoUI();
+    updateSelection();
   }
 
   function updateUndoRedoUI() {
     if (undoBtn) undoBtn.disabled = undoStack.length <= 1;
     if (redoBtn) redoBtn.disabled = redoStack.length === 0;
   }
-  
-  // 目に見えない特殊文字・ゼロ幅文字・BOMを完全に根絶する正規表現
+
   const INVISIBLE_CHARS_REGEX = /[\u200B-\u200D\uFEFF\u00AD\u2060\u180E]|^[\uFEFF\u200B]+/g;
 
   function cleanString(str) {
     if (!str) return '';
     return str
-      // 生のゼロ幅スペース、BOM、不可視文字を除去
       .replace(INVISIBLE_CHARS_REGEX, '')
-      // 文字列として紛れ込んだ実体参照表記も除去
       .replace(/&(?:ZeroWidthSpace|#8203|#x200b);?/gi, '');
   }
 
   function handleInput() {
-    // エディタ本体から不可視文字を除去
     const cleaned = cleanString(editor.value);
     if (editor.value !== cleaned) {
       const start = editor.selectionStart;
       const end = editor.selectionEnd;
       editor.value = cleaned;
-      // カーソル位置を復元
       editor.setSelectionRange(start, end);
     }
-    pushHistory(editor.value);
+    pushHistory(editor.value, editor.selectionStart);
     clearTimeout(saveDebounceTimer);
     saveDebounceTimer = setTimeout(() => {
       persistContent();
@@ -254,19 +269,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editor) localStorage.setItem(STORAGE_KEYS[currentMode], editor.value);
   }
 
-  // スクロール同期
   function syncScroll() {
     if (!editor) return;
-    if (lineNumbers) {
-      lineNumbers.scrollTop = editor.scrollTop;
-    }
+    if (lineNumbers) lineNumbers.scrollTop = editor.scrollTop;
     if (highlightLayer) {
       highlightLayer.scrollTop = editor.scrollTop;
       highlightLayer.scrollLeft = editor.scrollLeft;
     }
   }
 
-  // 選択文字数バッジ表示
   function updateSelection() {
     if (!editor || !tooltip) return;
     const start = editor.selectionStart;
@@ -286,12 +297,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const text = editor.value;
-    
+
     editor.value = text.substring(0, start) + str + text.substring(end);
-    editor.selectionStart = editor.selectionEnd = start + str.length;
+    const nextCursor = start + str.length;
+    editor.selectionStart = editor.selectionEnd = nextCursor;
     editor.focus();
 
-    pushHistory(editor.value);
+    pushHistory(editor.value, nextCursor);
     persistContent();
     updateHighlightAndLineNumbers();
   }
@@ -303,13 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const text = editor.value;
     const selected = text.substring(start, end);
     const replacement = before + selected + after;
-    
+
     editor.value = text.substring(0, start) + replacement + text.substring(end);
     editor.selectionStart = start + before.length;
     editor.selectionEnd = end + before.length;
     editor.focus();
 
-    pushHistory(editor.value);
+    pushHistory(editor.value, editor.selectionEnd);
     persistContent();
     updateHighlightAndLineNumbers();
   }
@@ -318,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!editor) return;
     if (confirm('エディタの内容をクリアしますか？')) {
       editor.value = '';
-      pushHistory('');
+      pushHistory('', 0);
       persistContent();
       updateHighlightAndLineNumbers();
     }
@@ -347,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     const now = new Date();
-    const dateStr = now.toISOString().slice(0,10).replace(/-/g,'');
+    const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
     const filename = `prompt_${currentMode}_${dateStr}.${extension}`;
     const mimeType = extension === 'md' ? 'text/markdown;charset=utf-8' : 'text/plain;charset=utf-8';
 
@@ -398,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     closeApiModal();
   }
 
-  // --- 簡易検索モーダル ---
+  // --- 検索モーダル制御 ---
   function openSearchModal() {
     if (searchModal && searchInput) {
       searchModal.style.display = 'flex';
@@ -411,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchModal) searchModal.style.display = 'none';
     if (editor) editor.focus();
   }
+
   function openHelpModal() {
     if (helpModal) helpModal.style.display = 'flex';
   }
@@ -427,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const text = editor.value;
     const currentPos = editor.selectionEnd;
-    
+
     let index = text.indexOf(query, currentPos);
     if (index === -1) index = text.indexOf(query, 0);
 
@@ -458,8 +471,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const rawOriginalText = editor.value;
+    const originalCursor = editor.selectionStart;
     const promptTextForApi = rawOriginalText.trim();
-    
+
     if (!promptTextForApi) {
       alert('ブラッシュアップするプロンプトを入力してください。');
       return;
@@ -527,9 +541,9 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('AIからの応答が空でした。');
       }
 
-      pushHistory(rawOriginalText);
+      pushHistory(rawOriginalText, originalCursor);
       editor.value = refinedText;
-      pushHistory(refinedText);
+      pushHistory(refinedText, refinedText.length);
       persistContent();
       updateHighlightAndLineNumbers();
 
@@ -582,7 +596,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ウィンドウ幅伸縮時の折り返し再計算
   window.addEventListener('resize', updateHighlightAndLineNumbers);
 
   if (modeImageBtn) modeImageBtn.addEventListener('click', () => setMode('image'));
@@ -590,12 +603,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (boldBtn) boldBtn.addEventListener('click', () => wrapText('**', '**'));
   if (weightBtn) weightBtn.addEventListener('click', () => wrapText('(', ':1.2)'));
 
-  // --- ここから追加 ---
   const userTagBtn = document.getElementById('userTagBtn');
   if (userTagBtn) {
     userTagBtn.title = "クリック: {{user}} / Shift+クリック・右クリック: {user}";
-    
-    // 通常クリック & Shift+クリック
+
     userTagBtn.addEventListener('click', (e) => {
       if (!editor) return;
       const isSingle = e.shiftKey;
@@ -610,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // 右クリックで単一波括弧 {user}
     userTagBtn.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       if (!editor) return;
@@ -621,28 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-  // --- ここまで追加 ---
-  
+
   if (openHelpBtn) openHelpBtn.addEventListener('click', openHelpModal);
   if (closeHelpBtn) closeHelpBtn.addEventListener('click', closeHelpModal);
   if (closeHelpBottomBtn) closeHelpBottomBtn.addEventListener('click', closeHelpModal);
-
-  // 背景クリックで閉じる処理
-  window.addEventListener('click', (e) => {
-    if (e.target === apiModal) closeApiModal();
-    if (e.target === searchModal) closeSearchModal();
-    if (e.target === helpModal) closeHelpModal(); // 追加
-  });
-
-  // Escキーで閉じる処理
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeSearchModal();
-      closeApiModal();
-      closeHelpModal(); // 追加
-    }
-  });
-
 
   if (undoBtn) undoBtn.addEventListener('click', undo);
   if (redoBtn) redoBtn.addEventListener('click', redo);
@@ -672,22 +664,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // モーダル背景クリック & Escキー制御（一本化）
   window.addEventListener('click', (e) => {
     if (e.target === apiModal) closeApiModal();
     if (e.target === searchModal) closeSearchModal();
+    if (e.target === helpModal) closeHelpModal();
   });
 
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeSearchModal();
       closeApiModal();
+      closeHelpModal();
     }
   });
 
-// サジェストエンジンの初期化
+  // サジェストエンジンの初期化
   const suggest = new SuggestEngine(editor, () => currentMode);
 
-  // テスト用ボタンでサジェスト起動
   const testSuggestBtn = document.getElementById('testSuggestBtn');
   if (testSuggestBtn) {
     testSuggestBtn.addEventListener('click', () => {
@@ -696,8 +690,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 保存されていたモードまたはデフォルト（image）で初期ロードを実行
+  // 初期ロード実行
   const initialMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
   setMode(initialMode, false, true);
 
-}); // ← 【重要】DOMContentLoadedのブロックをここで確実に閉じる
+});
