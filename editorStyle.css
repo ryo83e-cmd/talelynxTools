@@ -486,21 +486,44 @@ kbd {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
+
 /* ========================================================
-   スマホ・モバイル表示時の文字透明化解除・安全対策
+   スマホ・モバイル表示時の文字透明化解除 ＆ 行番号完全同期
    ======================================================== */
 @media (max-width: 768px) {
+  /* スマホ用の共通変数を上書き定義（16px / 24px） */
+  :root {
+    --editor-font-size: 16px;
+    --editor-line-height: 24px;
+    --editor-padding-top: 10px;
+    --editor-padding-bottom: 10px;
+  }
+
+  /* 行番号のフォント・行の高さを 16px / 24px に同期 */
+  .line-numbers {
+    font-size: 16px !important;
+    line-height: 24px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .line-num-item {
+    line-height: 24px !important;
+  }
+
+  /* テキストエリア本体の透明化解除 ＆ 同期 */
   textarea {
-    /* 透明化を解除して直接テキストを表示 */
     color: var(--editor-text) !important;
     -webkit-text-fill-color: var(--editor-text) !important;
     background: var(--editor-bg) !important;
-    font-size: 16px !important; /* iOS自動ズーム防止 */
+    font-size: 16px !important;
     line-height: 24px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
     caret-color: #38bdf8 !important;
   }
 
-  /* 画面幅のズレによる干渉を防ぐため背面のハイライト層を非表示 */
+  /* 背面ハイライト層は非表示 */
   .highlight-layer {
     display: none !important;
   }
