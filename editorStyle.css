@@ -31,8 +31,9 @@ body {
   line-height: 1.5;
   padding: 20px 12px;
   max-width: 1000px;
-  margin: 0 auto;-webkit-text-size-adjust: 100%; /* ← 追加 */
-  text-size-adjust: 100%;         /* ← 追加 */
+  margin: 0 auto;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .nav-back {
@@ -190,7 +191,7 @@ body {
   overflow: hidden;
 }
 
-/* 奥のハイライト層（PrismJS の外部CSSを完全に上書き制御） */
+/* 奥のハイライト層 */
 .highlight-layer {
   position: absolute;
   top: 0;
@@ -231,7 +232,7 @@ body {
   background: transparent !important;
   box-shadow: none !important;
   text-shadow: none !important;
-  max-height: 999999px; /* ← 追加 */
+  max-height: 999999px;
 }
 
 /* 手前の入力層（透明 textarea） */
@@ -262,8 +263,8 @@ textarea {
   tab-size: 2;
   z-index: 1;
   box-sizing: border-box;
-  -webkit-text-fill-color: transparent !important; /* ← 追加 */
-  max-height: 999999px; /* ← 追加 */
+  -webkit-text-fill-color: transparent !important;
+  max-height: 999999px;
 }
 
 textarea::selection {
@@ -355,7 +356,6 @@ textarea::selection {
 
 /* ========================================================
    Prism.js プロンプト＆Markdown 専用カラーカスタマイズ
-   （※カーソルズレ防止のため bold/italic は使用せず色で強調）
    ======================================================== */
 .token.title,
 .token.title .token.punctuation {
@@ -408,24 +408,21 @@ textarea::selection {
   font-weight: normal !important;
 }
 
-
 /* ========================================================
-   サジェスト・補完ドロップダウン UI（テスト用中央表示）
+   サジェスト・補完ドロップダウン UI
    ======================================================== */
 .suggest-dropdown {
   position: absolute;
   z-index: 1000;
   width: 320px;
   max-height: 240px;
-  /* エディタ枠のど真ん中に配置 */
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
   bottom: auto !important;
   right: auto !important;
-  
   background: #0f172a;
-  border: 2px solid #38bdf8; /* 水色の枠線で目立たせる */
+  border: 2px solid #38bdf8;
   border-radius: 8px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
   overflow-y: auto;
@@ -487,4 +484,24 @@ kbd {
   border: 1px solid #475569;
   border-radius: 4px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+/* ========================================================
+   スマホ・モバイル表示時の文字透明化解除・安全対策
+   ======================================================== */
+@media (max-width: 768px) {
+  textarea {
+    /* 透明化を解除して直接テキストを表示 */
+    color: var(--editor-text) !important;
+    -webkit-text-fill-color: var(--editor-text) !important;
+    background: var(--editor-bg) !important;
+    font-size: 16px !important; /* iOS自動ズーム防止 */
+    line-height: 24px !important;
+    caret-color: #38bdf8 !important;
+  }
+
+  /* 画面幅のズレによる干渉を防ぐため背面のハイライト層を非表示 */
+  .highlight-layer {
+    display: none !important;
+  }
 }
