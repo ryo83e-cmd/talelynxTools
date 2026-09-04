@@ -163,7 +163,7 @@ function generateNames(cultureData, query, count = 10) {
               // 名字に関係のない格式（style等）はスキップ
               if (key === 'style') continue;
 
-              // 地域偏在（都道府県・米国内地域）の判定
+              // 地域偏在（都道府県・国内外の地方偏在）の判定
               if (key === 'region') {
                 const itemRegions = itemTags
                   .filter(t => t.startsWith('region:'))
@@ -194,24 +194,14 @@ function generateNames(cultureData, query, count = 10) {
                 continue;
               }
 
-              // アメリカ等の文化的ルーツ（origin）の判定（パターンA実装部）
+              // 文化的ルーツ（origin）の判定（パターンA実装部）
               if (key === 'origin') {
-                // そのルーツ固有の名前（例: origin:german）か、
-                // あるいは社会汎用・同化名（origin:anglo または origin指定なし）なら通過
                 const isTargetOrigin = itemTags.includes(filterTag);
-                // アメリカ等の文化的ルーツ（origin）の判定（パターンA実装部）
-if (key === 'origin') {
-  const isTargetOrigin = itemTags.includes(filterTag);
-  // anglo に加え、native（欧州共通の現地標準名）も共通枠として通過させる
-  const isGeneralName = 
-    itemTags.includes('origin:anglo') || 
-    itemTags.includes('origin:native') || 
-    !itemTags.some(t => t.startsWith('origin:'));
-
-  if (!isTargetOrigin && !isGeneralName) {
-    return false;
-  }
-}
+                // 選択されたルーツ固有の名か、あるいは社会共通の標準名（anglo, native、または無指定）なら通過
+                const isGeneralName = 
+                  itemTags.includes('origin:anglo') || 
+                  itemTags.includes('origin:native') || 
+                  !itemTags.some(t => t.startsWith('origin:'));
 
                 if (!isTargetOrigin && !isGeneralName) {
                   return false;
