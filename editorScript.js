@@ -56,13 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const executeSearchBtn = document.getElementById('executeSearchBtn');
 
   let currentMode = 'image';
-  // 履歴スタック（カーソル位置追従対応）
   let undoStack = [{ text: '', cursor: 0 }];
   let redoStack = [];
   const MAX_HISTORY = 100;
   let saveDebounceTimer = null;
   let historyDebounceTimer = null;
-  let isComposing = false; // 日本語IME変換中フラグ
+  let isComposing = false;
 
   const STORAGE_KEYS = {
     image: 'editor_content_image',
@@ -72,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
     openaiKey: 'openai_api_key'
   };
 
-  // モーダル内のモデル名ラベルを定数から自動反映
   if (geminiModelLabel) geminiModelLabel.textContent = `モデル: ${AI_CONFIG.gemini.model}`;
   if (openaiModelLabel) openaiModelLabel.textContent = `モデル: ${AI_CONFIG.openai.model}`;
 
@@ -80,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ハイライト ＆ 折り返し行番号の安全同期処理
   // ========================================================
   const lineMeasurer = document.createElement('div');
-  lineMeasurer.style.cssText = 'position: absolute; visibility: hidden; height: auto; width: 100%; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; font-family: Consolas, Monaco, "Courier New", monospace; font-size: 13px; line-height: 20px; box-sizing: border-box; pointer-events: none; top: -9999px;';
+  lineMeasurer.style.cssText = 'position: absolute; visibility: hidden; height: auto; white-space: pre-wrap; word-break: break-all; overflow-wrap: break-word; box-sizing: border-box; pointer-events: none; top: -9999px;';
   document.body.appendChild(lineMeasurer);
 
   function sanitizeZeroWidth(str) {
@@ -91,28 +89,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateHighlightAndLineNumbers() {
-    if (!editor || !highlightCode || !lineNumbers) return;
+    if (!editor || !lineNumbers) return;
 
     const text = editor.value;
-    const cleanText = sanitizeZeroWidth(text);
 
-    highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
-    if (window.Prism) {
-      Prism.highlightElement(highlightCode);
+    // ハイライト層の更新（PC用）
+    if (highlightCode) {
+      highlightCode.textContent = text.endsWith('\n') ? text + ' ' : text;
+      if (window.Prism) {
+        Prism.highlightElement(highlightCode);
+      }
     }
 
+    // エディタの現在のスタイル（フォントサイズ・行高・パディング）を動的に測定器へ複製
     const computedStyle = window.getComputedStyle(editor);
     const contentWidth = editor.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
-    lineMeasurer.style.width = contentWidth + 'px';
 
+    lineMeasurer.style.width = contentWidth + 'px';
+    lineMeasurer.style.fontFamily = computedStyle.fontFamily;
+    lineMeasurer.style.fontSize = computedStyle.fontSize;
+    lineMeasurer.style.lineHeight = computedStyle.lineHeight;
+    lineMeasurer.style.letterSpacing = computedStyle.letterSpacing;
+
+    const baseLineHeight = parseFloat(computedStyle.lineHeight) || 20;
     const lines = text.split('\n');
     let lineNumHtml = '';
 
     for (let i = 0; i < lines.length; i++) {
       const lineText = lines[i];
       lineMeasurer.textContent = lineText === '' ? ' ' : lineText;
-      const h = lineMeasurer.offsetHeight || 20;
-      lineNumHtml += `<div class="line-num-item" style="height: ${h}px; line-height: 20px;">${i + 1}</div>`;
+      // 測定された折り返し全体の高さを取得（最低でも1行分の高さ）
+      const h = Math.max(lineMeasurer.offsetHeight, baseLineHeight);
+      lineNumHtml += `<div class="line-num-item" style="height: ${h}px; line-height: ${baseLineHeight}px;">${i + 1}</div>`;
     }
 
     lineNumbers.innerHTML = lineNumHtml;
@@ -178,9 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ==========================================
-  // 履歴管理 (Undo / Redo) - ズレ防止・IME対応版
-  // ==========================================
+  // 履歴管理 (Undo / Redo)
   function pushHistory(newText, cursor = null) {
     const targetCursor = cursor !== null ? cursor : (editor ? editor.selectionStart : 0);
     const last = undoStack[undoStack.length - 1];
@@ -242,29 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (redoBtn) redoBtn.disabled = redoStack.length === 0;
   }
 
-  const INVISIBLE_CHARS_REGEX = /[\u200B-\u200D\uFEFF\u00AD\u2060\u180E]|^[\uFEFF\u200B]+/g;
-
-  function cleanString(str) {
-    if (!str) return '';
-    return str
-      .replace(INVISIBLE_CHARS_REGEX, '')
-      .replace(/&(?:ZeroWidthSpace|#8203|#x200b);?/gi, '');
-  }
-
   function handleInput() {
-    if (isComposing) return; // IME確定前の途中打鍵は保存しない
-
-    const cleaned = cleanString(editor.value);
-    if (editor.value !== cleaned) {
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      editor.value = cleaned;
-      editor.setSelectionRange(start, end);
-    }
+    if (isComposing) return;
 
     const currentCursor = editor.selectionStart;
 
-    // 入力停止後300msで履歴とローカルストレージを確定
     clearTimeout(historyDebounceTimer);
     historyDebounceTimer = setTimeout(() => {
       pushHistory(editor.value, currentCursor);
@@ -387,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
     URL.revokeObjectURL(url);
   }
 
-  // --- API設定モーダル制御 ---
   function openApiModal() {
     if (!apiModal) return;
     if (geminiApiKeyInput) {
@@ -423,7 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeApiModal();
   }
 
-  // --- 検索モーダル制御 ---
   function openSearchModal() {
     if (searchModal && searchInput) {
       searchModal.style.display = 'flex';
@@ -467,7 +453,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- AI実行処理 ---
   async function runAiEnhance(provider) {
     const isGemini = provider === 'gemini';
     const apiKey = isGemini 
@@ -577,7 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // イベントリスナー登録
   if (editor) {
-    // IME（日本語入力）の開始・確定ハンドリング
     editor.addEventListener('compositionstart', () => {
       isComposing = true;
     });
@@ -687,7 +671,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // モーダル背景クリック & Escキー制御
   window.addEventListener('click', (e) => {
     if (e.target === apiModal) closeApiModal();
     if (e.target === searchModal) closeSearchModal();
@@ -702,19 +685,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // サジェストエンジンの初期化
-  const suggest = new SuggestEngine(editor, () => currentMode);
-
-  const testSuggestBtn = document.getElementById('testSuggestBtn');
-  if (testSuggestBtn) {
-    testSuggestBtn.addEventListener('click', () => {
-      editor.focus();
-      suggest.triggerSuggest();
-    });
+  if (typeof SuggestEngine !== 'undefined') {
+    const suggest = new SuggestEngine(editor, () => currentMode);
+    const testSuggestBtn = document.getElementById('testSuggestBtn');
+    if (testSuggestBtn) {
+      testSuggestBtn.addEventListener('click', () => {
+        editor.focus();
+        suggest.triggerSuggest();
+      });
+    }
   }
 
-  // 保存されていたモードまたはデフォルト（image）で初期ロードを実行
   const initialMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
   setMode(initialMode, false, true);
-
 });
