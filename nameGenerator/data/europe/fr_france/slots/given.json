@@ -49,9 +49,5 @@
   { "val": "Yanis", "kana": "ヤニス", "gender": "m", "era": [1995, 2026], "weight": 85, "tags": ["origin:maghreb"] },
   { "val": "Inès", "kana": "イネス", "gender": "f", "era": [1990, 2026], "weight": 95, "tags": ["origin:maghreb", "origin:native"] },
   { "val": "Yasmine", "kana": "ヤスミン", "gender": "f", "era": [1985, 2026], "weight": 85, "tags": ["origin:maghreb"] },
-  { "val": "Nour", "kana": "ヌール", "gender": "f", "era": [2000, 2026], "weight": 85, "tags": ["origin:maghreb"] },
-  { "val": "Danuta", "kana": "ダヌータ", "gender": "f", "era": [1920, 1980], "weight": 80, "tags": ["origin:slavic_polish"] },
-{ "val": "Stanisława", "kana": "スタニスワヴァ", "gender": "f", "era": [1880, 1950], "weight": 75, "tags": ["origin:slavic_polish"] },
-{ "val": "Kasia", "kana": "カシャ", "gender": "f", "era": [1980, 2026], "weight": 85, "tags": ["origin:slavic_polish"] },
-{ "val": "Maja", "kana": "マヤ", "gender": "f", "era": [1995, 2026], "weight": 95, "tags": ["origin:slavic_polish", "origin:native"] }
+  { "val": "Nour", "kana": "ヌール", "gender": "f", "era": [2000, 2026], "weight": 85, "tags": ["origin:maghreb"] }
 ]
