@@ -56,11 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const executeSearchBtn = document.getElementById('executeSearchBtn');
 
   let currentMode = 'image';
-  // 履歴スタックをオブジェクト構造で初期化 { text: string, cursor: number }
+  // 履歴スタック（カーソル位置追従対応）
   let undoStack = [{ text: '', cursor: 0 }];
   let redoStack = [];
   const MAX_HISTORY = 100;
   let saveDebounceTimer = null;
+  let historyDebounceTimer = null;
+  let isComposing = false; // 日本語IME変換中フラグ
 
   const STORAGE_KEYS = {
     image: 'editor_content_image',
@@ -177,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ==========================================
-  // 履歴管理 (Undo / Redo) - カーソル位置追従版
+  // 履歴管理 (Undo / Redo) - ズレ防止・IME対応版
   // ==========================================
   function pushHistory(newText, cursor = null) {
     const targetCursor = cursor !== null ? cursor : (editor ? editor.selectionStart : 0);
@@ -250,6 +252,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleInput() {
+    if (isComposing) return; // IME確定前の途中打鍵は保存しない
+
     const cleaned = cleanString(editor.value);
     if (editor.value !== cleaned) {
       const start = editor.selectionStart;
@@ -257,11 +261,20 @@ document.addEventListener('DOMContentLoaded', () => {
       editor.value = cleaned;
       editor.setSelectionRange(start, end);
     }
-    pushHistory(editor.value, editor.selectionStart);
+
+    const currentCursor = editor.selectionStart;
+
+    // 入力停止後300msで履歴とローカルストレージを確定
+    clearTimeout(historyDebounceTimer);
+    historyDebounceTimer = setTimeout(() => {
+      pushHistory(editor.value, currentCursor);
+    }, 300);
+
     clearTimeout(saveDebounceTimer);
     saveDebounceTimer = setTimeout(() => {
       persistContent();
     }, 300);
+
     updateHighlightAndLineNumbers();
   }
 
@@ -564,6 +577,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // イベントリスナー登録
   if (editor) {
+    // IME（日本語入力）の開始・確定ハンドリング
+    editor.addEventListener('compositionstart', () => {
+      isComposing = true;
+    });
+
+    editor.addEventListener('compositionend', () => {
+      isComposing = false;
+      pushHistory(editor.value, editor.selectionStart);
+    });
+
     editor.addEventListener('input', handleInput);
     editor.addEventListener('scroll', syncScroll);
     editor.addEventListener('select', updateSelection);
@@ -664,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // モーダル背景クリック & Escキー制御（一本化）
+  // モーダル背景クリック & Escキー制御
   window.addEventListener('click', (e) => {
     if (e.target === apiModal) closeApiModal();
     if (e.target === searchModal) closeSearchModal();
@@ -690,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 初期ロード実行
+  // 保存されていたモードまたはデフォルト（image）で初期ロードを実行
   const initialMode = localStorage.getItem(STORAGE_KEYS.mode) || 'image';
   setMode(initialMode, false, true);
 
